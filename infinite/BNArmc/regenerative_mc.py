@@ -1708,69 +1708,133 @@ def _node_metric_line(
     return " ".join(fields)
 
 
+def _fmt(value: Any, digits: int = 6) -> str:
+    """Human column value, at a FIXED fraction length.
+
+    Fixed rather than %g on purpose. The GUI re-formats every number on screen
+    to Settings > Output Format > Decimal places, and it never pads, because
+    padding prose was a real defect. So a column whose source values differ in
+    width (%g gives 0.00485 and 0.0236) comes out ragged after the rewrite,
+    while a column of uniform width maps to a column of uniform width. The
+    fraction length here is only the pre-image; what the reader sees is their
+    own setting.
+    """
+    if value is None or isinstance(value, bool) or not _is_number(value):
+        return "-"
+    number = float(value)
+    if not math.isfinite(number):
+        return "-"
+    return f"{number:.{digits}f}"
+
+
 def _human(result: dict[str, Any]) -> str:
+    """Reader-facing report, in the same shape the other Qnet solvers print.
+
+    The QNET_NODE_METRIC_V1 records this used to lead with are a parser
+    contract, not a report: ten `key=value` pairs at 17 significant digits, one
+    line per node per metric. They are still emitted at the end, because
+    ResultOutputParser and the CSV export read them out of the tee'd archive —
+    but they are no longer what a person is shown, and the GUI's display filter
+    drops them now that the table above carries the same numbers.
+
+    House style, matching truncated_ctmc.py and the awk-formatted native
+    solvers: a title, the model layer, the evidence class, a short run summary,
+    then one aligned row per node.
+    """
     if result["status"] != "ok":
         error = result["error"]
         return f"Simulation error [{error['code']}]: {error['message']}"
+
     regeneration = result["regeneration"]
     precision = result["precision"]
+    model = result["model"]
+    estimates = result["estimates"]
+    node_ids = list(model["node_ids"])
+    class_ids = list(model["class_ids"])
+
     lines = [
-        f"Regenerative simulation: {result['model']['name']}",
+        "Regenerative Monte Carlo",
+        "Model layer: queueing process (simulation)",
+        "Evidence: regenerative ratio confidence intervals; asymptotic, not "
+        "finite-sample, and they describe sampling error only",
+        f"Model: {model['name']}",
+        "",
         f"Complete empty-to-empty cycles: {regeneration['complete_cycles']}",
         f"Stopping reason: {precision['stopping_reason']}",
         f"Precision target met: {'yes' if precision['target_met'] else 'no'}",
+        "",
     ]
-    for key in (
-        "mean_number_in_system",
-        "external_blocking_probability",
-        "departure_rate",
-    ):
-        estimate = result["estimates"].get(key)
-        if not estimate or not estimate.get("available"):
-            continue
-        precision_metric = precision.get("metrics", {}).get(key, {})
-        sequential_interval = precision_metric.get("sequential_confidence_interval")
-        interval = estimate.get("confidence_interval")
-        if sequential_interval:
-            lines.append(
-                f"{key}: {estimate['estimate']:.8g} "
-                f"(sequential interval [{sequential_interval['low']:.8g}, "
-                f"{sequential_interval['high']:.8g}]; "
-                f"effective cycles {estimate['effective_cycles']:.1f})"
-            )
-            continue
-        if interval:
-            lines.append(
-                f"{key}: {estimate['estimate']:.8g} "
-                f"({100.0 * interval['confidence']:.3g}% CI "
-                f"[{interval['low']:.8g}, {interval['high']:.8g}]; "
-                f"effective cycles {estimate['effective_cycles']:.1f})"
-            )
-        else:
-            lines.append(f"{key}: {estimate['estimate']:.8g}")
-    lines.append("Per-node metrics (QNET_NODE_METRIC_V1):")
-    aggregate_metrics = (
-        ("mean_number_at_node", "mean_number"),
-        ("mean_queue_at_node", "mean_queue"),
-        ("utilization", "utilization"),
-        ("service_completion_rate", "service_completion_rate"),
+
+    # ── Per-node table ────────────────────────────────────────────────
+    # One row per node, the columns the other solvers print: mean number,
+    # mean queue, utilisation and throughput.
+    header = f"{'Node':<14}{'E[N]':>13}{'E[Q]':>13}{'utilisation':>13}{'throughput':>13}"
+    lines.append(header)
+    lines.append("-" * len(header))
+    for node_id in node_ids:
+        def at(prefix: str) -> Any:
+            summary = estimates.get(f"{prefix}:{node_id}")
+            return summary.get("estimate") if summary and summary.get("available") else None
+        lines.append(
+            f"{node_id:<14}"
+            f"{_fmt(at('mean_number_at_node')):>13}"
+            f"{_fmt(at('mean_queue_at_node')):>13}"
+            f"{_fmt(at('utilization')):>13}"
+            f"{_fmt(at('service_completion_rate')):>13}"
+        )
+    lines.append("")
+
+    # ── Confidence intervals, one row per reported quantity ───────────
+    # Kept separate from the table: a half-width belongs beside its estimate,
+    # not squeezed into a column, and only a simulation has them at all.
+    ci_header = (
+        f"{'Quantity':<34}{'estimate':>13}{'std error':>12}"
+        f"{'95% interval':>26}{'eff. cycles':>13}"
     )
-    for node_id in result["model"]["node_ids"]:
-        for estimate_prefix, metric_token in aggregate_metrics:
-            summary = result["estimates"].get(f"{estimate_prefix}:{node_id}")
-            if summary and summary.get("available"):
-                lines.append(_node_metric_line(node_id, metric_token, summary))
-        for class_id in result["model"]["class_ids"]:
-            summary = result["estimates"].get(f"mean_number:{node_id}:{class_id}")
-            if summary and summary.get("available"):
-                lines.append(
-                    _node_metric_line(
-                        node_id,
-                        "mean_number_class",
-                        summary,
-                        class_id=class_id,
-                    )
-                )
+    lines.append(ci_header)
+    lines.append("-" * len(ci_header))
+
+    def ci_row(label: str, summary: dict[str, Any] | None) -> None:
+        if not summary or not summary.get("available"):
+            return
+        # Node and class ids are user-supplied and can be long. Let one run past
+        # its column and every number to its right shifts, which is exactly the
+        # ragged output this rewrite exists to remove. Elide instead.
+        if len(label) > 33:
+            label = label[:32] + "\u2026"
+        interval = summary.get("confidence_interval") or {}
+        low, high = interval.get("low"), interval.get("high")
+        span = (
+            f"[{_fmt(low)}, {_fmt(high)}]"
+            if low is not None and high is not None else "-"
+        )
+        lines.append(
+            f"{label:<34}"
+            f"{_fmt(summary.get('estimate')):>13}"
+            f"{_fmt(summary.get('standard_error')):>12}"
+            f"{span:>26}"
+            f"{_fmt(summary.get('effective_cycles'), 1):>13}"
+        )
+
+    for key, label in (
+        ("mean_number_in_system", "Mean number in system"),
+        ("external_blocking_probability", "External blocking probability"),
+        ("departure_rate", "Departure rate"),
+    ):
+        ci_row(label, estimates.get(key))
+    for node_id in node_ids:
+        for prefix, label in (
+            ("mean_number_at_node", "E[N]"),
+            ("utilization", "utilisation"),
+        ):
+            ci_row(f"{label} at {node_id}", estimates.get(f"{prefix}:{node_id}"))
+        for class_id in class_ids:
+            ci_row(
+                f"E[N] at {node_id}, class {class_id}",
+                estimates.get(f"mean_number:{node_id}:{class_id}"),
+            )
+    lines.append("")
+
     benchmark = result.get("analytic_benchmark")
     if benchmark:
         lines.append(f"Analytic check available: {benchmark['model']}")
@@ -1780,7 +1844,37 @@ def _human(result: dict[str, Any]) -> str:
             f"Importance-sampling weight ESS: {weights['effective_cycles']:.1f} "
             f"of {weights['cycles']} cycles"
         )
-    lines.append("Uncertainty uses complete regenerative cycles, not individual events.")
+    lines.append(
+        "Uncertainty uses complete regenerative cycles, not individual events."
+    )
+
+    # ── Machine records, last ─────────────────────────────────────────
+    # Unchanged in content and format: ResultOutputParser matches these exactly
+    # and reads them from the tee'd archive. They sit after the report so that
+    # what a reader sees first is the report.
+    machine: list[str] = []
+    aggregate_metrics = (
+        ("mean_number_at_node", "mean_number"),
+        ("mean_queue_at_node", "mean_queue"),
+        ("utilization", "utilization"),
+        ("service_completion_rate", "service_completion_rate"),
+    )
+    for node_id in node_ids:
+        for estimate_prefix, metric_token in aggregate_metrics:
+            summary = estimates.get(f"{estimate_prefix}:{node_id}")
+            if summary and summary.get("available"):
+                machine.append(_node_metric_line(node_id, metric_token, summary))
+        for class_id in class_ids:
+            summary = estimates.get(f"mean_number:{node_id}:{class_id}")
+            if summary and summary.get("available"):
+                machine.append(
+                    _node_metric_line(
+                        node_id, "mean_number_class", summary, class_id=class_id
+                    )
+                )
+    if machine:
+        lines.append("")
+        lines.extend(machine)
     return "\n".join(lines)
 
 

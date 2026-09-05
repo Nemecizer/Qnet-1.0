@@ -310,8 +310,17 @@ class ValidationAndLimitTests(unittest.TestCase):
         result = rmc.solve_document(document)
         lines = rmc._human(result).splitlines()
 
-        self.assertIn("Per-node metrics (QNET_NODE_METRIC_V1):", lines)
+        # The heading this used to assert ("Per-node metrics
+        # (QNET_NODE_METRIC_V1):") is deliberately gone: it announced machine
+        # records to a human reader, and the report above now carries the same
+        # numbers in a table. What must remain true is that the records are
+        # still emitted, still complete, and still last — the parser and the CSV
+        # export read them from the tee'd archive.
+        self.assertNotIn("Per-node metrics (QNET_NODE_METRIC_V1):", lines)
         records = [line for line in lines if line.startswith("QNET_NODE_METRIC_V1 ")]
+        tail = lines[-len(records):]
+        self.assertEqual(tail, records, "sentinel records must be the final block")
+        self.assertIn("Regenerative Monte Carlo", lines[0])
         self.assertEqual(len(records), 5)
         expected_metrics = [
             "mean_number",
@@ -357,10 +366,53 @@ class ValidationAndLimitTests(unittest.TestCase):
             ):
                 self.assertTrue(math.isfinite(float(values[name])))
 
-        # The original concise summary remains ahead of the parser records.
-        self.assertTrue(lines[0].startswith("Regenerative simulation:"))
-        self.assertTrue(lines[1].startswith("Complete empty-to-empty cycles:"))
-        self.assertTrue(any(line.startswith("mean_number_in_system:") for line in lines))
+        # The report comes first, in the shape the other solvers print.
+        self.assertTrue(lines[0].startswith("Regenerative Monte Carlo"))
+        self.assertTrue(any(line.startswith("Model layer:") for line in lines))
+        self.assertTrue(any(line.startswith("Evidence:") for line in lines))
+
+        # These two rows are ResultOutputParser contracts, not decoration:
+        # regenerativeCyclesRow and regenerativePrecisionRow match them by
+        # regex. Reword either and the Results pane silently loses the cycle
+        # count and the precision verdict.
+        self.assertTrue(
+            any(line.startswith("Complete empty-to-empty cycles:") for line in lines),
+            "ResultOutputParser.regenerativeCyclesRow matches this line",
+        )
+        self.assertTrue(
+            any(line.startswith("Precision target met:") for line in lines),
+            "ResultOutputParser.regenerativePrecisionRow matches this line",
+        )
+
+        # The per-node table replaced the raw records as what a reader sees.
+        header = next(line for line in lines if line.startswith("Node "))
+        for column in ("E[N]", "E[Q]", "utilisation", "throughput"):
+            self.assertIn(column, header)
+
+        # Not ragged: every row of a table is exactly as wide as its rule, so
+        # the columns line up. This is the property the fixed-fraction
+        # formatting exists to guarantee — the GUI rewrites these numbers to the
+        # user's decimal setting and never pads, so a column of uniform-width
+        # values is the only thing that survives that rewrite aligned.
+        def table_rows(start_label):
+            begin = next(i for i, l in enumerate(lines) if l.startswith(start_label))
+            rule = lines[begin + 1]
+            self.assertTrue(set(rule) == {"-"}, "expected a rule under the header")
+            rows = []
+            for line in lines[begin + 2:]:
+                if not line:
+                    break
+                rows.append(line)
+            return len(rule), rows
+
+        for start_label in ("Node ", "Quantity "):
+            width, rows = table_rows(start_label)
+            self.assertTrue(rows, "table {!r} has no rows".format(start_label))
+            for row in rows:
+                self.assertEqual(
+                    len(row), width,
+                    "row is not flush with its rule in {!r}: {!r}".format(start_label, row),
+                )
 
 
 if __name__ == "__main__":

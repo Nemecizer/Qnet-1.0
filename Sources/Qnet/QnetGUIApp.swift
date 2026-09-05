@@ -6570,6 +6570,22 @@ struct QnetGUIApp: App {
             # This is display only. ResultOutputParser and the CSV export read the
             # tee'd file, which is written by the pipeline stage BEFORE this one
             # and still holds every digit the solver printed.
+            # QNET_NODE_METRIC_V1 is the one sentinel a reader never needs to
+            # see. Regenerative Monte Carlo now prints a per-node table and a
+            # confidence-interval table carrying exactly these numbers, so the
+            # records below it were the same values a second time at 17
+            # significant digits — ten key=value pairs per node per metric. They
+            # are still WRITTEN, because ResultOutputParser and the CSV export
+            # read them out of the tee'd archive that this stage never touches;
+            # they are only withheld from the screen.
+            #
+            # Deliberately not generalised to every sentinel: Exact
+            # Matrix-Analytic QBD still prints QNET_QBD_*_V1 records and nothing
+            # else, so suppressing the class would leave that method with no
+            # visible output at all.
+            if ($rec =~ /\\AQNET_NODE_METRIC_V1(?![A-Za-z0-9_])/) {
+                return;
+            }
             if ($rec =~ /\\AQNET_[A-Z0-9_]+_V1(?![A-Za-z0-9_])/) {
                 # The key list, not the spelling of the value. A syntactic rule
                 # ("any '='-preceded token carrying a decimal point or an

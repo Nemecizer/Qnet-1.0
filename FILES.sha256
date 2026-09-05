@@ -46,7 +46,7 @@ cd745ccfe7c852198ed0949d0106f6227bbc2fdbc794324dda70460ed401ce38  ./Qnet.app/Con
 a455d1b088e194c9a450a3a7d7a3dd9ebc88f93f1f14a3954e78cb5567d13aa0  ./Qnet.app/Contents/Frameworks/libsuitesparseconfig.7.dylib
 c9ef0f8393d0a9b1f6dbd4a3f4439541fe00adca63d9f0b6da1fe22794d0ccb5  ./Qnet.app/Contents/Frameworks/libumfpack.6.dylib
 ca76cbe577b4d4a3a98baba57a339dfd2253230ef3b8f4099ca76d6d04d11e02  ./Qnet.app/Contents/Info.plist
-9abb80ec29831ec15eda3237f1917fc4a4aed80f450c161ad6fbf0fcd0830fe7  ./Qnet.app/Contents/MacOS/Qnet
+2b3670a880b52211e46423bee8ff33510460a37baf49a62ee32434ddf760ae12  ./Qnet.app/Contents/MacOS/Qnet
 c1464b64554b749e54bd53adafa932907ceb3ca8ddf5fcfccb91220d9f4075ec  ./Qnet.app/Contents/Resources/AppIcon.icns
 5f9f1d64f238821d11e4eda5f33c933d85d4e7f124a2c3bd8a930f8726b2fc12  ./Qnet.app/Contents/Resources/SwiftTerm_SwiftTerm.bundle/Shaders.metal
 4e90377e29fea366ca7a6835ec35e00529896df88562d4720b4de03b71e48407  ./Qnet.app/Contents/Resources/ThirdPartyLicenses/README.md
@@ -85,7 +85,7 @@ dbc14b6d521ad0ffbd1fa49b3107fdd2846694e23ec0d0a9014e8da9e52a19d7  ./Qnet.app/Con
 b5ba99ec75e55a60d736c6e01eca2464892a1eadf8364eb67ffe870dcd12d637  ./Qnet.app/Contents/Resources/bin/infinite/BNApf/solver.py
 6e202e128875c53adb7658f61aa41cda7e92ee6f3780b0df335f576b8494a525  ./Qnet.app/Contents/Resources/bin/infinite/BNAqbd/qbd_solver.py
 2b7e307272a69b0e02fcb8f1444b57ddb9e02597c61271b63a96314f86e07c14  ./Qnet.app/Contents/Resources/bin/infinite/BNAqna/bna_qna
-3db7136181ee0c0009b52f083e0b37fd399762a3ee2b933b3a27abf5d3985e75  ./Qnet.app/Contents/Resources/bin/infinite/BNArmc/regenerative_mc.py
+30c8e6de29fb8abc470784ecb9363e0ca46e0dd43548e7dc0ad4cca59cd60f8a  ./Qnet.app/Contents/Resources/bin/infinite/BNArmc/regenerative_mc.py
 794389e183c4c4f8fc55bff167ef5aa6af32e312d70426859356200d93b25752  ./Qnet.app/Contents/Resources/bin/infinite/BNArqna/bna_rqna
 fe4e861b14a322bb3e2eac1b66cbcfb5472208fdf947e266758f99afe7dd5558  ./Qnet.app/Contents/Resources/bin/infinite/BNAsbd/bna_sbd
 efc1ba26f557f892632f4efd245f13e0a77f5e2ebeaa40b1c3b69999aaf7b369  ./Qnet.app/Contents/Resources/bin/infinite/BNAsim/jackson_sim
@@ -142,7 +142,7 @@ da4892ac4b351856429fcef048e507ef48f5d5b3b8cf02eae9c7f861b2a5361e  ./Qnet.app/Con
 d9ae8950d7d5fb108b0bb9b973540e9b252193c78021a745b4e32f8c42bd20e1  ./Qnet.app/Contents/Resources/examples/random3.bnet
 86c719cfeb0c93b645c619008173c1600ff84d2f6d440d701c3df4fb873b668f  ./Qnet.app/Contents/Resources/examples/random4c2.bnet
 79c17302590e2ccc8d8a160012aad9ae127486d6448d192880302a2396f9e757  ./Qnet.app/Contents/Resources/solver-runtime-status-v1.tsv
-b9c0cbdb4fe294adaf3ed1b93f726ba3258f427d83d935eec870a461d17e4764  ./Qnet.app/Contents/_CodeSignature/CodeResources
+0b39a01b0e57ee29f766f79700184377656b5ba74f971addff21e3f1f1d88b80  ./Qnet.app/Contents/_CodeSignature/CodeResources
 9574826aee27604815191a84971537e1bd618025ec08e19bf401e111d6ef6ac1  ./README.md
 80ea6183c942e10523631539e7982851d2eb1be166aed8dc12dd7202fcf164be  ./Sources/Qnet/AIPaneView.swift
 f14f5988675b34476c19afd3b757afb15d1a62a1723e69e4fbec940c1228ac6f  ./Sources/Qnet/AITools.swift
@@ -209,7 +209,7 @@ c63e321dabb0ac39cbd16d99488fb57e3551cd19180afb48cdb2f9e13d2810a0  ./Sources/Qnet
 4d3a9a2b6c6910b370fffcb67f221884855891b012edb193b07007be5af08ff9  ./Sources/Qnet/QBDExporter.swift
 0cf1819cc14b078778fe1351b896a8b03173cbf4ab47e49431b57cb3e7d84337  ./Sources/Qnet/QNAExporter.swift
 248b09c74b59fba41273683affa94854293540c90b501e8da252389cf717040f  ./Sources/Qnet/QnetCommands.swift
-804ddd9a60110a01110a5552dcda075c16ff8218fc8d5a6884c06bf2897fccb9  ./Sources/Qnet/QnetGUIApp.swift
+b5ab3a06d61012170503295985de028dab96a436170db23f6296537d638302dd  ./Sources/Qnet/QnetGUIApp.swift
 5d0064b4977327d2e72270f08d6a3a4d566ad82c6836247b6858bd5f2b25940a  ./Sources/Qnet/QnetHelpWindow.swift
 d57a1acdc2a5e8800ed29aa688b02767675c0238d8687f22c0e04888bda19e2c  ./Sources/Qnet/RandomNetworkGenerator.swift
 5e4e626e9f71ab7659ca9e7a92fb442c608a73b9e41edfb85270459320ca20c6  ./Sources/Qnet/RegenerativeExporter.swift
@@ -685,8 +685,8 @@ da56cdf6e918382a16e70a949a7d311503eaff455c1c4f8668cf7b16d0db80d7  ./infinite/BNA
 a6077c4cf43eaaf4b3cbc4b0127e04f0e5da2d2e542d13be075b1aeb38e7a865  ./infinite/BNArmc/examples/mm1.json
 44702f224df990347c1a3fe13ee9f3718e82f57f83ba905655090cb6e78c5e39  ./infinite/BNArmc/examples/mm1k_importance.json
 337a75c8cd22061114e00273cf55a430245000c34f2d1fd93e961242f819ca7c  ./infinite/BNArmc/examples/multiclass_network.json
-3db7136181ee0c0009b52f083e0b37fd399762a3ee2b933b3a27abf5d3985e75  ./infinite/BNArmc/regenerative_mc.py
-58c880f6d939ee3f430ab46f4b070d7cdc2945cda6e4aba9c5e47c72da878271  ./infinite/BNArmc/tests/test_regenerative_mc.py
+30c8e6de29fb8abc470784ecb9363e0ca46e0dd43548e7dc0ad4cca59cd60f8a  ./infinite/BNArmc/regenerative_mc.py
+b6a225d26659989b859ce8f38b04b78716d99cab452d76d28b540fc0f0dfcc35  ./infinite/BNArmc/tests/test_regenerative_mc.py
 6d10720c46d82b5ab1c88a29df1c6921856127a13fef8fd4e492241362499c3e  ./infinite/BNArqna/Makefile
 e4ef7365faa932b1c50245408a4a1c3f6b433402a42b2fe44a495381c18e92eb  ./infinite/BNArqna/bna_rqna.c
 71748392008a5a3960faae5327ffc09c1d09a6b9671d49544b2832f485ce4939  ./infinite/BNAsbd/Makefile
