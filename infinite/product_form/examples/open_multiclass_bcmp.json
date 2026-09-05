@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "model_type": "open_bcmp",
+  "name": "Open multiclass BCMP discipline catalogue",
+  "description": "Two class-preserving open chains visiting all four supported BCMP station disciplines.",
+  "stations": [
+    {
+      "id": "intake",
+      "type": "fcfs",
+      "servers": 2,
+      "service_times": {
+        "interactive": 0.5,
+        "batch": 0.5
+      }
+    },
+    {
+      "id": "processor",
+      "type": "processor_sharing",
+      "service_times": {
+        "interactive": 1.0,
+        "batch": 0.5
+      }
+    },
+    {
+      "id": "delay",
+      "type": "infinite_server",
+      "service_times": {
+        "interactive": 2.0,
+        "batch": 1.0
+      }
+    },
+    {
+      "id": "stack",
+      "type": "lcfs_preemptive_resume",
+      "service_times": {
+        "interactive": 0.25,
+        "batch": 0.4
+      }
+    }
+  ],
+  "classes": [
+    {
+      "id": "interactive",
+      "external_arrival_rates": {
+        "intake": 0.6
+      },
+      "routing": [
+        {
+          "from_station": "intake",
+          "destinations": [
+            {"station": "processor", "probability": 0.5},
+            {"station": "delay", "probability": 0.25}
+          ],
+          "exit_probability": 0.25
+        },
+        {
+          "from_station": "processor",
+          "destinations": [
+            {"station": "stack", "probability": 0.5}
+          ],
+          "exit_probability": 0.5
+        },
+        {
+          "from_station": "delay",
+          "destinations": [
+            {"station": "processor", "probability": 1.0}
+          ],
+          "exit_probability": 0.0
+        }
+      ]
+    },
+    {
+      "id": "batch",
+      "external_arrival_rates": {
+        "intake": 0.4
+      },
+      "routing": [
+        {
+          "from_station": "intake",
+          "destinations": [
+            {"station": "processor", "probability": 0.75}
+          ],
+          "exit_probability": 0.25
+        },
+        {
+          "from_station": "processor",
+          "destinations": [
+            {"station": "stack", "probability": 0.25}
+          ],
+          "exit_probability": 0.75
+        }
+      ]
+    }
+  ],
+  "solver": {
+    "max_servers": 1000
+  }
+}

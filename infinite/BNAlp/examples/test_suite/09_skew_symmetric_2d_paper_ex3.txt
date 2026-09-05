@@ -1,0 +1,27 @@
+# 09_skew_symmetric_2d_paper_ex3
+# Source: LP_SRBM Example 3 (Saure-Glynn-Zeevi 2008)
+# Skew-symmetric: 2*sigma_ij = R_ij + R_ji => 2*(-0.425) = -0.6 + -0.25 = -0.85. OK
+# Closed form exponential marginals with rate 2*rho where rho=(-R^-1 mu).
+# rho = (1, 0.25), so marginals exp(2) and exp(0.5): E[Z1]=1/2, E[Z2]=1/0.5=2.
+
+dimension  2
+grid_n     100
+basis_m    6
+grid_type  exponential
+
+drift
+  -0.850000   0.000000
+
+covariance
+   1.000000  -0.425000
+  -0.425000   1.000000
+
+reflection
+   1.000000  -0.600000
+  -0.250000   1.000000
+
+grid_spacing
+   0.000000   0.000000
+
+tightness_bounds
+  100000 100000 100000 100000 100000

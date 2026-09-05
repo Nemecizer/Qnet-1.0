@@ -1,0 +1,42 @@
+# Multi-Class Jackson Network Simulation Input File
+# This example corresponds to the m2 network (2-station Jackson network)
+#
+# Network structure:
+#   - 2 stations, 2 classes
+#   - Class 0: External arrivals at station 0, can route to class 1
+#   - Class 1: No external arrivals, served at station 1, leaves system
+#
+# This is a tandem queue: arrivals -> Station 0 -> Station 1 -> exit
+
+# Network dimensions
+stations 2
+classes 2
+
+# Simulation parameters
+warmup 5000
+run_length 50000
+replications 30
+seed 12345
+
+# MCN format output file
+mcn_output example_m2_mcn.txt
+
+# Class 0: External arrivals, served at station 0
+# Arrival rate = 0.8, Service rate = 1/0.5 = 2
+# After service: 100% go to class 1 (station 1)
+class 0
+    arrival exponential 0.8
+    station 0
+    service exponential 2.0
+    routing 0 1
+end_class
+
+# Class 1: No external arrivals, served at station 1
+# Service rate = 1/0.4 = 2.5
+# After service: 50% go back to class 0, 50% leave
+class 1
+    arrival none
+    station 1
+    service exponential 2.5
+    routing 0.5 0
+end_class

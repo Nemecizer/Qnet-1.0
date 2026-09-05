@@ -1,0 +1,10 @@
+# Expected output for 10_skew_symmetric_2d_simple
+# Source: Dai-Harrison 1992 Prop 9 (skew-symmetric family)
+# Skew-sym: 2*sigma_ij = R_ij + R_ji -> 2*(-0.5) = -1 ✓
+# eta = -R^-1 mu = (1/0.75)*[[1,0.5],[0.5,1]]*(1,1) = (2,2)
+# Density: p(x) = (2*eta_1)(2*eta_2) exp(-2*eta·x) = 16 exp(-4x1 - 4x2)
+# E[Z_i] = 1/(2*eta_i) = 0.25  (CORRECTED: earlier file incorrectly stated 0.5)
+# Cross-validated by BNAmc Monte Carlo: both methods agree at 0.25.
+dimension 2
+E[Z_1] 0.250000 tol=0.02
+E[Z_2] 0.250000 tol=0.02

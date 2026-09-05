@@ -1,0 +1,20 @@
+% test_boundary_debug.m - Debug boundary measures
+a = 1; b = 1;
+Gamma = eye(2);
+mu = [0; 0];
+R = [1, 0, -1, 1; -1, 1, 0, -1];
+n = 6;
+[q1, q2, d1, d2, d3, d4] = srbm_2d_solver(a, b, n, Gamma, mu, R);
+fprintf('Computed:\n');
+fprintf('q1=%.6f, q2=%.6f\n', q1, q2);
+fprintf('d1=%.6f, d2=%.6f, d3=%.6f, d4=%.6f\n', d1, d2, d3, d4);
+fprintf('sum of deltas = %.6f\n', d1+d2+d3+d4);
+fprintf('\nSCPACK reference:\n');
+fprintf('q1=0.551506, q2=0.448494\n');
+fprintf('d1=0.805295, d2=1.610589, d3=1.610589, d4=0.805295\n');
+fprintf('sum of deltas (ref) = %.6f\n', 0.805295+1.610589+1.610589+0.805295);
+fprintf('\nRatios (ref/computed):\n');
+fprintf('d1: %.4f\n', 0.805295/d1);
+fprintf('d2: %.4f\n', 1.610589/d2);
+fprintf('d3: %.4f\n', 1.610589/d3);
+fprintf('d4: %.4f\n', 0.805295/d4);

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "process": "open_markovian_queueing_network",
+  "name": "M/M/1 regenerative reference",
+  "nodes": [
+    {
+      "id": "server",
+      "servers": 1,
+      "service_rate": 2.0,
+      "capacity": null
+    }
+  ],
+  "classes": [
+    {
+      "id": "jobs",
+      "external_arrival_rates": {
+        "server": 1.0
+      },
+      "routing": {
+        "server": {}
+      }
+    }
+  ],
+  "random": {
+    "base_seed": 7319921,
+    "stream": 0
+  },
+  "stopping": {
+    "confidence": 0.95,
+    "absolute_half_width": 0.1,
+    "relative_half_width": 0.08,
+    "monitored_metrics": [
+      "mean_number_in_system"
+    ],
+    "minimum_cycles": 500,
+    "minimum_effective_cycles": 30,
+    "check_every_cycles": 250,
+    "maximum_cycles": 20000,
+    "maximum_events": 2000000,
+    "maximum_simulated_time": 10000000.0,
+    "maximum_cycle_time": 1000000.0,
+    "maximum_events_per_cycle": 100000,
+    "maximum_wall_seconds": 30.0
+  }
+}

@@ -1,0 +1,227 @@
+{
+  "canvasScale" : 1,
+  "infiniteBuffers" : true,
+  "links" : [
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000001",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000001",
+      "routingProbability" : 1,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000002"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000002",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000002",
+      "routingProbability" : 1,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000003"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000003",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000003",
+      "routingProbability" : 0.5,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000004"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000003",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000004",
+      "routingProbability" : 0.2,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000006"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000003",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000005",
+      "routingProbability" : 0.3,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000008"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000004",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000006",
+      "routingProbability" : 1,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000005"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000005",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000007",
+      "routingProbability" : 0.6,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000002"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000005",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000008",
+      "routingProbability" : 0.3,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000006"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000005",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000009",
+      "routingProbability" : 0.1,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000008"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000006",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000010",
+      "routingProbability" : 1,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000007"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000007",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000011",
+      "routingProbability" : 0.4,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000002"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000007",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000012",
+      "routingProbability" : 0.4,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000004"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "A1AAAAAA-3300-0001-0000-000000000007",
+      "id" : "A1AAAAAA-3300-0002-0000-000000000013",
+      "routingProbability" : 0.2,
+      "toNodeID" : "A1AAAAAA-3300-0001-0000-000000000008"
+    }
+  ],
+  "nodes" : [
+    {
+      "bufferSize" : 1,
+      "distribution" : "poisson",
+      "distributionParameters" : "lambda=0.4",
+      "id" : "A1AAAAAA-3300-0001-0000-000000000001",
+      "kind" : "source",
+      "name" : "Src1",
+      "numberOfServers" : 1,
+      "position" : [
+        100,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    },
+    {
+      "bufferSize" : 1,
+      "distribution" : "exponential",
+      "distributionParameters" : "rate=1.0",
+      "id" : "A1AAAAAA-3300-0001-0000-000000000002",
+      "kind" : "buffer",
+      "name" : "B1",
+      "numberOfServers" : 1,
+      "position" : [
+        200,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    },
+    {
+      "bufferSize" : 1,
+      "distribution" : "erlang",
+      "distributionParameters" : "k=2,rate=2.0",
+      "id" : "A1AAAAAA-3300-0001-0000-000000000003",
+      "kind" : "station",
+      "name" : "S1",
+      "numberOfServers" : 1,
+      "position" : [
+        300,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    },
+    {
+      "bufferSize" : 1,
+      "distribution" : "exponential",
+      "distributionParameters" : "rate=1.0",
+      "id" : "A1AAAAAA-3300-0001-0000-000000000004",
+      "kind" : "buffer",
+      "name" : "B2",
+      "numberOfServers" : 1,
+      "position" : [
+        400,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    },
+    {
+      "bufferSize" : 1,
+      "distribution" : "erlang",
+      "distributionParameters" : "k=2,rate=2.0",
+      "id" : "A1AAAAAA-3300-0001-0000-000000000005",
+      "kind" : "station",
+      "name" : "S2",
+      "numberOfServers" : 1,
+      "position" : [
+        500,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    },
+    {
+      "bufferSize" : 1,
+      "distribution" : "exponential",
+      "distributionParameters" : "rate=1.0",
+      "id" : "A1AAAAAA-3300-0001-0000-000000000006",
+      "kind" : "buffer",
+      "name" : "B3",
+      "numberOfServers" : 1,
+      "position" : [
+        600,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    },
+    {
+      "bufferSize" : 1,
+      "distribution" : "erlang",
+      "distributionParameters" : "k=2,rate=2.0",
+      "id" : "A1AAAAAA-3300-0001-0000-000000000007",
+      "kind" : "station",
+      "name" : "S3",
+      "numberOfServers" : 1,
+      "position" : [
+        700,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    },
+    {
+      "bufferSize" : 1,
+      "distribution" : "exponential",
+      "distributionParameters" : "rate=1.0",
+      "id" : "A1AAAAAA-3300-0001-0000-000000000008",
+      "kind" : "sink",
+      "name" : "Sink1",
+      "numberOfServers" : 1,
+      "position" : [
+        800,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    }
+  ]
+}

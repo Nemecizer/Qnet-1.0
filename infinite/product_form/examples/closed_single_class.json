@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "model_type": "closed_bcmp",
+  "name": "Two-customer machine-repair model",
+  "description": "A two-node single-class BCMP reference with an FCFS server and an infinite-server delay.",
+  "stations": [
+    {
+      "id": "cpu",
+      "type": "fcfs",
+      "servers": 1,
+      "service_times": {
+        "job": 1.0
+      }
+    },
+    {
+      "id": "think",
+      "type": "infinite_server",
+      "service_times": {
+        "job": 2.0
+      }
+    }
+  ],
+  "classes": [
+    {
+      "id": "job",
+      "population": 2,
+      "reference_station": "cpu",
+      "routing": [
+        {
+          "from_station": "cpu",
+          "destinations": [
+            {
+              "station": "think",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "from_station": "think",
+          "destinations": [
+            {
+              "station": "cpu",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "solver": {
+    "max_states": 1000
+  }
+}

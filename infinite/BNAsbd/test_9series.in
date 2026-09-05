@@ -1,0 +1,26 @@
+# Nine stations in series from Dai, Nguyen & Reiman (1994), Section 3.3
+# Deterministic arrivals (ca^2_{a,1} = 0), exponential service (cs^2 = 1)
+# rho_i = 0.6 for 1 <= i <= 8, rho_9 = 0.9
+# Customers arrive at station 1, proceed 1->2->...->9->exit
+# Service rates: mu_i = 1/tau_i, with lambda = alpha_1 (the arrival rate)
+# Since all lambda_i = alpha (tandem), and rho_i = alpha * tau_i:
+#   For rho_i = 0.6: tau_i = 0.6/alpha
+#   For rho_9 = 0.9: tau_9 = 0.9/alpha
+# Choose alpha = 1.0, then tau_i = 0.6 for i=1..8, tau_9 = 0.9
+# Natural partition: S1 = {1,2,3,4,5,6,7,8}, S2 = {9}
+# Expected total waiting time: 10.06 (SBD), 10.05 (sim) from Table VIII
+9
+1 1 1 1 1 1 1 1 1
+1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.9
+1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0
+0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0
+0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0
+0.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0
+0.0 0.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0
+0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0 0.0
+0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0
+0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "process": "continuous_time_qbd",
+  "name": "M/E2/1 with lambda=1 and two service phases at rate 4",
+  "boundary": {
+    "level_0_same": [[-1.0]],
+    "level_0_up": [[1.0, 0.0]],
+    "level_1_down": [[0.0], [4.0]],
+    "level_1_same": [[-5.0, 4.0], [0.0, -5.0]]
+  },
+  "interior": {
+    "down": [[0.0, 0.0], [4.0, 0.0]],
+    "same": [[-5.0, 4.0], [0.0, -5.0]],
+    "up": [[1.0, 0.0], [0.0, 1.0]]
+  },
+  "solver": {
+    "max_report_level": 8,
+    "tail_levels": [0, 1, 2, 5, 10, 20]
+  }
+}

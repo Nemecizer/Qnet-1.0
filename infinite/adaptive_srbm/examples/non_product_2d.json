@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "drift": [-0.84, -0.5],
+  "covariance": [
+    [2.0, 0.2],
+    [0.2, 3.0]
+  ],
+  "reflection": [
+    [1.0, -0.2],
+    [-0.3, 1.0]
+  ],
+  "options": {
+    "max_rank": 12,
+    "training_points": 80,
+    "validation_points": 48,
+    "bar_tolerance": 0.00002,
+    "moment_tolerance": 0.002,
+    "log_rate_span": 1.8
+  }
+}

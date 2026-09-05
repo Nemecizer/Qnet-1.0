@@ -1,0 +1,26 @@
+# 10_skew_symmetric_2d_simple
+# Source: Dai-Harrison 1992 Prop 9 (skew-symmetric family)
+# Skew-sym: 2*(-0.5) = -0.5 + -0.5 = -1. OK
+# Density: p(x) = 4 exp(-2x1 - 2x2). E[Z1]=E[Z2]=0.5
+
+dimension  2
+grid_n     100
+basis_m    6
+grid_type  exponential
+
+drift
+  -1.000000  -1.000000
+
+covariance
+   1.000000  -0.500000
+  -0.500000   1.000000
+
+reflection
+   1.000000  -0.500000
+  -0.500000   1.000000
+
+grid_spacing
+   0.000000   0.000000
+
+tightness_bounds
+  100000 100000 100000 100000 100000

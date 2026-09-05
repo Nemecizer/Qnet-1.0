@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "model_type": "mixed_bcmp",
+  "name": "Exact mixed BCMP subclass example",
+  "description": "Open and closed classes share PS and delay stations; FCFS stations remain population-type exclusive.",
+  "stations": [
+    {
+      "id": "ingress",
+      "type": "fcfs",
+      "servers": 2,
+      "service_times": {
+        "online": 0.5
+      }
+    },
+    {
+      "id": "terminal",
+      "type": "processor_sharing",
+      "service_times": {
+        "online": 0.4,
+        "interactive": 0.6
+      }
+    },
+    {
+      "id": "delay",
+      "type": "infinite_server",
+      "service_times": {
+        "online": 1.0,
+        "interactive": 2.0
+      }
+    },
+    {
+      "id": "batch_fcfs",
+      "type": "fcfs",
+      "service_times": {
+        "interactive": 0.8
+      }
+    }
+  ],
+  "open_classes": [
+    {
+      "id": "online",
+      "external_arrival_rates": {
+        "ingress": 0.2
+      },
+      "routing": [
+        {
+          "from_station": "ingress",
+          "destinations": [
+            {"station": "terminal", "probability": 1.0}
+          ],
+          "exit_probability": 0.0
+        },
+        {
+          "from_station": "terminal",
+          "destinations": [
+            {"station": "delay", "probability": 0.5}
+          ],
+          "exit_probability": 0.5
+        },
+        {
+          "from_station": "delay",
+          "destinations": [
+            {"station": "terminal", "probability": 0.25}
+          ],
+          "exit_probability": 0.75
+        }
+      ]
+    }
+  ],
+  "closed_classes": [
+    {
+      "id": "interactive",
+      "population": 2,
+      "reference_station": "terminal",
+      "visit_ratios": {
+        "terminal": 1.0,
+        "delay": 1.5,
+        "batch_fcfs": 0.5
+      }
+    }
+  ],
+  "solver": {
+    "max_states": 10000,
+    "max_servers": 1000
+  }
+}

@@ -1,0 +1,8 @@
+# Expected output for 01_harrison_tandem_2d
+# Source: Dai-Harrison 1992 Sec 6 / LP_SRBM Ex1 / Harrison 1978
+# Classic Harrison tandem 2D SRBM.
+# Closed form density: p(r,theta) = (2|mu1|)^(3/2)/pi^(1/2) r^(-1/2) exp(mu1*r*(1+cos theta)) cos(theta/2).
+# Exact first moments: E[Z1]=0.5, E[Z2]=0.75 (Greenberg 1986).
+dimension 2
+E[Z_1] 0.500000 tol=0.03
+E[Z_2] 0.750000 tol=0.03

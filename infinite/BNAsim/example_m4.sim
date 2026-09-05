@@ -1,0 +1,60 @@
+# Multi-Class Jackson Network Simulation Input File
+# This example corresponds to the m4 network (4-station, 4-class network)
+#
+# Network structure from m4:
+#   - 4 stations, 4 classes
+#   - Each class is served at its corresponding station
+#   - Complex routing between classes
+
+# Network dimensions
+stations 4
+classes 4
+
+# Simulation parameters
+warmup 10000
+run_length 100000
+replications 30
+seed 42
+
+# MCN format output file
+mcn_output example_m4_mcn.txt
+
+# Class 0: External arrivals at rate 1.0, station 0
+# Mean service time = 0.90, SCV = 0.5 (Erlang-2)
+# Routing: 50% to class 1, 50% to class 2
+class 0
+    arrival exponential 1.0
+    station 0
+    service erlang 2 2.222222
+    routing 0 0.5 0.5 0
+end_class
+
+# Class 1: No external arrivals, station 1
+# Mean service time = 0.90
+# Routing: 50% to class 1 (feedback), 50% to class 3
+class 1
+    arrival none
+    station 1
+    service erlang 2 2.222222
+    routing 0 0.5 0 0.5
+end_class
+
+# Class 2: External arrivals at rate 1.0, station 2
+# Mean service time = 0.24
+# Routing: 60% to class 2 (feedback), 40% to class 3
+class 2
+    arrival exponential 1.0
+    station 2
+    service exponential 4.166667
+    routing 0 0 0.6 0.4
+end_class
+
+# Class 3: No external arrivals, station 3
+# Mean service time = 0.45
+# All customers leave after service
+class 3
+    arrival none
+    station 3
+    service exponential 2.222222
+    routing 0 0 0 0
+end_class

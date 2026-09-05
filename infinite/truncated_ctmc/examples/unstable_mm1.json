@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "process": "open_single_class_markovian_network",
+  "name": "Unstable M/M/1 with lambda=3 and mu=2",
+  "nodes": [
+    {
+      "name": "queue",
+      "external_arrival_rate": 3.0,
+      "service_rate_per_server": 2.0,
+      "servers": 1
+    }
+  ],
+  "routing": [[0.0]],
+  "solver": {
+    "initial_total_cap": 8,
+    "max_total_cap": 16
+  }
+}

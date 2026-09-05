@@ -1,0 +1,55 @@
+# Finite Buffer Tandem Queue Example
+#
+# A 3-station tandem line with finite buffers demonstrating blocking.
+# Station 0 -> Station 1 -> Station 2 -> Exit
+#
+# With finite buffers, when station 1's buffer is full, station 0's
+# server will block after completing service (BAS protocol).
+
+# Network dimensions
+stations 3
+classes 3
+
+# Simulation parameters
+warmup 10000
+run_length 100000
+replications 30
+seed 54321
+
+# Blocking protocol: BAS (Blocking After Service)
+blocking BAS
+
+# Default buffer capacity (can be overridden per station)
+default_buffer 5
+
+# Individual station buffer capacities
+station_buffer 0 10
+station_buffer 1 5
+station_buffer 2 5
+
+# MCN format output
+mcn_output example_finite_tandem_mcn.txt
+
+# Class 0: External arrivals at station 0
+class 0
+    arrival exponential 0.8
+    station 0
+    service exponential 1.0
+    routing 0 1 0
+end_class
+
+# Class 1: Served at station 1
+class 1
+    arrival none
+    station 1
+    service exponential 1.0
+    routing 0 0 1
+end_class
+
+# Class 2: Served at station 2
+class 2
+    arrival none
+    station 2
+    service exponential 1.0
+    routing 0 0 0
+end_class

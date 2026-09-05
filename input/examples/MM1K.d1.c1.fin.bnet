@@ -1,0 +1,93 @@
+{
+  "canvasScale" : 1,
+  "infiniteBuffers" : false,
+  "links" : [
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "EE000001-0001-0001-0001-000000000001",
+      "id" : "EE000001-0001-0001-2222-000000000001",
+      "routingProbability" : 1,
+      "toNodeID" : "EE000001-0001-0001-0001-000000000002"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "EE000001-0001-0001-0001-000000000002",
+      "id" : "EE000001-0001-0001-2222-000000000002",
+      "routingProbability" : 1,
+      "toNodeID" : "EE000001-0001-0001-0001-000000000003"
+    },
+    {
+      "customerClass" : 0,
+      "fromNodeID" : "EE000001-0001-0001-0001-000000000003",
+      "id" : "EE000001-0001-0001-2222-000000000003",
+      "routingProbability" : 1,
+      "toNodeID" : "EE000001-0001-0001-0001-000000000004"
+    }
+  ],
+  "nodes" : [
+    {
+      "bufferSize" : 1,
+      "distribution" : "poisson",
+      "distributionParameters" : "lambda=0.9",
+      "id" : "EE000001-0001-0001-0001-000000000001",
+      "kind" : "source",
+      "name" : "Src1",
+      "numberOfServers" : 1,
+      "position" : [
+        100,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    },
+    {
+      "bufferSize" : 10,
+      "distribution" : "exponential",
+      "distributionParameters" : "rate=1.0",
+      "id" : "EE000001-0001-0001-0001-000000000002",
+      "kind" : "buffer",
+      "name" : "B1",
+      "numberOfServers" : 1,
+      "position" : [
+        220,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    },
+    {
+      "bufferSize" : 1,
+      "distribution" : "exponential",
+      "distributionParameters" : "rate=1.0",
+      "id" : "EE000001-0001-0001-0001-000000000003",
+      "kind" : "station",
+      "name" : "S1",
+      "numberOfServers" : 1,
+      "position" : [
+        340,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    },
+    {
+      "bufferSize" : 1,
+      "distribution" : "exponential",
+      "distributionParameters" : "rate=1.0",
+      "id" : "EE000001-0001-0001-0001-000000000004",
+      "kind" : "sink",
+      "name" : "Sink1",
+      "numberOfServers" : 1,
+      "position" : [
+        460,
+        200
+      ],
+      "serviceDistributions" : {
+
+      }
+    }
+  ]
+}

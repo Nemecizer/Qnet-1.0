@@ -1,0 +1,2 @@
+# Only needed for --backend auto/cvxpy. Choose and license an SDP solver separately.
+cvxpy>=1.4,<2

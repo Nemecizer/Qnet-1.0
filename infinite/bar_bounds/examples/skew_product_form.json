@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "model_type": "orthant_srbm_bar_bounds",
+  "name": "two-dimensional skew-symmetric SRBM",
+  "drift": [-0.75, -0.75],
+  "covariance": [
+    [2.0, -0.5],
+    [-0.5, 2.0]
+  ],
+  "reflection": [
+    [1.0, -0.25],
+    [-0.25, 1.0]
+  ],
+  "relaxation": {
+    "order": 2,
+    "targets": [
+      {"name": "mean_x1", "moment": [1, 0]},
+      {"name": "mean_x2", "moment": [0, 1]},
+      {"name": "cross_moment", "moment": [1, 1]},
+      {"name": "x1_second_raw_moment", "moment": [2, 0]}
+    ]
+  }
+}

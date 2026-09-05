@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "name": "Two-station multiclass routed loss network",
+  "description": "Exercises multiple servers, feedback, class switching, and internal loss.",
+  "blocking": "loss",
+  "service_discipline": "fcfs",
+  "classes": ["A", "B"],
+  "stations": [
+    {
+      "id": "assembly",
+      "servers": 2,
+      "capacity": 3,
+      "service_rates": {
+        "A": 2.3,
+        "B": 1.7
+      }
+    },
+    {
+      "id": "inspection",
+      "servers": 1,
+      "capacity": 2,
+      "service_rates": {
+        "A": 1.9,
+        "B": 2.4
+      }
+    }
+  ],
+  "external_arrivals": [
+    {
+      "station": "assembly",
+      "class": "A",
+      "rate": 0.7
+    },
+    {
+      "station": "inspection",
+      "class": "B",
+      "rate": 0.25
+    }
+  ],
+  "routing": [
+    {
+      "from_station": "assembly",
+      "from_class": "A",
+      "destinations": [
+        {
+          "station": "inspection",
+          "class": "A",
+          "probability": 0.65
+        },
+        {
+          "exit": true,
+          "probability": 0.35
+        }
+      ]
+    },
+    {
+      "from_station": "assembly",
+      "from_class": "B",
+      "destinations": [
+        {
+          "station": "inspection",
+          "class": "B",
+          "probability": 0.4
+        }
+      ]
+    },
+    {
+      "from_station": "inspection",
+      "from_class": "A",
+      "destinations": [
+        {
+          "station": "assembly",
+          "class": "B",
+          "probability": 0.2
+        }
+      ]
+    },
+    {
+      "from_station": "inspection",
+      "from_class": "B",
+      "destinations": [
+        {
+          "station": "assembly",
+          "class": "A",
+          "probability": 0.1
+        }
+      ]
+    }
+  ],
+  "solver": {
+    "tolerance": 1e-12,
+    "max_iterations": 200000,
+    "max_states": 10000
+  }
+}

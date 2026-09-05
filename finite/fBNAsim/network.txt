@@ -1,0 +1,19 @@
+# fBNA Queueing Network Export
+# Generated: 2/18/26, 8:57:09 PM
+
+# dimension
+2
+
+# arrival_distribution
+exponential rate=1.0
+
+# buffer_sizes
+1 1
+
+# service_distributions
+exponential rate=1.0
+exponential rate=1.0
+
+# routing_matrix
+0.000000 1.000000
+0.000000 0.000000

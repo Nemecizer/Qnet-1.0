@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "model_type": "orthant_srbm_bar_bounds",
+  "name": "stable non-product-form two-station SRBM",
+  "drift": [-0.84, -0.7],
+  "covariance": [
+    [2.0, 0.3],
+    [0.3, 1.5]
+  ],
+  "reflection": [
+    [1.0, -0.2],
+    [-0.1, 1.0]
+  ],
+  "relaxation": {
+    "order": 2,
+    "targets": [
+      {"name": "mean_x1", "moment": [1, 0]},
+      {"name": "mean_x2", "moment": [0, 1]}
+    ]
+  }
+}

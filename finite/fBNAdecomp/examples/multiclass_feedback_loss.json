@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "name": "Two-class inspection and repair with feedback",
+  "blocking": "loss",
+  "stations": [
+    {
+      "id": "inspection",
+      "name": "Inspection",
+      "servers": 2,
+      "capacity": 8,
+      "service_rates": {"regular": 1.2, "urgent": 1.5}
+    },
+    {
+      "id": "repair",
+      "name": "Repair",
+      "servers": 1,
+      "capacity": 5,
+      "service_rates": {"regular": 1.0, "urgent": 1.25}
+    },
+    {
+      "id": "verification",
+      "name": "Verification",
+      "servers": 1,
+      "capacity": 4,
+      "service_rates": {"regular": 1.4, "urgent": 1.6}
+    }
+  ],
+  "classes": [
+    {
+      "id": "regular",
+      "name": "Regular",
+      "external_arrivals": {"inspection": 0.7}
+    },
+    {
+      "id": "urgent",
+      "name": "Urgent",
+      "external_arrivals": {"inspection": 0.2}
+    }
+  ],
+  "routes": [
+    {"class": "regular", "from": "inspection", "to": "repair", "probability": 0.75},
+    {"class": "regular", "from": "repair", "to": "verification", "probability": 0.9},
+    {"class": "regular", "from": "verification", "to": "inspection", "probability": 0.08},
+    {"class": "urgent", "from": "inspection", "to": "repair", "probability": 0.55},
+    {"class": "urgent", "from": "inspection", "to": "verification", "probability": 0.35},
+    {"class": "urgent", "from": "repair", "to": "verification", "probability": 0.95},
+    {"class": "urgent", "from": "verification", "to": "inspection", "probability": 0.04}
+  ],
+  "solver": {
+    "tolerance": 1e-11,
+    "max_iterations": 1000,
+    "damping": 0.6
+  }
+}

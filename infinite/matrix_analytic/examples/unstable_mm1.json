@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "process": "continuous_time_qbd",
+  "name": "Unstable M/M/1 with lambda=3 and mu=2",
+  "boundary": {
+    "level_0_same": [[-3.0]],
+    "level_0_up": [[3.0]],
+    "level_1_down": [[2.0]],
+    "level_1_same": [[-5.0]]
+  },
+  "interior": {
+    "down": [[2.0]],
+    "same": [[-5.0]],
+    "up": [[3.0]]
+  },
+  "solver": {
+    "max_report_level": 3,
+    "tail_levels": [1]
+  }
+}

@@ -1,0 +1,85 @@
+# Five-station network from Dai, Nguyen & Reiman (1994), Section 3.2
+# System A, Case 1: cs^2 = 0 (deterministic service), tau1=0.4, tau2-5=1.2
+# Figure 3: alpha=1.0 at station 1
+# Station 1 routes to {2,3,4,5} each with prob 0.25
+# Stations {2,3,4,5} route to exit with prob 0.5, to station 3 with prob 0.5
+#   (Actually from Figure 3: stations 2,4,5 -> station 3, station 3 -> exit)
+#   Let me re-read: station 1 -> {2,3,4,5} each 0.25
+#   stations {2,4,5} each route to 3 with prob 0.5 and exit with prob 0.5
+#   station 3 routes to exit with prob 1.0
+#
+# Actually from Figure 3 more carefully:
+#   Station 1 routes to 2,3,4,5 each with probability 0.25
+#   Stations 2,4,5 each route to 3 with prob 0.5 and exit with prob 0.5
+#   Station 3 exits with prob 1.0
+#
+# lambda = (1, 0.25, 0.625, 0.25, 0.25) (from traffic equations)
+# Wait - let me recalculate. lambda1 = alpha1 = 1.0
+# lambda2 = 0.25*lambda1 = 0.25
+# lambda3 = 0.25*lambda1 + 0.5*lambda2 + 0.5*lambda4 + 0.5*lambda5
+# lambda4 = 0.25*lambda1 = 0.25
+# lambda5 = 0.25*lambda1 = 0.25
+# lambda3 = 0.25 + 0.125 + 0.125 + 0.125 = 0.625
+#
+# rho: rho1 = 1.0*0.4 = 0.40, rho2 = 0.25*1.2 = 0.30
+#      rho3 = 0.625*1.2 = 0.75, rho4 = 0.25*1.2 = 0.30, rho5 = 0.25*1.2 = 0.30
+#
+# But paper says Case 1: tau1=0.400, tau2=1.2, rho1=0.80, rho2=0.60
+# This means lambda1=2.0? No, rho1=0.80 with tau1=0.4 means lambda1=2.0.
+# With alpha=1.0 at station 1, lambda1 should equal alpha1 (no routing INTO 1).
+# So lambda1=1.0, rho1=0.4. But paper Table VI says rho1=0.80.
+#
+# Re-reading: "The exogenous arrival process to station 1 is Poisson
+# with rate alpha = 1.0."
+# From Table VI, Case 1: tau1=0.400, tau2=1.2, rho1=0.80, rho2=0.60
+# rho1 = lambda1*tau1 = lambda1*0.4 = 0.80 => lambda1 = 2.0
+# This means there must be feedback to station 1.
+#
+# Looking at Figure 3 again: stations {2,3,4,5} each feed back to
+# station 1 (or exit). From the figure arrows:
+#   Station 1 -> {2,3,4,5} each 0.25
+#   Station 2 -> 3 with prob 0.5, exit with prob 0.5
+#   Station 3 -> exit with prob 1
+#   Station 4 -> 5 with prob 0.5, exit with prob 0.5  (?)
+#   Station 5 -> exit with prob 1  (?)
+#
+# Actually I think the figure shows:
+#   After station 1: split to 2,3,4,5 each 0.25
+#   Stations 2 and 3: join at right, prob 0.5 exit, prob 0.5 back
+#   Stations 4 and 5: join at right, prob 0.5 exit, prob 0.5 back
+# "back" meaning back to station 1.
+#
+# With feedback to station 1:
+#   lambda1 = 1.0 + 0.5*(lambda2 + lambda3 + lambda4 + lambda5)
+#   lambda2 = 0.25*lambda1, lambda3 = 0.25*lambda1
+#   lambda4 = 0.25*lambda1, lambda5 = 0.25*lambda1
+#   So lambda_k = 0.25*lambda1 for k=2..5
+#   lambda1 = 1.0 + 0.5*4*0.25*lambda1 = 1.0 + 0.5*lambda1
+#   0.5*lambda1 = 1.0, lambda1 = 2.0
+#   lambda_k = 0.5 for k=2..5
+#   rho1 = 2.0*0.4 = 0.80, rho_k = 0.5*1.2 = 0.60  -- matches Table VI Case 1!
+#
+# Routing matrix:
+#   From 1: to 2,3,4,5 each 0.25 (exit 0.0)
+#   From 2: to 1 with 0.5 (exit 0.5)
+#   From 3: to 1 with 0.5 (exit 0.5)
+#   From 4: to 1 with 0.5 (exit 0.5)
+#   From 5: to 1 with 0.5 (exit 0.5)
+#
+# cs^2 = 0 for all (system A = deterministic)
+# ca^2_1 = 1.0 (Poisson), ca^2_{2..5} = 0 (no external arrivals)
+#
+# SBD partition: S1={1}, S2={2,3,4,5}  (rho1=0.80 > rho2=0.60)
+# Actually S1={2,3,4,5} (lower rho), S2={1} (higher rho)
+# Expected total sojourn: 6.950 (SBD), 6.725 (sim) from Table VII
+5
+1 1 1 1 1
+1.0 0.0 0.0 0.0 0.0
+1.0 0.0 0.0 0.0 0.0
+0.400 1.200 1.200 1.200 1.200
+0.0 0.0 0.0 0.0 0.0
+0.0 0.25 0.25 0.25 0.25
+0.5 0.0 0.0 0.0 0.0
+0.5 0.0 0.0 0.0 0.0
+0.5 0.0 0.0 0.0 0.0
+0.5 0.0 0.0 0.0 0.0

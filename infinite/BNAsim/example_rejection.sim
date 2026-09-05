@@ -1,0 +1,42 @@
+# Rejection (Loss) System Example
+#
+# A call center model where customers are lost if the system is full.
+# Uses RS (Rejection/Loss) blocking protocol.
+#
+# This is similar to an M/M/1/K queue where K is the buffer capacity.
+
+# Network dimensions
+stations 2
+classes 2
+
+# Simulation parameters
+warmup 5000
+run_length 50000
+replications 30
+seed 99999
+
+# Blocking protocol: RS (Rejection/Loss)
+blocking RS
+
+# Very small buffers to see rejection
+station_buffer 0 5
+station_buffer 1 3
+
+# MCN format output
+mcn_output example_rejection_mcn.txt
+
+# Class 0: Incoming calls
+class 0
+    arrival exponential 2.0
+    station 0
+    service exponential 1.5
+    routing 0 1
+end_class
+
+# Class 1: Follow-up processing
+class 1
+    arrival none
+    station 1
+    service exponential 2.0
+    routing 0 0
+end_class

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "drift": [-1.0],
+  "covariance": [[2.0]],
+  "reflection": [[1.0]],
+  "options": {
+    "max_rank": 6,
+    "bar_tolerance": 1e-9,
+    "moment_tolerance": 1e-8
+  }
+}

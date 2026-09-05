@@ -1,0 +1,26 @@
+# Example 1: Harrison 2D SRBM (Saure, Glynn, Zeevi 2008 / Harrison 1978)
+# True first moments (exact): E[Z1] = 0.5, E[Z2] = 0.75
+# Grid spacing 0 0 triggers auto-compute = rho/2 = 0.5, 0.5
+#   (rho = -R^{-1} mu = (1, 1); paper Remark 3 recommends rate C*rho with C in [0.5, 2])
+
+dimension  2
+grid_n     100
+basis_m    6
+grid_type  exponential
+
+drift
+  -1.0  0.0
+
+covariance
+  1.0  0.0
+  0.0  1.0
+
+reflection
+  1.0   0.0
+ -1.0   1.0
+
+grid_spacing
+  0.0  0.0
+
+tightness_bounds
+  100000  100000  100000  100000  100000

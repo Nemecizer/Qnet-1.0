@@ -1,0 +1,560 @@
+TY  - GEN
+ID  - P01
+TI  - Steady-state analysis of RBM in a rectangle: numerical methods and a queueing application
+AU  - J. G. Dai
+AU  - J. M. Harrison
+PY  - 1991
+UR  - https://doi.org/10.1214/aoap/1177005979
+N1  - 1991; Rectangle BAR foundation. Scanned title, abstract and introductory model pages visually inspected. A09.
+ER  - 
+
+TY  - GEN
+ID  - P02
+TI  - Reflected Brownian motion in an orthant: numerical methods for steady-state analysis
+AU  - J. G. Dai
+AU  - J. M. Harrison
+PY  - 1992
+UR  - https://people.orie.cornell.edu/jdai/publications/index.html
+N1  - 1992; Orthant reference-density numerical foundation; scanned introductory pages visually inspected. A22.
+ER  - 
+
+TY  - GEN
+ID  - P03
+TI  - The QNET method for two-moment analysis of closed manufacturing systems
+AU  - J. G. Dai
+AU  - J. M. Harrison
+PY  - 1993
+UR  - https://people.orie.cornell.edu/jdai/publications/index.html
+N1  - 1993; Closed manufacturing QNET; simplex reduction and common station service-law restriction. Scanned opening pages/contents visually inspected. A13.
+ER  - 
+
+TY  - GEN
+ID  - P04
+TI  - The QNET method for re-entrant queueing networks with priority disciplines
+AU  - J. G. Dai
+AU  - D. H. Yeh
+AU  - C. Zhou
+PY  - 1997
+UR  - https://people.orie.cornell.edu/jdai/publications/index.html
+N1  - 1997; Preemptive FBFS/LBFS re-entrant workloads and mean sojourn approximation. Model/discipline assumptions inspected. A15.
+ER  - 
+
+TY  - GEN
+ID  - P05
+TI  - The finite element method for computing the stationary distribution of an SRBM in a hypercube with applications to finite buffer queueing networks
+AU  - X. Shen
+AU  - H. Chen
+AU  - J. G. Dai
+AU  - W. Dai
+PY  - 2002
+UR  - https://people.orie.cornell.edu/jdai/publications/index.html
+N1  - 2002; Finite-buffer hypercube FEM and stationary probabilities; introductory formulation and scope inspected. A09.
+ER  - 
+
+TY  - GEN
+ID  - P06
+TI  - A heavy traffic limit theorem for a class of open queueing networks with finite buffers
+AU  - J. G. Dai
+AU  - W. Dai
+PY  - 1999
+UR  - https://people.orie.cornell.edu/jdai/publications/index.html
+N1  - 1999; Finite-buffer diffusion limit for deterministic feedforward routing and block-and-hold-0; not arbitrary BAS. Assumptions inspected.
+ER  - 
+
+TY  - GEN
+ID  - P07
+TI  - Many-server queues with customer abandonment: Numerical analysis of their diffusion model
+AU  - J. G. Dai
+AU  - S. He
+PY  - 2013
+UR  - https://arxiv.org/abs/1104.0347
+N1  - 2013; GI/Ph/n+GI numerical diffusions; reference density, abandonment approximations and conjecture-dependent arguments inspected. A18/A22.
+ER  - 
+
+TY  - GEN
+ID  - P08
+TI  - Dynamic control of N-systems with many servers: asymptotic optimality of a static priority policy in heavy traffic
+AU  - T. Tezcan
+AU  - J. G. Dai
+PY  - 2010
+UR  - https://people.orie.cornell.edu/jdai/publications/index.html
+N1  - 2010; N-system priorities with abandonment; finite-horizon cost objective and pool-dependent service speed assumptions inspected. A19.
+ER  - 
+
+TY  - GEN
+ID  - P09
+TI  - Validity of heavy-traffic steady-state approximations in many-server queues with abandonment
+AU  - J. G. Dai
+AU  - A. B. Dieker
+AU  - X. Gao
+PY  - 2014
+UR  - https://arxiv.org/abs/1306.5346
+N1  - 2014; Steady-state justification for the stated many-server abandonment model; supporting reference, not a general GJN theorem.
+ER  - 
+
+TY  - GEN
+ID  - P10
+TI  - Nonnegativity of solutions to the basic adjoint relationship for some diffusion processes
+AU  - J. G. Dai
+AU  - A. B. Dieker
+PY  - 2011
+UR  - https://people.orie.cornell.edu/jdai/publications/index.html
+N1  - 2011; A note posing a signed-BAR nonnegativity problem, not a general solution theorem; opening discussion inspected.
+ER  - 
+
+TY  - GEN
+ID  - P11
+TI  - The BAR approach for multiclass queueing networks with SBP service policies
+AU  - A. Braverman
+AU  - J. G. Dai
+AU  - M. Miyazawa
+PY  - 2023
+UR  - https://arxiv.org/abs/2302.05791
+N1  - 2023 preprint; 2024 journal; Direct BAR/Palm approach for SBP; stability, state-space collapse and tight-matrix conditions. A16.
+ER  - 
+
+TY  - GEN
+ID  - P12
+TI  - Asymptotic Product-form Steady-state for Multiclass Queueing Networks with SBP Service Policies in Multi-scale Heavy Traffic
+AU  - J. G. Dai
+AU  - D. Huo
+PY  - 2024
+UR  - https://arxiv.org/abs/2403.04090
+N1  - 2024 preprint; Priority multiscale product-form limits under moment/structural assumptions; model and case-study conditions inspected. A16.
+ER  - 
+
+TY  - GEN
+ID  - P13
+TI  - Asymptotic Product-form Steady-state for Multiclass Queueing Networks: A Reentrant Line Case Study
+AU  - J. G. Dai
+AU  - D. Huo
+PY  - 2024
+UR  - https://arxiv.org/abs/2411.00930
+N1  - 2024 preprint; Two-station five-class priority case study; preferred small benchmark for A16.
+ER  - 
+
+TY  - GEN
+ID  - P14
+TI  - Asymptotic Product-Form Steady State for Generalized Jackson Networks in Multiscale Heavy Traffic
+AU  - J. G. Dai
+AU  - P. W. Glynn
+AU  - Y. Xu
+PY  - 2023
+UR  - https://arxiv.org/abs/2304.01499
+N1  - 2023 preprint; Direct GJN multiscale approximation; v3 scaling and effective-station discussion inspected. A03.
+ER  - 
+
+TY  - GEN
+ID  - P15
+TI  - Tight matrices and heavy traffic steady state convergence in queueing networks
+AU  - J. G. Dai
+AU  - Y. Ji
+AU  - M. Miyazawa
+PY  - 2024
+UR  - https://arxiv.org/abs/2404.13651
+N1  - 2024 preprint; downloaded v3 revised 2025; Tight-matrix condition supporting priority steady-state convergence; author is Yiquan Ji. Background for admission checks.
+ER  - 
+
+TY  - GEN
+ID  - P16
+TI  - Deep Learning Method for Stationary Distribution of Reflected Brownian Motion
+AU  - J. G. Dai
+AU  - Z. Zhang
+PY  - 2026
+UR  - https://arxiv.org/abs/2607.08091
+N1  - 2026 preprint; July 2026 preprint. Model, architecture, experiments and moment appendix inspected; negative 30D second-moment entries visually confirmed. A29.
+ER  - 
+
+TY  - GEN
+ID  - P17
+TI  - High order steady-state diffusion approximations
+AU  - A. Braverman
+AU  - J. G. Dai
+AU  - X. Fang
+PY  - 2020
+UR  - https://arxiv.org/abs/2012.02824
+N1  - 2020 preprint; Higher-order generator/Stein corrections; opening formulation and example scope inspected, not independently reproduced. A04.
+ER  - 
+
+TY  - GEN
+ID  - P18
+TI  - Stationary distribution of a two-dimensional SRBM: geometric views and boundary measures
+AU  - J. G. Dai
+AU  - M. Miyazawa
+PY  - 2013
+UR  - https://arxiv.org/abs/1110.1791
+N1  - 2013; Two-dimensional SRBM boundary measures and tail geometry. Supporting transform/tail reference. A27.
+ER  - 
+
+TY  - GEN
+ID  - P19
+TI  - A multi-dimensional SRBM: Geometric views of its product form stationary distribution
+AU  - J. G. Dai
+AU  - M. Miyazawa
+AU  - J. Wu
+PY  - 2014
+UR  - https://arxiv.org/abs/1312.1758
+N1  - 2014; Exact product-form geometry and transform-BAR equivalence. Supporting BAR conventions and exact tests.
+ER  - 
+
+TY  - GEN
+ID  - P20
+TI  - Decomposable stationary distribution of multidimensional SRBM
+AU  - J. G. Dai
+AU  - M. Miyazawa
+AU  - J. Wu
+PY  - 2015
+UR  - https://arxiv.org/abs/1312.1387
+N1  - 2015; Exact stationary block decomposability for SRBM, distinct from heuristic weak coupling. A21.
+ER  - 
+
+TY  - GEN
+ID  - P21
+TI  - Integral expression for the stationary distribution of reflected Brownian motion in a wedge
+AU  - S. Franceschi
+AU  - K. Raschel
+PY  - 2017
+UR  - https://arxiv.org/abs/1703.09433
+N1  - 2017 preprint; 2D kernel/Carleman boundary-value transform formula; introductory theorem, drift cases and equations inspected, key pages visually checked. A26.
+ER  - 
+
+TY  - GEN
+ID  - P22
+TI  - On the stationary distribution of reflected Brownian motion in a wedge: differential properties
+AU  - M. Bousquet-Melou
+AU  - A. Elvey Price
+AU  - S. Franceschi
+AU  - C. Hardouin
+AU  - K. Raschel
+PY  - 2021
+UR  - https://arxiv.org/abs/2101.01562
+N1  - 2021 preprint; Classification of rational/algebraic/differential transform forms in a wedge. Supporting special-case reference. A21.
+ER  - 
+
+TY  - GEN
+ID  - P23
+TI  - Reflected Brownian motion in a wedge: sum-of-exponential stationary densities
+AU  - A. B. Dieker
+AU  - J. Moriarty
+PY  - 2009
+UR  - https://arxiv.org/abs/0712.0844
+N1  - 2009; Exact finite sum-of-exponentials SRBM cases; useful non-product-form benchmarks. A21.
+ER  - 
+
+TY  - GEN
+ID  - P24
+TI  - A Linear Programming Algorithm for Computing the Stationary Distribution of Semimartingale Reflected Brownian Motion
+AU  - D. Saure
+AU  - P. W. Glynn
+AU  - A. Zeevi
+PY  - 2008
+UR  - https://www.dii.uchile.cl/~dsaure/
+N1  - 2008 author draft; Author draft, explicitly marked not for distribution. Private research only. Section 6 priority-OU drift/LP and title notice visually checked. A17/A23.
+ER  - 
+
+TY  - GEN
+ID  - P25
+TI  - The Fourier-series method for inverting transforms of probability distributions
+AU  - J. Abate
+AU  - W. Whitt
+PY  - 1992
+UR  - https://www.columbia.edu/~ww2040/abate.html
+N1  - 1992; Published transform-inversion reference: PGFs, LSTs and Fourier methods. A27.
+ER  - 
+
+TY  - GEN
+ID  - P26
+TI  - Stationary distributions of continuous-time Markov chains: a review of theory and truncation-based approximations
+AU  - J. Kuntz
+AU  - P. Thomas
+AU  - G.-B. Stan
+AU  - M. Barahona
+PY  - 2019
+UR  - https://arxiv.org/abs/1909.05794
+N1  - 2019 preprint; Stationary CTMC truncation taxonomy, convergence and error control; overview inspected. A02.
+ER  - 
+
+TY  - GEN
+ID  - P27
+TI  - Rigorous bounds on the stationary distributions of the chemical master equation via mathematical programming
+AU  - J. Kuntz
+AU  - P. Thomas
+AU  - G.-B. Stan
+AU  - M. Barahona
+PY  - 2019
+UR  - https://arxiv.org/abs/1702.05468
+N1  - 2019; Moment SDP and stationary probability LP bounds for chemical master equations; queue/RBM adaptation requires separate assumptions. A24.
+ER  - 
+
+TY  - GEN
+ID  - P28
+TI  - On convergence of general truncation-augmentation schemes for approximating stationary distributions of Markov chains
+AU  - A. Infanger
+AU  - P. W. Glynn
+AU  - Y. Liu
+PY  - 2022
+UR  - https://arxiv.org/abs/2203.15167
+N1  - 2022 preprint; Truncation-augmentation convergence; distinguishes convergence from a computable finite-run certificate. A02.
+ER  - 
+
+TY  - GEN
+ID  - P29
+TI  - The Multi-Branched Method of Moments for Queueing Networks
+AU  - G. Casale
+PY  - 2009
+UR  - https://arxiv.org/abs/0902.3065
+N1  - 2009 preprint; Multi-branched Method of Moments for closed product-form normalizers; title/algorithm overview inspected. Not CoMoM and not BAR-SDP. A11.
+ER  - 
+
+TY  - GEN
+ID  - P30
+TI  - Low-rank tensor methods for communicating Markov processes
+AU  - D. Kressner
+AU  - F. Macedo
+PY  - 2014
+UR  - https://www.epfl.ch/labs/mathicse/wp-content/uploads/2018/10/17.2014_DK-FM.pdf
+N1  - 2014 preprint; Tensor-train / matrix-product-state stationary solvers for communicating Markov processes; overview inspected. A05.
+ER  - 
+
+TY  - GEN
+ID  - P31
+TI  - Approximating martingales for variance reduction in Markov process simulation
+AU  - S. G. Henderson
+AU  - P. W. Glynn
+PY  - 2002
+UR  - https://web.stanford.edu/~glynn/papers/2002/HendersonG02.html
+N1  - 2002; Approximate Poisson solutions as martingale simulation controls; introductory construction inspected. A32.
+ER  - 
+
+TY  - GEN
+ID  - P32
+TI  - Dynamic importance sampling for queueing networks
+AU  - P. Dupuis
+AU  - A. D. Sezer
+AU  - H. Wang
+PY  - 2007
+UR  - https://arxiv.org/abs/0710.4389
+N1  - 2007; State-dependent importance sampling for queue-network rare events. Supporting algorithm reference. A31.
+ER  - 
+
+TY  - GEN
+ID  - P33
+TI  - Adaptive multilevel splitting for rare event analysis
+AU  - F. Cerou
+AU  - A. Guyader
+PY  - 2007
+UR  - https://perso.lpsm.paris/~aguyader/files/papers/cg2.pdf
+N1  - 2007; Adaptive splitting foundation; primary publisher abstract accessible, requested author PDF could not be fetched. A31.
+ER  - 
+
+TY  - GEN
+ID  - P34
+TI  - Analysis of Continuous Material Models of Unreliable Flow Lines
+AU  - M. H. Burman
+AU  - S. B. Gershwin
+PY  - 1997
+UR  - https://web.mit.edu/manuf-sys/www/oldcell1/gershwin.pubs.transferlines.html
+N1  - 1997 author manuscript; November 1997 author manuscript on unreliable continuous-material flow lines; title/model/decomposition overview inspected. A07.
+ER  - 
+
+TY  - GEN
+ID  - P35
+TI  - A decomposition method for approximate evaluation of continuous flow multi-stage lines with general Markovian machines
+AU  - M. Colledani
+AU  - S. B. Gershwin
+PY  - 2011
+UR  - https://web.mit.edu/manuf-sys/www/oldcell1/gershwin.pubs.transferlines.html
+N1  - 2011; General Markovian machine states in finite-buffer fluid-line decomposition; scope and modeling assumptions inspected. A07.
+ER  - 
+
+TY  - GEN
+ID  - P36
+TI  - Nonexistence of Brownian models for certain multiclass queueing networks
+AU  - J. G. Dai
+AU  - Y. Wang
+PY  - 1993
+UR  - https://people.orie.cornell.edu/jdai/publications/index.html
+N1  - 1993; Counterexamples to proposed Brownian models; author Y. Wang and title confirmed from PDF. Admission-screening background.
+ER  - 
+
+TY  - GEN
+ID  - P37
+TI  - On positive Harris recurrence of multiclass queueing networks: a unified approach via fluid limit models
+AU  - J. G. Dai
+PY  - 1995
+UR  - https://people.orie.cornell.edu/jdai/publications/index.html
+N1  - 1995; Multiclass fluid-model stability foundation; supports policy-sensitive stability checks.
+ER  - 
+
+TY  - GEN
+ID  - P38
+TI  - Diffusion Approximations for a Markovian Multi-Class Service System with Guaranteed and Best-Effort Service Levels
+AU  - C. Maglaras
+AU  - A. Zeevi
+PY  - 2004
+UR  - https://doi.org/10.1287/moor.1040.0090
+N1  - 2004; author manuscript July 2003; Priority differentiated-service diffusion and perturbation approximation; original source linked by P24. A17.
+ER  - 
+
+TY  - GEN
+ID  - P39
+TI  - Bounding Stationary Expectations of Markov Processes
+AU  - P. W. Glynn
+AU  - A. Zeevi
+PY  - 2008
+UR  - https://doi.org/10.1214/074921708000000381
+N1  - 2008; Generator/Poisson drift inequalities for stationary expectation bounds; primary formulation inspected. A25.
+ER  - 
+
+TY  - GEN
+ID  - P40
+TI  - Characterization of stationary distributions of reflected diffusions
+AU  - W. Kang
+AU  - K. Ramanan
+PY  - 2012
+UR  - https://arxiv.org/abs/1204.4969
+N1  - 2012 preprint; Stationary characterization using probability measures and admissible test functions in reflected domains; introduction inspected.
+ER  - 
+
+TY  - GEN
+ID  - P41
+TI  - Perfect Sampling of Generalized Jackson Networks
+AU  - J. Blanchet
+AU  - X. Chen
+PY  - 2019
+UR  - https://doi.org/10.1287/moor.2018.0941
+N1  - 2019; author manuscript; Perfect FIFO single-server GJN sampling; light-tail and interarrival-support conditions inspected. Author copy is arXiv v2 from 2016. A30.
+ER  - 
+
+TY  - GEN
+ID  - P42
+TI  - An approximate analytical method for evaluating the performance of closed loop flow systems with unreliable machines and finite buffers
+AU  - S. B. Gershwin
+AU  - L. M. Werner
+PY  - 2007
+UR  - https://web.mit.edu/manuf-sys/www/oldcell1/gershwin.pubs.transferlines.html
+N1  - 2007; author manuscript 2005; Closed-loop/CONWIP and pallet decomposition; opening model and token interpretation inspected. A14.
+ER  - 
+
+TY  - GEN
+ID  - P43
+TI  - Doubling Algorithms for Stationary Distributions of Fluid Queues: A Probabilistic Interpretation
+AU  - N. Bean
+AU  - G. T. Nguyen
+AU  - F. Poloni
+PY  - 2018
+UR  - https://arxiv.org/abs/1801.05981
+N1  - 2018; Fluid-queue Riccati/doubling algorithms and QBD connection; opening formulation inspected. A08.
+ER  - 
+
+TY  - GEN
+ID  - P44
+TI  - Deep Learning for Markov Chains: Lyapunov Functions, Poisson's Equation, and Stationary Distributions
+AU  - Y. Qu
+AU  - J. Blanchet
+AU  - P. Glynn
+PY  - 2025
+UR  - https://arxiv.org/abs/2508.16737
+N1  - 2025 preprint; 2026 journal; Neural Lyapunov/Poisson/stationary methods; experimental research connection to simulation controls. A32.
+ER  - 
+
+TY  - GEN
+ID  - P45
+TI  - A Polling Model with Multiple Priority Levels
+AU  - M. A. A. Boon
+AU  - I. J. B. F. Adan
+AU  - O. J. Boxma
+PY  - 2010
+UR  - https://arxiv.org/abs/1408.0282
+N1  - 2010 journal; manuscript August 2009; arXiv posting 2014; Priority polling transforms; arbitrary-time versus polling-epoch observables matter. August 2009 manuscript, journal 2010, arXiv 2014. A20.
+ER  - 
+
+TY  - GEN
+ID  - P46
+TI  - A Unified Framework for Numerically Inverting Laplace Transforms
+AU  - J. Abate
+AU  - W. Whitt
+PY  - 2006
+UR  - https://doi.org/10.1287/ijoc.1050.0137
+N1  - 2006; author draft; Unified inversion framework and precision/contour choices; author draft. A27.
+ER  - 
+
+TY  - GEN
+ID  - P47
+TI  - Fitting Phase-Type Distributions via the EM Algorithm
+AU  - S. Asmussen
+AU  - O. Nerman
+AU  - M. Olsson
+PY  - 1996
+UR  - https://pure.au.dk/portal/en/publications/fitting-phase-type-distributions-via-the-em-algorithm/
+N1  - 1996; EM phase-type fitting; primary paper in a university teaching repository. Separate fitting error from Markov solver error. A01.
+ER  - 
+
+TY  - GEN
+ID  - P48
+TI  - Manufacturing Flow Line Systems: A Review of Models and Analytical Results
+AU  - Y. Dallery
+AU  - S. B. Gershwin
+PY  - 1992
+UR  - https://doi.org/10.1007/BF01158636
+N1  - 1992; repository manuscript; Foundational manufacturing review; DOI/author bibliography available, PDF request failed. Read before broad transfer-line implementation.
+ER  - 
+
+TY  - GEN
+ID  - P49
+TI  - A compensation approach for queueing problems
+AU  - I. J. B. F. Adan
+PY  - 1991
+UR  - https://research.tue.nl/en/publications/a-compensation-approach-for-queueing-problems-2
+N1  - 1991 dissertation; Compensation dissertation; download failed. The primary journal record supports the survey scope, not a completed thesis review. A28.
+ER  - 
+
+TY  - GEN
+ID  - P50
+TI  - A Linear Programming Approach to the Steady-State Analysis of Reflected Brownian Motion
+AU  - E. Schwerer
+PY  - 2001
+UR  - https://doi.org/10.1081/STM-100002277
+N1  - 2001; Schwerer 2001 BAR moment LP; publisher abstract available, PDF access unavailable. Online posting date 2007 is not the journal year. A24.
+ER  - 
+
+TY  - GEN
+ID  - P51
+TI  - Mean-Value Analysis of Closed Multichain Queuing Networks
+AU  - M. Reiser
+AU  - S. S. Lavenberg
+PY  - 1980
+UR  - https://research.ibm.com/publications/mean-value-analysis-of-closed-multichain-queuing-networks
+N1  - 1980; Reiser-Lavenberg 1980 MVA; IBM primary abstract available, publisher PDF unavailable. A10/A12.
+ER  - 
+
+TY  - GEN
+ID  - P52
+TI  - On the inapproximability of M/G/K: why two moments of job size distribution are not enough
+AU  - V. Gupta
+AU  - M. Harchol-Balter
+AU  - J. G. Dai
+AU  - B. Zwart
+PY  - 2010
+UR  - https://people.orie.cornell.edu/jdai/publications/index.html
+N1  - 2010; Two-moment limitations in M/G/K; abstract and central conclusion inspected. Supports distribution-shape sensitivity, not a new solver.
+ER  - 
+
+TY  - GEN
+ID  - P53
+TI  - A survey of queueing networks with blocking part I
+AU  - H. G. Perros
+PY  - 1986
+UR  - https://repository.lib.ncsu.edu/items/0c11624e-f1d1-4549-b114-32d8794c9cd2
+N1  - 1986 technical report TR-86/04; Blocking-network survey repository returned non-PDF content. Bibliographic lead for follow-up; not treated as an inspected full paper.
+ER  - 
+
+TY  - GEN
+ID  - P54
+TI  - BuTools 2: a Rich Toolbox for Markovian Performance Evaluation
+AU  - G. Horvath
+AU  - M. Telek
+PY  - 2017
+UR  - https://eudl.eu/doi/10.4108/eai.25-10-2016.2266400
+N1  - 2017; BuTools 2 primary conference record describes PH/MAP/block-chain capabilities. PDF endpoint returned HTML; no fake PDF retained. A01.
+ER  - 

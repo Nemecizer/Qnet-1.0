@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "process": "open_single_class_markovian_network",
+  "name": "M/M/1 with lambda=2 and mu=3",
+  "nodes": [
+    {
+      "name": "queue",
+      "external_arrival_rate": 2.0,
+      "service_rate_per_server": 3.0,
+      "servers": 1
+    }
+  ],
+  "routing": [[0.0]],
+  "solver": {
+    "initial_total_cap": 8,
+    "max_total_cap": 64,
+    "growth_factor": 1.6,
+    "minimum_cap_increment": 2,
+    "boundary_mass_tolerance": 1e-8,
+    "refinement_relative_tolerance": 1e-7,
+    "tail_levels": [0, 1, 5, 10, 20]
+  }
+}

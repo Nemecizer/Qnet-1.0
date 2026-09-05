@@ -1,0 +1,23 @@
+# fBNA Queueing Network Export
+# 4-station branching, buffer size = 10
+
+# dimension
+4
+
+# arrival_distribution
+exponential rate=1.0
+
+# buffer_sizes
+10 10 10 10
+
+# service_distributions
+exponential rate=1.0
+exponential rate=1.0
+exponential rate=1.0
+exponential rate=1.0
+
+# routing_matrix
+0.000000 1.000000 0.000000 0.000000
+0.000000 0.000000 0.750000 0.250000
+0.000000 0.000000 0.000000 0.000000
+0.000000 0.000000 0.000000 0.000000

@@ -1,0 +1,335 @@
+{
+ "generated": "2026-09-05",
+ "phase": "Complete \u2014 6 rounds, all gates green, release rebuilt and verified",
+ "gates": [
+  {
+   "name": "swift build",
+   "state": "pass",
+   "note": "clean; verified independently after every round"
+  },
+  {
+   "name": "design_lint.sh (full, with WCAG contrast)",
+   "state": "pass",
+   "note": "exit 0; ds_contrast: all pairs pass"
+  },
+  {
+   "name": "gui_runtime_contracts.sh",
+   "state": "pass",
+   "note": "11 originals kept verbatim; 22 assertions now"
+  },
+  {
+   "name": "result_output_parser_check.sh",
+   "state": "pass",
+   "note": "now hermetic \u2014 3 consecutive clean runs"
+  },
+  {
+   "name": "embedded_formatter_parse_check.sh",
+   "state": "pass",
+   "note": "new gate; caught an awk parse failure that shipped 4 rounds"
+  },
+  {
+   "name": "steady_state_suite.sh",
+   "state": "pass",
+   "note": "all added steady-state method checks passed"
+  },
+  {
+   "name": "verify_source_package.sh",
+   "state": "pass",
+   "note": "full source-run + bundle + signature + 35 RQNA examples"
+  },
+  {
+   "name": "version pinned 0.90.34",
+   "state": "pass",
+   "note": "AppVersion.swift hash identical to the original baseline"
+  },
+  {
+   "name": "validation/ integrity",
+   "state": "pass",
+   "note": "additive only; no assertion removed or loosened"
+  },
+  {
+   "name": "Qnet.app rebuilt, signed, audited",
+   "state": "pass",
+   "note": "33 solvers, 0 unavailable, 50 examples; postdates every fix"
+  },
+  {
+   "name": "FILES.sha256 regenerated",
+   "state": "pass",
+   "note": "826 entries, all verify, 0 previously-listed files dropped"
+  }
+ ],
+ "task_status": {
+  "W1-01": "done",
+  "W1-02": "done",
+  "W1-03": "done",
+  "W1-04": "done",
+  "W1-05": "done",
+  "W2-01": "done",
+  "W2-02": "done",
+  "W2-03": "done",
+  "W2-04": "done",
+  "W2-05": "done",
+  "W2-06": "done",
+  "W3-01": "done",
+  "W3-02": "done",
+  "W3-03": "done",
+  "W3-04": "done",
+  "W4-01": "done",
+  "W4-02": "done",
+  "W4-03": "done",
+  "W4-04": "done",
+  "W5-01": "done",
+  "W5-02": "done",
+  "W5-03": "done",
+  "W5-04": "done",
+  "W5-05": "done",
+  "W6-01": "done",
+  "W6-02": "done",
+  "W6-03": "done",
+  "W6-04": "done",
+  "W6-05": "done",
+  "W6-06": "done"
+ },
+ "metric_measured": {
+  "0": {
+   "value": "4 clicks, 0 typed",
+   "target_met": true
+  },
+  "1": {
+   "value": "22 of 22",
+   "target_met": true
+  },
+  "2": {
+   "value": "7",
+   "target_met": true
+  },
+  "3": {
+   "value": "0",
+   "target_met": true
+  },
+  "4": {
+   "value": "1, with a status line",
+   "target_met": true
+  },
+  "5": {
+   "value": "creatable; refused with a reason on source/sink",
+   "target_met": true
+  },
+  "6": {
+   "value": "1 \u2014 verified through the full state machine",
+   "target_met": true
+  },
+  "7": {
+   "value": "1",
+   "target_met": true
+  },
+  "8": {
+   "value": "50",
+   "target_met": true
+  },
+  "9": {
+   "value": "10 of 12",
+   "target_met": true
+  },
+  "10": {
+   "value": "8 of 8",
+   "target_met": true
+  },
+  "11": {
+   "value": "maximize 6 of 6; detach 5 of 6 (Tools palette is width-capped by design)",
+   "target_met": true
+  },
+  "12": {
+   "value": "canvas 566 pt, shell 241 pt, preset = 45%",
+   "target_met": true
+  },
+  "13": {
+   "value": "yes, docked and detached",
+   "target_met": true
+  },
+  "14": {
+   "value": "yes, both directions",
+   "target_met": true
+  },
+  "17": {
+   "value": "4 of 4",
+   "target_met": true
+  },
+  "18": {
+   "value": "4",
+   "target_met": true
+  },
+  "19": {
+   "value": "8 of 8 in the Arrange submenu",
+   "target_met": true
+  }
+ },
+ "rounds": [
+  {
+   "n": 0,
+   "title": "Audit and pre-seed",
+   "state": "done",
+   "detail": "Seven parallel auditors read the 87-file, 63,846-line Swift source and returned file:line-verified findings; a synthesizer deduplicated them into 30 tasks across six workstreams with disjoint file ownership. The integrator then seeded the two compile-time contentions that the hand-off protocol cannot cover \u2014 DS.Number.display plus the dialog/detached-pane size bands and pane symbols in the frozen DesignSystem.swift, and the inert sticky-pan / pending-link API in NetworkEditorModel.swift \u2014 and verified build and lint still pass.",
+   "agents": 8,
+   "tokens": "1.6M"
+  },
+  {
+   "n": 1,
+   "title": "Build, integrate, critique",
+   "state": "done",
+   "agents": 12,
+   "tokens": null,
+   "detail": "Six implementers landed the first pass: sticky double-click pan, drag-to-connect, the archetype library and gallery, pane maximize, the DSPanelWindow host, \u2318F/\u2318C shell routing, and the universal decimal filter at the terminal boundary. Critics returned five needs_work verdicts. Ended with 16 blocking findings and 44 improvements.",
+   "verdicts": [
+    {
+     "lens": "Six named asks",
+     "verdict": "needs_work",
+     "blocking": 2
+    },
+    {
+     "lens": "Canvas & authoring UX",
+     "verdict": "needs_work",
+     "blocking": 2
+    },
+    {
+     "lens": "Windows, dialogs, shell",
+     "verdict": "needs_work",
+     "blocking": 4
+    },
+    {
+     "lens": "Numeric integrity",
+     "verdict": "needs_work",
+     "blocking": 1
+    },
+    {
+     "lens": "Craft & regression",
+     "verdict": "needs_work",
+     "blocking": 7
+    }
+   ]
+  },
+  {
+   "n": 2,
+   "title": "Build, integrate, critique",
+   "state": "done",
+   "agents": 12,
+   "tokens": null,
+   "detail": "Pane detachment into real windows, frame persistence across every window, wide-table measurement, and the second pass on the precision filter. Critics began driving the built app rather than reading code. Ended with 20 blocking findings and 35 improvements.",
+   "verdicts": [
+    {
+     "lens": "Six named asks",
+     "verdict": "needs_work",
+     "blocking": 6
+    },
+    {
+     "lens": "Canvas & authoring UX",
+     "verdict": "needs_work",
+     "blocking": 6
+    },
+    {
+     "lens": "Windows, dialogs, shell",
+     "verdict": "needs_work",
+     "blocking": 1
+    },
+    {
+     "lens": "Numeric integrity",
+     "verdict": "needs_work",
+     "blocking": 2
+    },
+    {
+     "lens": "Craft & regression",
+     "verdict": "needs_work",
+     "blocking": 5
+    }
+   ]
+  },
+  {
+   "n": 3,
+   "title": "Build, integrate, critique",
+   "state": "done",
+   "agents": 12,
+   "tokens": null,
+   "detail": "Hardening and polish; showAlert calls in the hot file fell from 87 to 4. Critics reproduced defects clean-room with real CGEvent clicks and AXPress on menu items \u2014 which is how the undo regression was found. Ended with 26 blocking findings and 37 improvements.",
+   "verdicts": [
+    {
+     "lens": "Six named asks",
+     "verdict": "needs_work",
+     "blocking": 7
+    },
+    {
+     "lens": "Canvas & authoring UX",
+     "verdict": "needs_work",
+     "blocking": 6
+    },
+    {
+     "lens": "Windows, dialogs, shell",
+     "verdict": "needs_work",
+     "blocking": 2
+    },
+    {
+     "lens": "Numeric integrity",
+     "verdict": "needs_work",
+     "blocking": 3
+    },
+    {
+     "lens": "Craft & regression",
+     "verdict": "needs_work",
+     "blocking": 8
+    }
+   ]
+  },
+  {
+   "n": 4,
+   "title": "Blocker close-out",
+   "state": "done",
+   "agents": 11,
+   "tokens": null,
+   "detail": "The 26 findings deduplicated to 14 distinct issues and routed correctly for the first time. An orchestration bug had been matching critic labels like \"W2 (NetworkEditorModel.swift) with W6\" against a bare \"W2\", so in round 3 none of the 26 reached an implementer. Undo was fixed at the root: selectedTool became private(set) with setTool as the single writer, so the compiler now prevents the sticky-pan leak from recurring."
+  },
+  {
+   "n": 5,
+   "title": "Re-verification in a running app",
+   "state": "done",
+   "agents": 11,
+   "tokens": null,
+   "detail": "Verifiers reproduced each original defect report against the built binary \u2014 real CGEvent clicks, System Events AX reads, screenshots \u2014 rather than reading diffs. 12 of 13 issues closed. The numeric verifier compared three formatters across 20,157 values and caught the live perl filter mid-run to cmp it against the source extraction.",
+   "verdicts": [
+    {
+     "lens": "Canvas & authoring",
+     "verdict": "ship",
+     "blocking": 0
+    },
+    {
+     "lens": "Windows & dialogs",
+     "verdict": "needs_work",
+     "blocking": 0
+    },
+    {
+     "lens": "Numeric integrity",
+     "verdict": "ship",
+     "blocking": 0
+    },
+    {
+     "lens": "Undo & regression",
+     "verdict": "ship",
+     "blocking": 0
+    }
+   ]
+  },
+  {
+   "n": 6,
+   "title": "Final close-out and release",
+   "state": "done",
+   "agents": 4,
+   "tokens": null,
+   "detail": "Stop no longer reports a cancelled run as a solver failure \u2014 the verdict now keys off the model's own cancel record instead of an exit-code whitelist, so it is immune to which signal wins the SIGINT/SIGTERM/SIGKILL race; a genuine failure still reports as one, verified in both directions against a stubbed failing solver. The precision filter gained a conjunctive rule that leaves lone numbers in prose unpadded without shearing a real fixed-width table. Then: the gates were made hermetic (the module cache no longer lives inside the Dropbox-synced tree, which had been producing intermittent swift-frontend crashes that looked like code defects), the release was rebuilt and fully verified, and FILES.sha256 was regenerated.",
+   "verdicts": [
+    {
+     "lens": "Final integrator / verifier",
+     "verdict": "ship",
+     "blocking": 0
+    }
+   ]
+  }
+ ]
+}

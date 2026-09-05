@@ -1,0 +1,30 @@
+# SRBM Solver Input File - 3D Test Case
+# Symmetric unit cube with normal reflection
+
+# Number of dimensions
+dimension 3
+
+# Polynomial approximation order (lower for 3D)
+degree 4
+
+# Hypercube dimensions [a1, a2, a3]
+a 1.0 1.0 1.0
+
+# Covariance matrix (identity)
+Gamma
+1.0 0.0 0.0
+0.0 1.0 0.0
+0.0 0.0 1.0
+
+# Drift vector (zero drift)
+mu 0.0 0.0 0.0
+
+# Reflection matrix (normal reflection)
+# Columns: [v_{x1=0}, v_{x1=a1}, v_{x2=0}, v_{x2=a2}, v_{x3=0}, v_{x3=a3}]
+R
+ 1.0 -1.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0 -1.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0 -1.0
+
+# Expected results (by symmetry):
+# E[X1] = E[X2] = E[X3] ≈ 0.5

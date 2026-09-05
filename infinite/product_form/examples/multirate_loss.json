@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "model_type": "kaufman_roberts",
+  "name": "Ten-unit two-class loss resource",
+  "description": "Voice calls require one unit; video calls require three units.",
+  "resource": {
+    "id": "link",
+    "capacity": 10
+  },
+  "classes": [
+    {
+      "id": "voice",
+      "units": 1,
+      "arrival_rate": 2.0,
+      "mean_holding_time": 1.5
+    },
+    {
+      "id": "video",
+      "units": 3,
+      "offered_load": 1.2
+    }
+  ]
+}

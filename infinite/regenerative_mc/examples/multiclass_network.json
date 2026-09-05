@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "process": "open_markovian_queueing_network",
+  "name": "two-class two-node open network",
+  "nodes": [
+    {
+      "id": "cpu",
+      "servers": 2,
+      "service_rate": 2.0,
+      "capacity": null
+    },
+    {
+      "id": "io",
+      "servers": 1,
+      "service_rate": 3.0,
+      "capacity": null
+    }
+  ],
+  "classes": [
+    {
+      "id": "interactive",
+      "external_arrival_rates": {
+        "cpu": 0.6
+      },
+      "routing": {
+        "cpu": {
+          "io": 0.4
+        },
+        "io": {
+          "cpu": 0.2
+        }
+      }
+    },
+    {
+      "id": "batch",
+      "external_arrival_rates": {
+        "io": 0.3
+      },
+      "routing": {
+        "cpu": {},
+        "io": {
+          "cpu": 0.5
+        }
+      }
+    }
+  ],
+  "initial_jobs": {
+    "cpu": {
+      "interactive": 2,
+      "batch": 1
+    }
+  },
+  "random": {
+    "base_seed": 7319921,
+    "stream": 4
+  },
+  "stopping": {
+    "absolute_half_width": 0.1,
+    "relative_half_width": 0.1,
+    "minimum_cycles": 300,
+    "minimum_effective_cycles": 30,
+    "check_every_cycles": 100,
+    "maximum_cycles": 5000
+  }
+}

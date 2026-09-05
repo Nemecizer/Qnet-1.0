@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "process": "open_markovian_queueing_network",
+  "name": "M/M/1/8 blocking with likelihood-ratio importance sampling",
+  "nodes": [
+    {
+      "id": "server",
+      "servers": 1,
+      "service_rate": 1.0,
+      "capacity": 8
+    }
+  ],
+  "classes": [
+    {
+      "id": "jobs",
+      "external_arrival_rates": {
+        "server": 0.7
+      },
+      "routing": {
+        "server": {}
+      }
+    }
+  ],
+  "random": {
+    "base_seed": 7319921,
+    "stream": 9
+  },
+  "rare_event": {
+    "method": "importance_sampling_mm1k",
+    "arrival_rate_multiplier": 1.35,
+    "service_rate_multiplier": 0.85
+  },
+  "stopping": {
+    "confidence": 0.95,
+    "absolute_half_width": 0.01,
+    "relative_half_width": 0.2,
+    "monitored_metrics": [
+      "external_blocking_probability"
+    ],
+    "minimum_cycles": 1000,
+    "minimum_effective_cycles": 50,
+    "minimum_positive_cycles": 10,
+    "check_every_cycles": 500,
+    "maximum_cycles": 30000,
+    "maximum_events": 5000000,
+    "maximum_cycle_time": 1000000.0,
+    "maximum_events_per_cycle": 200000,
+    "maximum_wall_seconds": 30.0
+  }
+}

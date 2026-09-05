@@ -1,0 +1,7 @@
+# Expected output for 08_symmetric_2d_r0p95_rhop0p9
+# Source: Dai-Harrison 1992 Table 2 (d=2 symmetric, r=0.95, rho=0.9)
+# Symmetric 2D SRBM: R=[[1,-0.95],[-0.95,1]], sigma=[[1,0.9],[0.9,1]], mu=(-1,-1).
+# Closed form: E[Z_i] = (1+r*rho)/(2(1+r)) = 0.475641
+dimension 2
+E[Z_1] 0.475641 tol=0.03
+E[Z_2] 0.475641 tol=0.03

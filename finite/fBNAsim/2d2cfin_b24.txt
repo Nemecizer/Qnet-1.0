@@ -1,0 +1,29 @@
+# 2d2cfin with buffer_capacity = 24 (no -1 subtraction)
+
+# num_classes
+2
+
+# dimension
+2
+
+# arrival_distributions
+exponential rate=0.49
+exponential rate=0.49
+
+# servers_per_station
+1 1
+
+# buffer_sizes
+24 24
+
+# service_distributions
+constant value=1.0 | constant value=1.0
+exponential rate=1.0 | exponential rate=1.0
+
+# routing_matrix_class_1
+0.000000 1.000000
+0.000000 0.000000
+
+# routing_matrix_class_2
+0.000000 1.000000
+0.000000 0.000000

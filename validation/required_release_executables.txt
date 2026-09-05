@@ -1,0 +1,17 @@
+# Native executables exposed by ordinary GUI Run actions.
+#
+# This inventory is intentionally independent of build_app.sh's build list.
+# The post-sign bundle audit reads it so deleting a target from the packager
+# cannot silently delete the corresponding GUI method from a release.
+infinite/BNAsbd/bna_sbd
+infinite/BNAqna/bna_qna
+infinite/BNArqna/bna_rqna
+infinite/BNAsim/jackson_sim
+infinite/BNAsm/bnet
+infinite/BNAlp/srbm_lp
+infinite/BNAmc/rbm_mlmc
+finite/fBNAfm/bna_fm_gauss
+finite/fBNAfm/bna_fm_cbc
+finite/fBNAlp/fBNAlp_solver
+finite/fBNAsim/fBNAsim
+finite/fBNAsm/srbm_solver

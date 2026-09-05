@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "name": "M/M/1/4 loss system",
+  "description": "A one-station analytical reference with lambda=2 and mu=3.",
+  "blocking": "loss",
+  "service_discipline": "fcfs",
+  "classes": ["job"],
+  "stations": [
+    {
+      "id": "server",
+      "servers": 1,
+      "capacity": 4,
+      "service_rates": {
+        "job": 3.0
+      }
+    }
+  ],
+  "external_arrivals": [
+    {
+      "station": "server",
+      "class": "job",
+      "rate": 2.0
+    }
+  ],
+  "routing": [],
+  "solver": {
+    "tolerance": 1e-13,
+    "max_iterations": 100000,
+    "max_states": 1000
+  }
+}

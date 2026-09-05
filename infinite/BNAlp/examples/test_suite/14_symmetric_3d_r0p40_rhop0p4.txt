@@ -1,0 +1,29 @@
+# 14_symmetric_3d_r0p40_rhop0p4
+# Source: Dai-Harrison 1992 Table 4 (d=3 symmetric, r=0.4, rho=0.4)
+# Symmetric 3D: R=I-r*(J-I), sigma=I+rho*(J-I), mu=-e.
+# Closed form: E[Z_i] = (1-r+2*r*rho)/(2(1+r)) = 0.328571
+# Stability: r<1/2, |rho|<1/2
+
+dimension  3
+grid_n     40
+basis_m    6
+grid_type  exponential
+
+drift
+  -1.000000  -1.000000  -1.000000
+
+covariance
+   1.000000   0.400000   0.400000
+   0.400000   1.000000   0.400000
+   0.400000   0.400000   1.000000
+
+reflection
+   1.000000  -0.400000  -0.400000
+  -0.400000   1.000000  -0.400000
+  -0.400000  -0.400000   1.000000
+
+grid_spacing
+   0.000000   0.000000   0.000000
+
+tightness_bounds
+  100000 100000 100000 100000 100000 100000 100000

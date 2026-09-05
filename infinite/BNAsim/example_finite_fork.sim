@@ -1,0 +1,66 @@
+# Finite Buffer Fork-Join Network Example
+#
+# Customers arrive, get processed at station 0, then fork to either
+# station 1 or station 2, and finally merge at station 3.
+#
+#                    +-> Station 1 -+
+#                   /                \
+# Arrivals -> Station 0               +-> Station 3 -> Exit
+#                   \                /
+#                    +-> Station 2 -+
+#
+# With small buffers, blocking can occur when either branch is congested.
+
+# Network dimensions
+stations 4
+classes 4
+
+# Simulation parameters
+warmup 10000
+run_length 100000
+replications 30
+seed 11111
+
+# Blocking protocol: BAS
+blocking BAS
+
+# Buffer capacities
+station_buffer 0 10
+station_buffer 1 3
+station_buffer 2 3
+station_buffer 3 6
+
+# MCN format output
+mcn_output example_finite_fork_mcn.txt
+
+# Class 0: Entry point
+class 0
+    arrival exponential 1.5
+    station 0
+    service exponential 2.0
+    routing 0 0.5 0.5 0
+end_class
+
+# Class 1: Upper branch
+class 1
+    arrival none
+    station 1
+    service exponential 1.5
+    routing 0 0 0 1
+end_class
+
+# Class 2: Lower branch
+class 2
+    arrival none
+    station 2
+    service exponential 1.5
+    routing 0 0 0 1
+end_class
+
+# Class 3: Merge point
+class 3
+    arrival none
+    station 3
+    service exponential 3.0
+    routing 0 0 0 0
+end_class

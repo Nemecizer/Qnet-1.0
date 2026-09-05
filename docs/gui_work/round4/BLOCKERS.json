@@ -1,0 +1,256 @@
+[
+ {
+  "id": "R1",
+  "primary_workstream": "W2",
+  "severity": "blocker",
+  "title": "Link out of a sink: created silently, drawn on canvas, dropped by every exporter",
+  "cross_workstream_note": "W6 must add the converse rule to validateLinkStructure in QnetGUIApp.swift",
+  "merged_from": [
+   "B01",
+   "B12",
+   "B21"
+  ],
+  "raised_by_n_critics": 3,
+  "evidence": "Sources/Qnet/NetworkEditorModel.swift:2367-2371 \u2014 the sink self-loop refusal (\"Cannot link Sink1 to itself: a sink is where jobs leave the network.\") returns *without* clearing `pendingLinkStartID`, so the sink stays armed as the chain start. The next click then falls to :2400-2402, `// Sink or other: allow any class`, and the link is created. Verified end to end headlessly: I added a Sink2 \u2192 B1 link to input/examples/3dtandem.inf.bnet and ran `--dump-rho` on both. Output is byte-identical \u2014 same \u03b1, same \u03bc_eff, same \u03c1 = 0.900000, same 3\u00d73 aggregated P. The link is drawn on the canvas, counted in the status bar's link total, and dropped by the exporter without a word. `grep` for any warning about outgoing links from a sink in QnetGUIApp.swift returns nothing.",
+  "why_it_matters": "A recycle arc from the sink back into the network is a natural thing for a queueing modeller to draw, and the app accepts it, renders it, counts it, and then solves a different network than the one on screen. The user is told, one click earlier, that the app understands sinks are terminal \u2014 which makes the silent acceptance one click later actively misleading. Any divergence between what is drawn and what is solved is the failure this codebase's own result-claim vocabulary exists to prevent.",
+  "required_fix": "Two changes in Sources/Qnet/NetworkEditorModel.swift, both in `handleLinkSelection`. (1) Clear `pendingLinkStartID = nil` in each of the three self-loop refusal branches (:2367, :2371, :2377) so a refusal ends the gesture instead of leaving the node armed. (2) Refuse a sink as a link SOURCE outright \u2014 replace the `// Sink or other: allow any class` fallback with `addStatus(\"Cannot link out of \\(startNode.name): a sink is where jobs leave the network.\"); pendingLinkStartID = nil; return`. If a sink-sourced link is instead judged worth keeping as a modelling idiom, then it must be surfaced: an integration request to W6 for a `networkWarnings` entry naming every link out of a sink as ignored by the exporters.",
+  "all_phrasings": [
+   "The Link tool invites you to chain a link OUT of a sink, and every solver silently pretends you never drew it",
+   "PRIOR BLOCKER NOT FIXED: the Link tool refuses a self-loop on a sink with a sentence, then lets the very next click create Sink \u2192 Buffer, which every exporter silently drops",
+   "PRIOR BLOCKER NOT FIXED: the Link tool silently creates a link out of a sink, and the analysis path drops it without a word"
+  ]
+ },
+ {
+  "id": "R2",
+  "primary_workstream": "W6",
+  "severity": "blocker",
+  "title": "Exact Matrix-Analytic QBD prints only machine sentinels; regenerative prints raw 17-digit rows",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B02",
+   "B15"
+  ],
+  "raised_by_n_critics": 3,
+  "evidence": "Round 2 filed this against W6 naming the QBD and regenerative launch sites. W6's round-3 report lists it neither in completed nor in deferred, and `grep -in 'qbd|sentinel' docs/gui_work/round3/W6-integration.md` returns nothing. The code is unchanged: QnetGUIApp.swift:6382 `if ($rec !~ /\\AQNET_[A-Z0-9_]+_V1(?![A-Za-z0-9_])/)` skips every sentinel record, and QnetGUIApp.swift:2374 still launches qbd_solver.py with --human, whose format_human() (infinite/matrix_analytic/qbd_solver.py:1058-1120) emits ONLY QNET_QBD_*_V1 records. Measured: that invocation on examples/mm1.json produces 24 lines, 24 of them sentinels; piping through the shipped filter at decimals 2 and at decimals 6 gives files that cmp reports IDENTICAL to each other AND IDENTICAL to the raw solver output. The Shell shows `QNET_QBD_METRIC_V1 metric=mean_level estimate=1.9999999999722793` and `estimate=0.33333333333564347` no matter what Settings says. Regenerative MC (QnetGUIApp.swift:2592, no flag) is worse because it mixes: its own output at decimals 6 reads `mean_number_in_system:   0.982839 (sequential interval [0.883687,  1.081991]; effective cycles 5442.300000)` and, five lines below, `QNET_NODE_METRIC_V1 node_id=server metric=mean_number class_id=- estimate=0.98283912377700089 standard_error=0.023644096937800636 \u2026` \u2014 under a heading the solver itself prints for humans (`Per-node metrics (QNET_NODE_METRIC_V1):`), i.e. these lines are deliberately on screen.",
+  "why_it_matters": "This is the precise defect W6-01 exists to eliminate \u2014 one session showing several spellings of the same quantity \u2014 and it now happens twice on a single screen in a shipped method, while a second shipped method (the one the app labels exact) has an entire Shell output that is raw machine protocol at 17 significant digits. MATLAB or Maple would never ship that. Worse than the defect is the reporting: a round-2 blocker was left untouched and was not listed as deferred, so a round-4 agent has no way to know it is open except by re-deriving it.",
+  "required_fix": "Pick one and state which in the integration document. (a) Teach emit() to rewrite the numeric fields inside a sentinel record instead of skipping the whole line: keep the QNET_\u2026_V1 head and every integer-valued key byte-for-byte, and apply fmtnum only to the float-bearing keys (estimate=, standard_error=, ci_low=, ci_high=, ci_half_width=, effective_cycles=, and QBD's value= where the value is a float). This cannot affect the parser, which reads the pre-filter tee'd file, but re-run validation/result_output_parser_check.sh to prove it. (b) Give qbd_solver.py and regenerative_mc.py a --decimals N argument and pass appSettings.outputDecimals from QnetGUIApp.swift:2374 and :2592; (b) requires separating the human channel from the machine channel first, since the archived copy must keep full precision. Whichever is chosen, paste before/after output into the round-4 integration document and state explicitly that this prior blocker is closed.",
+  "all_phrasings": [
+   "Run \u25b8 Exact Matrix-Analytic QBD's entire visible output is raw machine sentinels \u2014 unreadable, and the decimals setting cannot touch it",
+   "PRIOR BLOCKER NOT FIXED AND NOT DISCLOSED: Exact Matrix-Analytic QBD's entire output, and five lines of Regenerative Monte Carlo's, still ignore Output decimals \u2014 and regenerative prints the same number twice, at two precisions, on one screen"
+  ]
+ },
+ {
+  "id": "R3",
+  "primary_workstream": "W6",
+  "severity": "major",
+  "title": "The precision filter pads prose \"key = value\" lines with stray spaces at the DEFAULT setting",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B04",
+   "B17",
+   "B22"
+  ],
+  "raised_by_n_critics": 3,
+  "evidence": "QnetGUIApp.swift:6353-6355: `return $pad . (' ' x ($lt - $lo)) . $out if $lo < $lt;` \u2014 a shorter replacement is right-aligned inside the original token width whenever $pad is non-empty. The code's own rule 3 (:6268-6271) says 'Never pad a number that is not in a column' but only excludes length($pad) == 0, i.e. tokens glued to '='; a single space is enough to trigger padding. Real output from the app's own invocation (QnetGUIApp.swift:2446), `python3 -B infinite/truncated_ctmc/truncated_ctmc.py infinite/truncated_ctmc/examples/tandem.json --human`, through the shipped filter: at decimals 6 `generator residual =       4.11409e-13` (7 inserted spaces); at decimals 2 `generator residual =           4.1e-13` (11 inserted spaces). Same on the LP path at decimals 3: `  drift         =  -1.000  0.000` (was `= -1.0000 0.0000`), `  Auto rho      =  2.000  2.000`; and on regenerative MC at decimals 6: `(sequential interval [0.883687,  1.081991]` \u2014 a comma-separated pair pulled apart. Three consecutive residual lines with different key lengths get different-sized gaps, so it does not even read as an alignment attempt.",
+  "why_it_matters": "These are the run paths whose raw stdout actually reaches the terminal (the Python solvers via withSpinner's cat, and srbm_lp via | tee), so this is what a user sees from Adaptive Truncated CTMC, Regenerative Monte Carlo and the Linear Program at defaults. It is also self-defeating: the width-preservation/column-debt machinery has no user-facing left-aligned table to protect. Its comment cites rbm_mlmc and srbm_output printing %-11s headers over %-11.4f fields, but `grep -rn '%-1[0-9]' infinite/BNAmc/rbm_mlmc.c infinite/BNAlp/src/*.c` finds no such format in either file; the solvers that do have it (bna_qna.c:1067-1071, bna_sbd.c:1008-1012, bna_rqna.c:2901) are all launched with -c into a file and displayed through buildComparisonAwk (QnetGUIApp.swift:3875, 3990, 3925), which the filter passes byte-identically. The rule pays a real cost on prose it can reach, for a table shape the pipeline never produces.",
+  "required_fix": "Restrict width preservation to tokens actually in a column. Minimum acceptable change: widen rule 3 from `length($pad) == 0` to 'the character immediately before the pad is = or :'. That alone removes every case above (generator residual =, drift =, mean_number_in_system:) and cannot affect a printf-generated column, whose preceding character is a digit or a header word. Verify by re-running the fmt7 idempotency check (must stay 0 differing lines) and by diffing truncated_ctmc, regenerative and srbm_lp output before and after.",
+  "all_phrasings": [
+   "Round 3's precision fix re-pads `key = value` prose, so solver output is ragged at the DEFAULT decimals setting \u2014 the third round on this defect",
+   "The width-preservation rule pads prose \"key = value\" lines with up to eleven stray spaces, on solver output the user sees at the default setting",
+   "The precision filter injects padding into prose `label = value` lines at the shipped default"
+  ]
+ },
+ {
+  "id": "R4",
+  "primary_workstream": "W2",
+  "severity": "blocker",
+  "title": "The sticky-pan memo leaks through selectAll() and two direct selectedTool assignments",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B05",
+   "B09"
+  ],
+  "raised_by_n_critics": 3,
+  "evidence": "Sources/Qnet/NetworkEditorModel.swift:1881 (`selectAll()`) assigns `selectedTool = .select` directly instead of calling `setTool(_:)`, so the `if tool != .pan { toolBeforeStickyPan = nil }` clear at :451 never runs. Same bypass at :1847 in `finalizeMultiSelect`. Reproduced on screen, fresh app, single window, reading the tool from the status bar after each step: (1) double-click empty canvas \u2192 tool = Pan; (2) \u2318A \u2192 tool = Pointer, \"Selected 3 nodes\"; (3) double-click empty canvas \u2192 tool = Pointer \u2014 the gesture does nothing, because `enterStickyPan()`'s `guard toolBeforeStickyPan == nil` (:417) now fails; (4) Tools \u25b8 Pan Tool \u2192 tool = Pan; (5) one single click on the canvas \u2192 tool = Pointer. Step 5 is `panEnded` \u2192 `exitStickyPan()` firing on a session the user never armed.",
+  "why_it_matters": "Double-click-to-pan is the one interaction the user described by hand, and after a single \u2318A it silently stops working for the rest of the session with no feedback at all. Step 5 is worse: the user explicitly picks the Pan tool from the palette or presses H, clicks once to start panning, and is thrown back into Pointer \u2014 a mode change they did not ask for, in the tool they just chose. NetworkEditorModel.swift:445-451 carries a comment explaining precisely why this must not happen; `selectAll()` reintroduces it. In the same leak state a pending Link-tool chain also survives into the Pointer tool: `pendingLinkStartID` is not cleared either, so the node keeps its dashed pending ring (NetworkCanvasView.swift:592 passes `isPendingLinkStart` without a tool guard) and pressing L later resumes a chain from a node clicked minutes ago.",
+  "required_fix": "In Sources/Qnet/NetworkEditorModel.swift replace the bare assignment at :1881 with `setTool(.select)`, and the one at :1847 in `finalizeMultiSelect` likewise. Both already intend \"switch to the Pointer tool\", which is exactly what `setTool` means; going through it also clears `pendingLinkStartID`/`activeLinkSourceID`/`pendingLinkPoint` and the multi-selection consistently. Then add the assertion that makes this stay fixed: `selectedTool` should have exactly one writer. Make it `private(set)` on the model so no future call site can bypass `setTool` again \u2014 the compiler will then find any that try.",
+  "all_phrasings": [
+   "The sticky-pan memo and a pending link start still leak through two direct `selectedTool` assignments \u2014 reported three rounds running, dropped again",
+   "PRIOR BLOCKER, THIRD ROUND, NOT FIXED: the sticky-pan memo leaks through selectAll(), which kills the double-click-to-pan gesture and then throws the user out of a Pan tool they chose deliberately"
+  ]
+ },
+ {
+  "id": "R5",
+  "primary_workstream": "W5",
+  "severity": "blocker",
+  "title": "Undo does nothing: NSApp.sendAction swallows the keystroke so editor.undoManager.undo() is never reached",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B08"
+  ],
+  "raised_by_n_critics": 1,
+  "evidence": "Sources/Qnet/QnetCommands.swift:371-377 \u2014 `Button(\"Undo\") { if !NSApp.sendAction(Selector((\"undo:\")), to: nil, from: nil) { editor.undoManager.undo() } }`. Reproduced clean-room: killed every Qnet process, relaunched /tmp/qnet-build-criticW1W2/debug/Qnet, dismissed the startup sheet, Tools \u25b8 Station Tool, two real CGEvent clicks on the canvas \u2192 status log \"Added station S2\", \"Added station S3\", station count 1\u21923. Real \u2318Z key event: still 3 stations, no \"Undid:\" line. AXPress on the real Edit \u25b8 Undo NSMenuItem (reported enabled=true): still 3 stations, Redo still disabled, no log line. Cut/Copy were enabled and Writing Tools/AutoFill/Dictation/Emoji were enabled, i.e. `textFocused` is false and a text input context is live \u2014 so `editor.undoManager.canUndo` is true and `editor.undoManager.undo()` is simply never reached. Also reproduced for: inserting an archetype (8 nodes, undo \u2192 8 nodes), a node drag (S1 moved y 171\u2192391, undo \u2192 still 391), and Edit \u25b8 Delete (2\u21921 station, undo \u2192 still 1).",
+  "why_it_matters": "This is the single most-used command in any diagram editor, and it is the load-bearing assumption of three rounds of work: W2's \"Delete Link / Delete Selection undo naming\", \"Clear Canvas one-step undo\" and \"insert as ONE undoable step\", and W1's whole documented rationale for not cancelling an \u2325-drag (\"undone after the fact\"). None of it is reachable. Worse, the failure is silent \u2014 the menu item is enabled and there is no beep and no status line \u2014 so a user who deletes a selection or clears the canvas loses it. In the one transient state where undo did fire it popped an entry two steps older than the one the user had just made, so a second \u2318Z can remove something the user never intended to lose.",
+  "required_fix": "In Sources/Qnet/QnetCommands.swift, stop using `NSApp.sendAction`'s return value as the test for \"a text field claimed this\". The app already publishes the correct answer as `menuContext.textInputHasFocus` (exposed locally as `textFocused`, QnetCommands.swift:149). Change both buttons to: `Button(\"Undo\") { if textFocused, NSApp.sendAction(Selector((\"undo:\")), to: nil, from: nil) { return }; editor.undoManager.undo() }` and the mirror for Redo. Then verify by hand: fresh launch \u2192 place a node \u2192 \u2318Z removes it and the Status pane shows \"Undid: Add Node.\"; repeat for Insert Archetype, a node drag, Delete Selection and Clear Canvas. Add a headless or scripted regression for it \u2014 nothing in validation/ currently covers undo.",
+  "all_phrasings": [
+   "Undo does nothing. \u2318Z and Edit \u25b8 Undo are enabled, silently do nothing, and Delete / Clear Canvas are therefore unrecoverable"
+  ]
+ },
+ {
+  "id": "R6",
+  "primary_workstream": "W1",
+  "severity": "blocker",
+  "title": "The empty canvas primary button is dead while the panel it opens is up",
+  "cross_workstream_note": "one-line .disabled removal in QnetCommands.swift is W5-owned",
+  "merged_from": [
+   "B06"
+  ],
+  "raised_by_n_critics": 2,
+  "evidence": "Verified in the GUI. Clicked \"Start from an Archetype\u2026\" at screen point (678,477) \u2192 the \"Insert Archetype\" window opened. Moved that window aside, clicked the button again at (584,477): System Events reports the click landed on `button 1 of group 2 of group 2 of splitter group 1 \u2026 of window \"Untitled \u2013 Unsaved network\"`, and the screenshot shows the button still drawn in full prominent blue with the panel still open and nothing changed. Cause chain: NetworkCanvasView.swift:118-124 offers the button only when `MenuBarCommand.canPerform(MenuBarCommand.newFromArchetype)`; QnetCommands.swift:252-254 still carries `.disabled(sheetPresented)`; DSPanelWindow.swift:294-298 sets MenuContext.modalPanelPresented for a .documentModal panel, which QnetCommands.swift:176-188 folds into sheetPresented; MenuBarCommand.perform (MenuKeyAliases.swift:109-115) then returns false and does nothing. The previous round's required_fix named exactly this (\"the one-line .disabled removal in QnetCommands.swift\") and it was not applied and not reported as deferred. Second half of the same prior finding, also unaddressed: MenuBarCommand.canPerform (MenuKeyAliases.swift:98-103) calls NSMenu.update() \u2014 a full AppKit menu-validation pass that re-evaluates SwiftUI command state \u2014 from inside NetworkCanvasView.body.",
+  "why_it_matters": "This is the onboarding path and the button is the most visually emphatic control on the screen. A first-time user opens the gallery, looks at the canvas behind it (the whole reason the gallery is a movable panel rather than a sheet), clicks the blue button again and gets nothing at all \u2014 no beep, no status line, not even the open panel brought forward. Because the button's existence is recomputed from AppKit menu state on every editor publish, it can also blink out on an unrelated re-render. Calling NSMenu.update() from a body is a re-entrancy hazard in its own right.",
+  "required_fix": "Remove `.disabled(sheetPresented)` from the \"New from Archetype\u2026\" Button at QnetCommands.swift:254 \u2014 the panel is keyed by id, so DSPanelWindow.present already brings an open one forward rather than stacking a second. Then in NetworkCanvasView.swift:118-124 stop deciding the button's existence from MenuBarCommand.canPerform: offer both buttons unconditionally (both commands are permanently present in the File menu) and delete the menu.update() fallback at MenuKeyAliases.swift:98-103 so no SwiftUI body can trigger a menu-validation pass. If a disabled state is still wanted, drive it from an @ObservedObject the view already watches.",
+  "all_phrasings": [
+   "PRIOR BLOCKER NOT FIXED: the empty canvas's primary button is dead while the panel it opens is up \u2014 verified by clicking it in a running app"
+  ]
+ },
+ {
+  "id": "R7",
+  "primary_workstream": "W1",
+  "severity": "major",
+  "title": "Archetype insert leaves most of the network off-screen; the promised fit never runs",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B11"
+  ],
+  "raised_by_n_critics": 1,
+  "evidence": "Sources/Qnet/NetworkEditorModel.swift:1024 sets `pendingFitOnAppear = true` after every insert, and NetworkCanvasView.swift:95 is supposed to consume it. Reproduced twice on screen. Canvas viewport 682x444 at 100%. Existing content: S1 @365,391 and S2 @565,171. Inserted Tandem Line landed at Src1 @701 \u2026 Sink1 @1251 \u2014 355 pt past the canvas's right edge at x=896 \u2014 and the zoom readout stayed at 100%, unchanged. Repeated with Fork and Merge: 18 nodes on the canvas, zoom still 100%, most of them outside the visible rect. On an empty canvas the same insert did fit (zoom went 100% \u2192 55%), so `consumePendingFit()` fires there and not here.",
+  "why_it_matters": "The user presses Insert and, from their seat, almost nothing happens: the panel closes, a couple of nodes appear at the right-hand edge and the rest is invisible. The gallery's footer promises the block lands \"clear to the right of the N nodes already on the canvas\" \u2014 a promise the user cannot verify, which is the stated reason the gallery was made a movable panel in the first place. OmniGraffle, Visio and Figma all scroll to reveal what you just added; Qnet does it only when the canvas was blank.",
+  "required_fix": "Make the fit fire on an occupied canvas. `consumePendingFit()` should not depend on a value-change of `pendingFitOnAppear` reaching a body that may not re-evaluate: drive it from the canvas's own update path (e.g. also call `consumePendingFit()` from the existing `.onChange(of: geometry.size)`/`onAppear` siblings' shared entry point on every editor publish while the flag is set, or have `insertSubnetwork` post an explicit one-shot token the canvas observes the way `canvasAnimationToken` is observed). Verify: with two nodes already on the canvas, Network \u25b8 Insert Archetype\u2026 \u25b8 Tandem Line \u25b8 Insert must leave every inserted node inside the viewport, and the zoom readout must change.",
+  "all_phrasings": [
+   "Inserting an archetype into a canvas that already has content leaves most of it off-screen \u2014 the promised fit never runs"
+  ]
+ },
+ {
+  "id": "R8",
+  "primary_workstream": "W4",
+  "severity": "major",
+  "title": "Node and link parameter editors are still pinned sheets",
+  "cross_workstream_note": "the two presentation sites in ContentView.swift are W3-owned",
+  "merged_from": [
+   "B07"
+  ],
+  "raised_by_n_critics": 2,
+  "evidence": "`grep -rn '\\.sheet(' Sources/Qnet/*.swift` returns exactly four live presentations: ContentView.swift:490 (`$editor.parameterEditorTarget`, the node parameter editor), :496 (`$editor.linkParameterEditorTarget`), :502 (`$editor.showSRBMExportSheet`), and QnetGUIApp.swift:731 (the startup check, deliberately a sheet). Confirmed in the running app: double-clicking a buffer opened the \"B4 \u00b7 Buffer \u00b7 capacity 1\" editor as a centred, immovable sheet with no title bar, dimming the canvas behind it (screenshot). Every other form in the app is now a movable panel.",
+  "why_it_matters": "DSPanelWindow.swift's own file header states the case in these words: \"every one of them asks the user about something the sheet is sitting on top of \u2026 which service rate to give the *station* behind it\". The node parameter editor IS that dialog and it is the most-used form in the product \u2014 a user tuning \u03c1 across a five-station line opens it dozens of times per session and cannot see the station, its \u03c1 badge or its neighbours while doing so. Its header even carries a 1-of-4 stepper for walking the selection, which is exactly the interaction that wants the canvas visible. The prior round's blocker named this case explicitly; the numeric target (\u22656 of 12) was reached instead by converting the rarer dialogs.",
+  "required_fix": "Convert the node and link parameter editors to `DSPanelWindow`, exactly as the archetype gallery was: a presenter enum beside `ArchetypeGalleryPanel` keyed `node-parameters` / `link-parameters`, `modality: .documentModal` (matching the shipped precedent, so bare canvas tool letters stay dead under the number fields), `escapeCloses: false` because the body's `DSSheetFooter` already binds Cancel to `.cancelAction`, and `onClose` clearing `editor.parameterEditorTarget` / `editor.linkParameterEditorTarget`. Because a panel root is built once, the body must observe the editor rather than copy a snapshot of the node \u2014 the same correction the integrator had to make for `FindNodePanelBody` \u2014 so selecting a different node while the panel is open re-targets it instead of editing a stale id. Leave the SRBM export and the startup check as sheets.",
+  "all_phrasings": [
+   "The two dialogs a user opens most often \u2014 the node and link parameter editors \u2014 are still pinned sheets, which is the half of the round-2 blocker that was not closed"
+  ]
+ },
+ {
+  "id": "R9",
+  "primary_workstream": "W4",
+  "severity": "major",
+  "title": "The Settings window cannot be resized though its content already scrolls",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B14"
+  ],
+  "raised_by_n_critics": 1,
+  "evidence": "Live, PID-targeted System Events: `AXSize` settable = **false** for the Settings window and **true** for the main window of the same process. `defaults read Qnet WindowFrame.QnetSettingsWindow` = `{{120, 274}, {900, 608}}` \u2014 the size half has never changed in any recorded session, because it cannot. Cause: Sources/Qnet/SettingsView.swift:199-202 declares `.frame(minWidth:idealWidth:minHeight:idealHeight:)` with no `maxWidth`/`maxHeight`, so SwiftUI reports the ideal as the maximum and AppKit drops the resize behaviour. Screenshot of the Discrete-Event Simulation pane at 900\u00d7608 shows the Run Length section's trailing paragraph clipped by the bottom of the window on a 948-pt display.",
+  "why_it_matters": "Settings is the app's main configuration surface and its solver panes are long scrolling forms. A user on a 27\" display cannot make the window taller to see a whole section; a user at an Accessibility text size cannot make it wider or taller at all, and the DS's accessibility contract assumes the container can grow. macOS System Settings, Xcode Preferences and MATLAB Preferences are all resizable. It also leaves this round's frame-persistence work half-delivered here: the Settings frame remembers a position it can never pair with a size the user chose.",
+  "required_fix": "In Sources/Qnet/SettingsView.swift:199-202 add `maxWidth: .infinity, maxHeight: .infinity` to the same `.frame(...)`, keeping the existing min and ideal values, so the hosting window regains `.resizable`. Verify with System Events that `AXSize` becomes settable and that dragging the corner writes a new size into `WindowFrame.QnetSettingsWindow`. Check the sidebar still respects `settingsSidebarMaxWidth` at a wide size and that the detail column does not stretch its reading measure.",
+  "all_phrasings": [
+   "The Settings window cannot be resized \u2014 it is the one window in the app locked to a fixed size, and its content already scrolls at that size"
+  ]
+ },
+ {
+  "id": "R10",
+  "primary_workstream": "W6",
+  "severity": "major",
+  "title": "The archetype gallery defaults to FINITE buffers, greying out all twelve infinite-buffer methods",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B10"
+  ],
+  "raised_by_n_critics": 1,
+  "evidence": "Sources/Qnet/NetworkEditorModel.swift:83 \u2014 `@Published var infiniteBuffers: Bool = false`. Sources/Qnet/QnetGUIApp.swift:1047 seeds the panel with `initialInfiniteBuffers: activeEditor.infiniteBuffers`, so on a new document the gallery's Buffers popup opens on \"Finite\" (confirmed in the running GUI: AXPopUpButton V=Finite, Capacity 10 visible). `insertSubnetwork` then adopts it because the canvas is empty. Measured end to end: File \u25b8 New Network \u2192 Network \u25b8 Insert Archetype\u2026 \u2192 Tandem Line \u2192 Insert produced \"Insert Tandem Line: added 8 nodes and 7 links, with finite buffers\", and the Run menu then read: Run Whitt QNA [false], Run Whitt\u2013You RQNA [false], Run SBD [false], Run Exact Open Product Form [false], Run Exact Matrix-Analytic QBD [false] \u2014 all twelve infinite-buffer entries disabled. This directly contradicts NetworkArchetypes.swift:26-31 (\"One source, one class, exponential everything. With infinite buffers that lands the network in the *exact* Jackson branch \u2026 so the flag bar's Analytical pill lights\") and the Buffers popup's own tooltip (\"Infinite buffers keep the network in the exact Jackson branch\"). Note the inconsistency: RandomNetworkGenerator.Parameters (RandomNetworkGenerator.swift:44) and NetworkDialogs.swift:20 both default to `infiniteBuffers = true`.",
+  "why_it_matters": "\"Start from an Archetype\u2026\" is the primary call to action on the empty canvas \u2014 it is literally the first thing a first-time user is invited to click. Its own header promises a network \"already laid out and ready to run\", and what it delivers is one on which the exact and analytical solvers are greyed out for a reason nothing on screen explains. Headline metric 0 asks for \"a network that Run \u25b8 QNA solves\": the default 4-click path fails it outright, and only a 6-click path (with a detour through the Buffers popup a first-time user has no reason to touch) satisfies it.",
+  "required_fix": "Make the archetype gallery's Buffers control open on Infinite whenever the canvas is empty, since that is the only case where the choice becomes the document's, and it is the regime the archetype library is designed around. Concretely: in Sources/Qnet/QnetGUIApp.swift's `syncArchetypePanel(presented:)`, pass `initialInfiniteBuffers: activeEditor.nodes.isEmpty ? true : activeEditor.infiniteBuffers`. (The alternative \u2014 changing NetworkEditorModel's document default to `true` \u2014 is W2's file and a wider change; either is acceptable but they should not both be done. Whichever is chosen, `ArchetypeGallerySheet.insertNote`'s empty-canvas sentence should then say which regime the insert will establish, not just that the choice becomes the whole network's.)",
+  "all_phrasings": [
+   "The archetype gallery defaults to FINITE buffers on a brand-new document, so the app's flagship \"blank page to a runnable network\" path greys out Run \u25b8 Whitt QNA and all twelve infinite-buffer methods"
+  ]
+ },
+ {
+  "id": "R11",
+  "primary_workstream": "W6",
+  "severity": "major",
+  "title": "The singular-traffic-equation fix landed in one of three byte-identical copies of solveTrafficEquations",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B13",
+   "B19"
+  ],
+  "raised_by_n_critics": 2,
+  "evidence": "Sources/Qnet/QNAExporter.swift:449 and Sources/Qnet/BNASRBMExporter.swift:820 both still contain `if abs(pivot) < 1e-15 { continue }` with the matching silent skip in back-substitution (`if abs(A[i][i]) > 1e-15 { x[i] /= A[i][i] }`) \u2014 the exact code W2-INT-8 replaced in SRBMExporter. Verified: on a 3-station tandem with S1 \u2192 B2 set to p = 0 and S1 \u2192 B1 added at p = 1.0, `--dump-rho` correctly refuses with a named sentence, but `--export-cmp` writes qna.qna containing `# Total throughput per station` = `1 0 0` and a routing matrix Q whose first row is `1 0 0`. Running the shipped solver on that file, `./infinite/BNAqna/bna_qna qna.qna`, prints Util(rho), c2_a, E[W], E[N], E[T] and P(W>0) as `nan` for all three nodes plus \"Total E[N]: nan\". `runQNA()` at QnetGUIApp.swift:3839-3854 performs no pre-flight validation, so this is exactly what Run \u25b8 Whitt QNA does.",
+  "why_it_matters": "The app now says two different things about the same document: the flag bar refuses it with a precise, actionable sentence naming the station, while the Run menu happily launches and returns a wall of `nan`. The user is left to work out from `nan` what the app already knows and can say in one line. The prior round's blocker was \"a confident wrong number\"; this is its half-fixed successor, and it covers the two most-used approximation methods.",
+  "required_fix": "Port the W2-INT-8 change into Sources/Qnet/QNAExporter.swift and Sources/Qnet/BNASRBMExporter.swift: have `solveTrafficEquations` return `(alpha:singularIndex:)` with `singularIndex` set exactly where the pivot is skipped, and have each caller return `.failure(.networkError(.trafficEquationsSingular(station, class)))` \u2014 the error case already exists in NetworkExporter.swift and already carries the user sentence. `runQNA` / `runRQNA` / the BNA-SRBM launch already route `.failure` through `reportBlocked`, so no launch-site change is needed. Verify with the same regression the integrator used: all 50 bundled examples must produce byte-identical exports, and a p = 1.0 cycle must produce the named refusal instead of a nan table.",
+  "all_phrasings": [
+   "The singular-traffic-equation fix landed only in SRBMExporter: Run \u25b8 QNA / RQNA / BNA-SRBM still export a fabricated \u03b1 on a p = 1.0 cycle, and the solver prints a full table of nan with no explanation",
+   "The singular-traffic-equation fix landed in one of three byte-identical copies of solveTrafficEquations"
+  ]
+ },
+ {
+  "id": "R12",
+  "primary_workstream": "W6",
+  "severity": "major",
+  "title": "The filter contradicts DS.Number.display for scientific notation: zero prints 0.00000e+00 vs 0.000000",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B16"
+  ],
+  "raised_by_n_critics": 1,
+  "evidence": "QnetGUIApp.swift:6340-6348 (fmtnum): `if ($tok =~ /[eE]/)` takes the scientific branch on the spelling of the token, never consulting the magnitude guards $T/$U and never checking $v != 0, so it fires for values fmt7 and DS.Number.display both render fixed. Measured against the extracted DS.Number.display binary at decimals 6: `x = 0.0000000000e+00` \u2192 filter `x =      0.00000e+00` vs DS `0.000000`; `y = 1.5e-03` \u2192 filter `1.5e-03` vs DS `0.001500`; `z = 1e+06` \u2192 filter `1e+06` vs DS `1000000.000000`. The zero case is reachable at defaults with no configuration: `./infinite/BNAlp/srbm_lp --input infinite/BNAlp/examples/example1.txt` prints `[Solve] Optimal u* = 0.0000000000e+00, 0.135 s` (infinite/BNAlp/src/main.c:371, %.10e) and that path tees straight to the terminal (QnetGUIApp.swift:4855), so at decimals 6 the Shell reads `Optimal u* =      0.00000e+00` while the same quantity anywhere else reads 0.000000. %g is used in dozens of print sites (e.g. infinite/BNArqna/bna_rqna.c:397-688), so the 1e+06 case is not hypothetical.",
+  "why_it_matters": "The code's own comment at DesignSystem.swift:1509-1511 states the invariant: the two thresholds are spelled in fmt7 and in the terminal filter, and 'the three must agree or the Shell and the Results pane show different numbers.' They do not agree, at the default setting, on a shipped solver path. Rule 1 ('never invent digits') is a good rule for the mantissa; it is not a reason to keep a notation the other two formatters would not have chosen.",
+  "required_fix": "In fmtnum, decide the notation from the value, not the token, exactly as fmt7 and DS.Number.display do: compute $v = $tok + 0 first, then take the scientific branch only when `$v != 0 && (abs($v) < $T || abs($v) >= $U)`. Keep rule 1 inside that branch \u2014 when it is taken and the token arrived scientific, still cap mantissa digits at min($E, $have), so 4.567e-09 stays 4.567e-09. A token that arrived scientific but whose value is inside the fixed band (0, 0.0015, 1e6) must go to %.*f like every other formatter. Then re-run the fmt7 idempotency check: it must still be 0 differing lines (it will be, because fmt7 only emits scientific outside the band).",
+  "all_phrasings": [
+   "The filter contradicts DS.Number.display and awk fmt7 for any value a solver printed in scientific notation \u2014 zero shows as 0.00000e+00 in the Shell and 0.000000 in the Results pane, at the shipped default"
+  ]
+ },
+ {
+  "id": "R13",
+  "primary_workstream": "W2",
+  "severity": "major",
+  "title": "Archetype thumbnails ignore DS.Color.nodeFill(for:) and give accent four jobs in one tile",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B20"
+  ],
+  "raised_by_n_critics": 1,
+  "evidence": "ArchetypeGallerySheet.swift:548 strokes buffers `with: .color(DS.Color.accent)` and :552 fills stations `with: .color(DS.Color.accent)`; sources and sinks are drawn in DS.Color.textSecondary (:543, :545). DS.Color.nodeFill(for:) exists at DesignSystem.swift:607 and is used by every other picture surface \u2014 NetworkCanvasView.swift:541, NodeParameterEditorSheet.swift:205, PicturePickerSheet.swift:221. In the same tile `accent` is also the header glyph tint (:433) and the keyboard-focus ring (:461). I confirmed the mismatch on screen: the tiles draw blue squares for stations and blue outlines for buffers while the canvas immediately behind them draws green diamonds for sources, tan rectangles for buffers, blue circles for stations and a dark-red square for the sink.",
+  "why_it_matters": "These thumbnails are the only picture of a network outside the canvas, and they are what a first-time user meets before they have ever drawn one \u2014 so the app's stencil browser teaches a colour vocabulary that the canvas then contradicts. Inside one tile the accent colour simultaneously means \"this is the archetype's glyph\", \"this tile has keyboard focus\", \"this is a station\" and \"this is a buffer\", which is exactly the overload the design system exists to prevent.",
+  "required_fix": "In ArchetypeThumbnail.body, fill each marker with DS.Color.nodeFill(for:) for its NodeKind and reserve accent for selection and focus. Keep the shape language the canvas uses (diamond source, open rectangle buffer, circle station, rounded-square sink) so the picture speaks the canvas's vocabulary.",
+  "all_phrasings": [
+   "PRIOR BLOCKER NOT FIXED: archetype thumbnails ignore DS.Color.nodeFill(for:) and give `accent` four jobs inside one tile"
+  ]
+ },
+ {
+  "id": "R14",
+  "primary_workstream": "RELEASE",
+  "severity": "blocker",
+  "title": "Qnet.app predates round 1 and bundles zero of the 50 example networks",
+  "cross_workstream_note": "",
+  "merged_from": [
+   "B03",
+   "B18"
+  ],
+  "raised_by_n_critics": 2,
+  "evidence": "`find Qnet.app -name '*.bnet' | wc -l` returns 0; the fifty are present in input/examples. The empty-state secondary button's help string is literally \"Open one of the 50 bundled literature networks\" (NetworkCanvasOverlays.swift:215). The failure path is now handled well \u2014 loadExample() writes \"No examples directory found \u2014 looked in: <trail>\" to the Status pane and sets panel.message \u2014 but the metric target is 50 and the measured value is 0, unchanged from the round-0 baseline. Three rounds of source changes are also absent from that bundle.",
+  "why_it_matters": "A user who launches the shipped Qnet.app on any machine without the source tree beside it presses the app's own onboarding button and is told the fifty networks it just promised cannot be found. This is the largest remaining gap between the tree and the product.",
+  "required_fix": "Run ./build_app.sh, confirm `find Qnet.app -name '*.bnet' | wc -l` is 50, then apply W6-INT-6's bundle assertion to validation/solver_bundle_audit.sh in the same change (never before, or a green gate turns red for a reason unrelated to the source), and regenerate FILES.sha256. This needs a human or an agent permitted to run the release build; no implementer this round could close it.",
+  "all_phrasings": [
+   "The shipped Qnet.app predates round 1 and contains zero example networks, so none of three rounds of work is in the thing the user opens",
+   "The shipped bundle still contains zero of the fifty example networks the empty canvas's own button promises"
+  ]
+ }
+]

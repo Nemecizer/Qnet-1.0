@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "name": "Two-class tandem with BAS and external loss",
+  "blocking": "bas_external_loss",
+  "stations": [
+    {
+      "id": "fabrication",
+      "name": "Fabrication",
+      "servers": 2,
+      "capacity": 7,
+      "service_rates": {"standard": 1.1, "rework": 0.85}
+    },
+    {
+      "id": "test",
+      "name": "Test",
+      "servers": 1,
+      "capacity": 4,
+      "service_rates": {"standard": 1.3, "rework": 1.0}
+    }
+  ],
+  "classes": [
+    {
+      "id": "standard",
+      "name": "Standard",
+      "external_arrivals": {"fabrication": 0.65}
+    },
+    {
+      "id": "rework",
+      "name": "Rework",
+      "external_arrivals": {"fabrication": 0.1}
+    }
+  ],
+  "routes": [
+    {"class": "standard", "from": "fabrication", "to": "test", "probability": 0.9},
+    {"class": "standard", "from": "test", "to": "fabrication", "to_class": "rework", "probability": 0.12},
+    {"class": "rework", "from": "fabrication", "to": "test", "probability": 0.95},
+    {"class": "rework", "from": "test", "to": "fabrication", "probability": 0.05}
+  ],
+  "solver": {
+    "tolerance": 1e-10,
+    "max_iterations": 1500,
+    "damping": 0.35
+  }
+}

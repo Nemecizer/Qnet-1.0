@@ -1,0 +1,34 @@
+# SRBM Solver Input File - 2D Test Case
+# Reproduces Table 2 from Dai & Harrison (1991) for a=1.0
+
+# Number of dimensions
+dimension 2
+
+# Polynomial approximation order
+degree 6
+
+# Hypercube dimensions [a1, a2]
+a 1.0 1.0
+
+# Covariance matrix (Gamma = 2*I for zero-drift case)
+Gamma
+2.0 0.0
+0.0 2.0
+
+# Drift vector (zero drift)
+mu 0.0 0.0
+
+# Reflection matrix for tandem queue
+# Column ordering: [v_{x1=0}, v_{x1=a1}, v_{x2=0}, v_{x2=a2}]
+# This corresponds to:
+#   v1 = (1, -1)  on x1=0
+#   v2 = (-1, 0)  on x1=a
+#   v3 = (0, 1)   on x2=0
+#   v4 = (1, -1)  on x2=b
+R
+ 1.0 -1.0  0.0  1.0
+-1.0  0.0  1.0 -1.0
+
+# Expected results:
+# E[X1] ≈ 0.5514
+# E[X2] ≈ 0.4486

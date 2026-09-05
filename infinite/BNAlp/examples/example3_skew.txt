@@ -1,0 +1,27 @@
+# Example 3: Skew-symmetric 2D SRBM (LP_SRBM paper Example 3)
+# R and sigma chosen so 2*sigma_ij = R_ij + R_ji (skew-symmetry)
+# rho = -R^{-1} mu = (1, 0.25); exact product-form marginals
+# True E[Z1] = 0.5, E[Z2] = 2.0
+# Grid spacing 0 0 triggers auto-compute = rho/2.
+
+dimension  2
+grid_n     100
+basis_m    6
+grid_type  exponential
+
+drift
+  -0.85  0.0
+
+covariance
+  1.0     -0.425
+ -0.425    1.0
+
+reflection
+  1.0   -0.6
+ -0.25   1.0
+
+grid_spacing
+  0.0  0.0
+
+tightness_bounds
+  100000  100000  100000  100000  100000

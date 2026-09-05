@@ -1,0 +1,472 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qnet.local/schemas/product-form-v1.json",
+  "title": "Qnet exact product-form model",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/closed_bcmp"
+    },
+    {
+      "$ref": "#/$defs/open_bcmp"
+    },
+    {
+      "$ref": "#/$defs/mixed_bcmp"
+    },
+    {
+      "$ref": "#/$defs/kaufman_roberts"
+    }
+  ],
+  "$defs": {
+    "positive_number": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "route_destination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["station", "probability"],
+      "properties": {
+        "station": {
+          "type": "string",
+          "minLength": 1
+        },
+        "probability": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "routing_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_station", "destinations"],
+      "properties": {
+        "from_station": {
+          "type": "string",
+          "minLength": 1
+        },
+        "destinations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/route_destination"
+          }
+        }
+      }
+    },
+    "closed_class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "population"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "population": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reference_station": {
+          "type": "string",
+          "minLength": 1
+        },
+        "visit_ratios": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/positive_number"
+          }
+        },
+        "routing": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/routing_row"
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["visit_ratios"],
+          "not": {
+            "required": ["routing"]
+          }
+        },
+        {
+          "required": ["routing"],
+          "not": {
+            "required": ["visit_ratios"]
+          }
+        }
+      ]
+    },
+    "open_routing_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_station"],
+      "properties": {
+        "from_station": {
+          "type": "string",
+          "minLength": 1
+        },
+        "destinations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/route_destination"
+          }
+        },
+        "exit_probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "If omitted, one minus the destination-probability sum is the exit probability."
+        }
+      }
+    },
+    "open_class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "external_arrival_rates"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "external_arrival_rates": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/positive_number"
+          }
+        },
+        "routing": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/open_routing_row"
+          },
+          "description": "Missing station rows exit with probability one."
+        }
+      }
+    },
+    "bcmp_station": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "service_times"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "fcfs",
+            "processor_sharing",
+            "infinite_server",
+            "lcfs_preemptive_resume"
+          ]
+        },
+        "servers": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Only valid for an fcfs station."
+        },
+        "service_times": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/positive_number"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "fcfs"
+              }
+            },
+            "required": ["type"]
+          },
+          "else": {
+            "not": {
+              "required": ["servers"]
+            }
+          }
+        }
+      ]
+    },
+    "closed_bcmp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "model_type",
+        "name",
+        "stations",
+        "classes"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "model_type": {
+          "const": "closed_bcmp"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "stations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/bcmp_station"
+          }
+        },
+        "classes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/closed_class"
+          }
+        },
+        "solver": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_states": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 200000
+            }
+          }
+        }
+      }
+    },
+    "open_bcmp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "model_type",
+        "name",
+        "stations",
+        "classes"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "model_type": {
+          "const": "open_bcmp"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "stations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/bcmp_station"
+          }
+        },
+        "classes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/open_class"
+          }
+        },
+        "solver": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_servers": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 100000
+            }
+          }
+        }
+      }
+    },
+    "mixed_bcmp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "model_type",
+        "name",
+        "stations",
+        "open_classes",
+        "closed_classes"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "model_type": {
+          "const": "mixed_bcmp"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "stations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/bcmp_station"
+          }
+        },
+        "open_classes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/open_class"
+          }
+        },
+        "closed_classes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/closed_class"
+          }
+        },
+        "solver": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_states": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 200000
+            },
+            "max_servers": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 100000
+            }
+          }
+        }
+      }
+    },
+    "loss_class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "units"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "units": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "offered_load": {
+          "$ref": "#/$defs/positive_number"
+        },
+        "arrival_rate": {
+          "$ref": "#/$defs/positive_number"
+        },
+        "mean_holding_time": {
+          "$ref": "#/$defs/positive_number"
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["offered_load"],
+          "not": {
+            "anyOf": [
+              {
+                "required": ["arrival_rate"]
+              },
+              {
+                "required": ["mean_holding_time"]
+              }
+            ]
+          }
+        },
+        {
+          "required": ["arrival_rate", "mean_holding_time"],
+          "not": {
+            "required": ["offered_load"]
+          }
+        }
+      ]
+    },
+    "kaufman_roberts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "model_type",
+        "name",
+        "resource",
+        "classes"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "model_type": {
+          "const": "kaufman_roberts"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "resource": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "capacity"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "capacity": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "classes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/loss_class"
+          }
+        },
+        "solver": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_capacity": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1000000
+            }
+          }
+        }
+      }
+    }
+  }
+}

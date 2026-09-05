@@ -1,0 +1,73 @@
+# Complex Multi-Class Jackson Network Example
+# Demonstrates various distribution types
+#
+# This is a call center model with multiple customer types
+
+# Network dimensions
+stations 3
+classes 5
+
+# Simulation parameters
+warmup 20000
+run_length 200000
+replications 50
+seed 98765
+
+# MCN format output file
+mcn_output example_complex_mcn.txt
+
+# ============================================================================
+# Station 0: Initial triage/routing
+# Station 1: Technical support
+# Station 2: Sales/billing
+# ============================================================================
+
+# Class 0: New customer arrivals (general inquiry)
+# Gamma arrival process with higher variance
+# Quick initial assessment
+class 0
+    arrival gamma 2.0 0.5
+    station 0
+    service uniform 0.1 0.3
+    routing 0 0.3 0.2 0.3 0.2
+end_class
+
+# Class 1: Technical support - simple issues
+# No external arrivals (routed from class 0)
+# Exponential service (high variance)
+class 1
+    arrival none
+    station 1
+    service exponential 4.0
+    routing 0 0 0 0.5 0
+end_class
+
+# Class 2: Technical support - complex issues
+# Some direct arrivals from priority customers
+# Erlang service (more predictable)
+class 2
+    arrival exponential 0.2
+    station 1
+    service erlang 3 6.0
+    routing 0 0 0 0 0.5
+end_class
+
+# Class 3: Sales - standard
+# Routed from triage
+# Lognormal service time (occasional long calls)
+class 3
+    arrival none
+    station 2
+    service lognormal -0.5 0.5
+    routing 0 0 0 0 0
+end_class
+
+# Class 4: Sales - VIP
+# Some direct VIP arrivals
+# Hyperexponential service (high variance)
+class 4
+    arrival exponential 0.2
+    station 2
+    service hyperexp2 0.7 5.0 1.5
+    routing 0 0 0 0 0
+end_class

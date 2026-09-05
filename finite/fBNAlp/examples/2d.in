@@ -1,0 +1,25 @@
+# 2D RBM in [0,10]x[0,10] with independent components.
+# mu = (-1,-1), Sigma = I, R = I (normal reflection at all faces).
+# Expected E[X_i] ~ 1/2 (truncated-exponential limit, b=10 large enough
+# that truncation correction is < 1e-4).
+
+dimension   2
+grid_n      12
+basis_m     6
+grid_type   uniform
+solver      highs
+
+drift
+  -1.0  -1.0
+
+covariance
+  1.0  0.0
+  0.0  1.0
+
+reflection_form  minus_only
+reflection
+  1.0  0.0
+  0.0  1.0
+
+upper_bounds
+  10.0  10.0

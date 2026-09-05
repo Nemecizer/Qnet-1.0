@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qnet.local/schemas/generic-ctmc-v1.json",
+  "title": "Qnet generic finite-state CTMC model",
+  "description": "An open, finite-capacity, loss-on-full Markovian FCFS queueing network.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "name",
+    "classes",
+    "stations",
+    "external_arrivals"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "blocking": {
+      "const": "loss",
+      "default": "loss",
+      "description": "External arrivals and post-service transfers are discarded when their destination is full. General BAS is not supported."
+    },
+    "service_discipline": {
+      "const": "fcfs",
+      "default": "fcfs"
+    },
+    "classes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "stations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "servers", "capacity", "service_rates"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "servers": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "capacity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Total customers allowed at the station, including customers in service. Must be at least servers."
+          },
+          "service_rates": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "description": "Exponential rate by customer class for each class that can visit this station."
+          }
+        }
+      }
+    },
+    "external_arrivals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["station", "class", "rate"],
+        "properties": {
+          "station": {
+            "type": "string",
+            "minLength": 1
+          },
+          "class": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rate": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        }
+      }
+    },
+    "routing": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from_station", "from_class", "destinations"],
+        "properties": {
+          "from_station": {
+            "type": "string",
+            "minLength": 1
+          },
+          "from_class": {
+            "type": "string",
+            "minLength": 1
+          },
+          "destinations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["exit", "probability"],
+                  "properties": {
+                    "exit": {
+                      "const": true
+                    },
+                    "probability": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["station", "probability"],
+                  "properties": {
+                    "station": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "class": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Defaults to from_class when omitted."
+                    },
+                    "probability": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "solver": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tolerance": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1e-12
+        },
+        "max_iterations": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 200000
+        },
+        "max_states": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 200000
+        },
+        "uniformization_slack": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 10,
+          "default": 0.05
+        }
+      }
+    }
+  }
+}

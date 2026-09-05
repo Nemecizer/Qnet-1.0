@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "model_type": "closed_bcmp",
+  "name": "Multiclass BCMP discipline catalogue",
+  "description": "Demonstrates every supported exact station type, class-specific visits, and a multi-server FCFS station.",
+  "stations": [
+    {
+      "id": "shared_fcfs",
+      "type": "fcfs",
+      "servers": 2,
+      "service_times": {
+        "interactive": 0.5,
+        "batch": 0.5
+      }
+    },
+    {
+      "id": "processor_sharing",
+      "type": "processor_sharing",
+      "service_times": {
+        "interactive": 0.4,
+        "batch": 0.8
+      }
+    },
+    {
+      "id": "delay",
+      "type": "infinite_server",
+      "service_times": {
+        "interactive": 2.0,
+        "batch": 3.0
+      }
+    },
+    {
+      "id": "preemptive_stack",
+      "type": "lcfs_preemptive_resume",
+      "service_times": {
+        "interactive": 0.6,
+        "batch": 0.9
+      }
+    }
+  ],
+  "classes": [
+    {
+      "id": "interactive",
+      "population": 2,
+      "reference_station": "shared_fcfs",
+      "visit_ratios": {
+        "shared_fcfs": 1.0,
+        "processor_sharing": 0.5,
+        "delay": 2.0,
+        "preemptive_stack": 0.25
+      }
+    },
+    {
+      "id": "batch",
+      "population": 1,
+      "reference_station": "shared_fcfs",
+      "visit_ratios": {
+        "shared_fcfs": 2.0,
+        "processor_sharing": 1.0,
+        "delay": 0.5,
+        "preemptive_stack": 1.0
+      }
+    }
+  ],
+  "solver": {
+    "max_states": 100000
+  }
+}

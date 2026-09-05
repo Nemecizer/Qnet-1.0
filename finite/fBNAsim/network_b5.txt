@@ -1,0 +1,19 @@
+# fBNA Queueing Network Export
+# 2-station tandem, buffer size = 5
+
+# dimension
+2
+
+# arrival_distribution
+exponential rate=1.0
+
+# buffer_sizes
+5 5
+
+# service_distributions
+exponential rate=1.0
+exponential rate=1.0
+
+# routing_matrix
+0.000000 1.000000
+0.000000 0.000000

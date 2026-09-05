@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "process": "continuous_time_qbd",
+  "name": "M/M/1 with lambda=2 and mu=3",
+  "boundary": {
+    "level_0_same": [[-2.0]],
+    "level_0_up": [[2.0]],
+    "level_1_down": [[3.0]],
+    "level_1_same": [[-5.0]]
+  },
+  "interior": {
+    "down": [[3.0]],
+    "same": [[-5.0]],
+    "up": [[2.0]]
+  },
+  "solver": {
+    "max_report_level": 6,
+    "tail_levels": [0, 1, 2, 5, 10]
+  }
+}

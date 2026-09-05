@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "model_type": "orthant_srbm_bar_bounds",
+  "name": "one-dimensional reflected Brownian motion",
+  "drift": [-1.0],
+  "covariance": [[2.0]],
+  "reflection": [[1.0]],
+  "relaxation": {
+    "order": 2,
+    "targets": [
+      {"name": "mean_workload", "moment": [1]},
+      {"name": "second_raw_moment", "moment": [2]}
+    ]
+  }
+}

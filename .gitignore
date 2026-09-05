@@ -1,0 +1,114 @@
+# ── Swift build artifacts ─────────────────────────────────
+.build/
+*.swiftpm/
+DerivedData/
+.swiftpm/
+xcuserdata/
+*.xcuserdatad/
+
+# ── Built application bundle ──────────────────────────────
+Qnet.app/
+*.app/
+
+# ── C build artifacts (each finite/ and infinite/ subdir) ─
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+
+# Compiled C binaries — anyone cloning runs `make` themselves.
+finite/fBNAlp/fBNAlp_solver
+finite/fBNAfm/bna_fm_gauss
+finite/fBNAfm/bna_fm_cbc
+finite/fBNAsim/fBNAsim
+finite/fBNAsim/fBNAmc
+finite/fBNAsm/srbm_solver
+finite/fBNAsm/srbm_solver_baseline
+finite/fBNAsm/verify_mc
+infinite/BNAmc/gen_symmetric
+infinite/BNAmc/gen_tridiag
+infinite/BNAmc/rbm_mlmc
+infinite/BNAsbd/bna_sbd
+infinite/BNAsbd/bnet
+infinite/BNAsim/jackson_sim
+infinite/BNAsim/jackson_sim_finite
+infinite/BNAsim/jackson_sim_finite_debug
+infinite/BNAlp/srbm_lp
+infinite/BNAqna/bna_qna
+infinite/BNArqna/bna_rqna
+infinite/BNAsm/bnet
+infinite/BNAfm/bna_fm
+infinite/multiclass_diffusion/mc_solver
+infinite/multiclass_diffusion/tests/test_params
+
+# Catch-all for any other build product the Makefiles produce
+finite/fBNAlp/obj/
+finite/fBNAfm/scaling_results.csv
+
+# ── Python ────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# ── macOS / editor cruft ──────────────────────────────────
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+
+# Debug-symbol bundles (Xcode / clang -g; large, regeneratable)
+*.dSYM/
+
+# Dropbox sync conflict files
+*conflicted copy*
+
+# ── Local Claude state ────────────────────────────────────
+.claude/
+
+# ── Run-time output artifacts at repo root ────────────────
+srbm_out_*.csv
+*.log
+
+# Patch-version tracker (regenerated each build)
+version_patch.txt
+
+# ── PDFs distributed with solver dirs (copyright; keep local) ─
+finite/fBNAfm/SRBM*in*Hypercube.pdf
+finite/fBNAfm/the-finite-element-method.pdf
+finite/fBNAsm/SRBM*in*Hypercube.pdf
+finite/fBNAsm/the-finite-element-method.pdf
+finite/fBNAsm/dai90Dissertation.pdf
+
+# ── Research artifacts (private, per user) ────────────────
+experiment/
+.testcases/
+
+# ── Large regeneratable benchmark working data ────────────
+# 126MB of dense .qna inputs — exceeds GitHub's per-file cap.
+# Regenerate with the scripts in validation/algo_review/.
+validation/algo_review/work/
+validation/feedback_runs/
+
+# ── Icon reference renders ────────────────────────────────
+# `assets/make_icon.sh` writes the one shipping artefact, AppIcon.icns,
+# which is committed. With `--reference` it also renders the dark and
+# tinted variants and the appiconset that describes all three for a
+# future asset-catalog build; nothing in the product reads those, so they
+# stay local (1.2 MB of binaries that churned on every motif tweak).
+assets/AppIcon.appiconset/
+assets/AppIcon-dark.icns
+assets/AppIcon-tinted.icns
+
+# ── Literature PDFs (copyright; keep local) ───────────────
+# Same rule the solver-directory PDFs above already follow: the 52 published
+# papers in Papers/ are third-party copyrighted work and 33 MB of binaries that
+# would be in every clone forever. The project's OWN writing about them —
+# the survey, the index, the manifest and the bibliography — stays tracked.
+Papers/*.pdf

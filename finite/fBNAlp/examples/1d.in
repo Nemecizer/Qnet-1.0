@@ -1,0 +1,25 @@
+# 1D RBM in [0, b] — smoke test against closed-form truncated exponential.
+#
+#   Generator:    L f = mu f' + (1/2) sigma^2 f''
+#   With mu < 0, sigma^2 = 1, the stationary density on [0, b] is
+#       p(x) = (2|mu|) / (1 - exp(-2|mu| b)) * exp(-2|mu| x)
+#   For mu = -0.5, b = 10:  p(x) ~ exp(-x), E[X] ~ 1 - 10/(e^10 - 1) ≈ 0.99955.
+
+dimension   1
+grid_n      64
+basis_m     8
+grid_type   uniform
+solver      highs
+
+drift
+  -0.5
+
+covariance
+  1.0
+
+reflection_form  minus_only
+reflection
+  1.0
+
+upper_bounds
+  10.0

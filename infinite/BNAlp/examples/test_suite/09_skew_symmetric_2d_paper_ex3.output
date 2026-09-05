@@ -1,0 +1,8 @@
+# Expected output for 09_skew_symmetric_2d_paper_ex3
+# Source: LP_SRBM Example 3 (Saure-Glynn-Zeevi 2008)
+# Skew-symmetric: 2*sigma_ij = R_ij + R_ji => 2*(-0.425) = -0.6 + -0.25 = -0.85. OK
+# Closed form exponential marginals with rate 2*rho where rho=(-R^-1 mu).
+# rho = (1, 0.25), so marginals exp(2) and exp(0.5): E[Z1]=1/2, E[Z2]=1/0.5=2.
+dimension 2
+E[Z_1] 0.500000 tol=0.03
+E[Z_2] 2.000000 tol=0.03

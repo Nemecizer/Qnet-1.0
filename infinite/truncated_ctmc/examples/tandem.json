@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "process": "open_single_class_markovian_network",
+  "name": "Two-node Markovian tandem",
+  "nodes": [
+    {
+      "name": "entry",
+      "external_arrival_rate": 0.4,
+      "service_rate_per_server": 2.0,
+      "servers": 1
+    },
+    {
+      "name": "exit",
+      "external_arrival_rate": 0.0,
+      "service_rate_per_server": 2.0,
+      "servers": 1
+    }
+  ],
+  "routing": [
+    [0.0, 1.0],
+    [0.0, 0.0]
+  ],
+  "solver": {
+    "initial_total_cap": 5,
+    "max_total_cap": 24,
+    "growth_factor": 1.5,
+    "max_states": 10000,
+    "boundary_mass_tolerance": 1e-8,
+    "refinement_relative_tolerance": 1e-7,
+    "tail_levels": [1, 3, 5, 10]
+  }
+}

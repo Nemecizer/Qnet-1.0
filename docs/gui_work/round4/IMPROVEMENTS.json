@@ -1,0 +1,224 @@
+[
+ {
+  "title": "The three canvas gestures shipped this round are still absent from the tool tooltips",
+  "evidence": "Models.swift:126-145: the Pointer tooltip mentions click/drag/rubber-band only; the Pan tooltip mentions H, V and Space but not the double-click that reaches it or the click that leaves it; the Link tooltip says \"click a start node, then each next node\" and mentions neither drag-to-connect nor the same-node-twice self-loop. They ARE all documented in KeyboardShortcutReference.swift:159-163, which is why this is no longer blocking.",
+  "required_fix": "Add one clause each: Pointer \u2014 \"double-click empty canvas for the hand; one click brings the pointer back\"; Link \u2014 \"drag node to node to draw one, or click the same station twice for a feedback loop\". Keep them one line; the reference window carries the detail.",
+  "workstream": "W2 (Models.swift)"
+ },
+ {
+  "title": "Archetype gallery thumbnails give `accent` two meanings and ignore the canvas node palette",
+  "evidence": "ArchetypeGallerySheet.swift:540-553: source and sink are both `DS.Color.textSecondary` (filled vs stroked circle), buffer and station are both `DS.Color.accent` (stroked vs filled rounded rect). The canvas draws nodes through `DS.Color.nodeFill(for:)`. The shapes do distinguish all four kinds, which is why this is not blocking.",
+  "required_fix": "Fill each marker with `DS.Color.nodeFill(for: marker.kind)` so a tile is a small picture of what Insert will actually put on the canvas.",
+  "workstream": "W2 (ArchetypeGallerySheet.swift)"
+ },
+ {
+  "title": "Align and Distribute are still reachable only from a node's context menu, and only three of eight exist",
+  "evidence": "`grep -rn 'Align Left\\|Align Top\\|Distribute'` finds exactly three buttons, all in NetworkCanvasView.swift:1394-1398 (the node context menu). QnetCommands.swift has no Align or Distribute item at all. Headline metric 19: measured 0 of 8 in the menu bar, target 8 of 8 \u2014 unmoved across three rounds, and there is no keyboard route to any of them.",
+  "required_fix": "Add an Arrange submenu under Edit or Network carrying the eight commands (the six plus the two missing centre alignments); the model methods already exist at NetworkEditorModel.swift:2064-2121.",
+  "workstream": "W2 (NetworkEditorModel.swift) with W6 (QnetCommands.swift)"
+ },
+ {
+  "title": "The Tools palette cannot be torn out, so detach is 5 of 6 rather than 6 of 6",
+  "evidence": "PaneChrome.swift:62: `var canBeDetached: Bool { self != .canvas && self != .palette }`. Headline metric 11's round-2 target is \"6 of 6 detachable\"; the canvas is legitimately excluded, the palette is a judgement call nobody recorded.",
+  "required_fix": "Either allow the palette to detach (it is a plain list of tool buttons and needs no special hosting) or record the exclusion against the metric so a round-4 reader does not re-derive it.",
+  "workstream": "W3 (PaneChrome.swift)"
+ },
+ {
+  "title": "Elapsed time, spinner time and comparison deltas ignore the decimals setting",
+  "evidence": "runScript's wrapper body: `printf(\"Elapsed time: %.3fs\\n\\n\", \u2026)` \u2014 always 3 places, and the trailing `s` puts it out of the filter's scope by design. `withSpinner` uses `%6.1fs`. `buildComparisonAwk`'s `fmtv` emits `(%+.1f%%)` \u2014 always 1 place, and `%` is excluded from the filter. Set decimals to 3 and the last line of every run still reads `1.234s` beside values at 3 places; set it to 6 and it still reads 3.",
+  "required_fix": "Leave the durations alone (they are timings, not results) but say so \u2014 one line in Settings \u25b8 Output Format noting that durations and percentage deltas are fixed-format \u2014 or format the elapsed line at the user's setting. Either is fine; the silence is what makes it read as a miss.",
+  "workstream": "W6 (QnetGUIApp.swift)"
+ },
+ {
+  "title": "A solver value that happens to print without a decimal point is left bare beside its formatted neighbours",
+  "evidence": "product_form at D=3: `Analytic probability mass: 1  minimum stability margin: 0.550`. The filter only rewrites a token carrying a decimal point (or a bare mantissa before an exponent) \u2014 which is exactly what correctly protects station indices, seeds, thread counts and exit codes, verified against a line holding all four \u2014 but a probability that lands exactly on 1.0 and is printed by Python as `1` is indistinguishable from a count.",
+  "required_fix": "Not fixable in the filter without losing the integer guarantee. Fix it in the one solver that does it: have product_form print its probability mass and margins with an explicit format so they always carry a point.",
+  "workstream": "W6 (infinite/product_form/solver.py), or accept and document"
+ },
+ {
+  "title": "QNA and BNA-SRBM still export a fabricated network for a singular routing system, and the solver prints a full table of `nan`",
+  "evidence": "The integrator fixed `solveTrafficEquations` in SRBMExporter.swift only. I exported /tmp/critic3-selfloop.bnet (S1 \u2192 S1 at p = 1.0): sm.in / fm.in / lp.in were correctly refused and not written, but qna.qna WAS written, and `./infinite/BNAqna/bna_qna` on it prints `nan` in every column of every row plus `Total E[N]: nan`. Not a wrong number, but not a refusal either.",
+  "required_fix": "Port the `singularIndex` return from SRBMExporter.solveTrafficEquations to the copies at QNAExporter.swift:426 and BNASRBMExporter.swift:795, mapping to the same `NetworkExportError.trafficEquationsSingular` so all three paths refuse with the same sentence.",
+  "workstream": "W6 (QNAExporter.swift, BNASRBMExporter.swift)"
+ },
+ {
+  "title": "The filter's `holding()` comment overstates its own latency bound",
+  "evidence": "QnetGUIApp.swift, `holding()`: an unterminated tail ending in `[0-9.eE+-]` is held until more bytes arrive, not for one idle tick \u2014 the `elsif (!holding())` release branch simply never fires while it holds. The comment says \"Holding costs at most one idle tick of latency on a partial line.\" In practice every progress frame ends in `s` and every result line ends in a newline, so nothing reachable today stalls.",
+  "required_fix": "Correct the comment, or add a wall-clock release after a second or two for a tail that has stopped growing.",
+  "workstream": "W6 (QnetGUIApp.swift, `outputPrecisionProgram`)"
+ },
+ {
+  "title": "Every undo action name the model sets is invisible \u2014 the Edit menu says only \"Undo\"",
+  "evidence": "Sources/Qnet/QnetCommands.swift:371 and :379 hard-code `Button(\"Undo\")` / `Button(\"Redo\")`, and `grep -rn 'undoActionName\\|redoActionName' Sources/Qnet` returns zero hits. Confirmed live: the Edit menu item's AXTitle is exactly \"Undo\" after inserting a tandem line. Meanwhile NetworkEditorModel.swift:2890 diligently calls `undoManager.setActionName(name)` for \"Insert Tandem Line\", \"Duplicate and Move Nodes\", \"Move Link\", \"Delete Link\", \"Align Top\", \"Distribute Horizontally\" and a dozen more.",
+  "required_fix": "Title the two buttons from the undo manager: `Button(editor.undoManager.canUndo ? \"Undo \\(editor.undoManager.undoActionName)\" : \"Undo\")` (trimmed when the name is empty), same for Redo. OmniGraffle, Figma and Visio all do this, and it is the only place the user ever learns what one \u2318Z will cost them. Do this after the undo blocker above is fixed.",
+  "workstream": "W5 (Sources/Qnet/QnetCommands.swift)"
+ },
+ {
+  "title": "The tool tooltips still omit every gesture this release added \u2014 a first-time user meets them only in a help window",
+  "evidence": "Sources/Qnet/Models.swift:126-145. `.select` mentions guides and \u2303 but not \u2325-drag-duplicates and not double-click-to-pan; `.multiSelect` mentions only the rectangle; `.pan` mentions H, V and Space but not the double-click that reaches it; `.addLink` says \"click a start node, then each next node to chain routing links\" with no mention of drag-to-connect and no mention of the self-loop. Escape-cancels-a-drag appears in no tooltip. All of these are documented, correctly, in KeyboardShortcutReference.swift:144-163 \u2014 i.e. only in Help \u25b8 Keyboard Shortcuts.",
+  "required_fix": "In Sources/Qnet/Models.swift extend `helpText` for the four affected tools, taking the wording verbatim from KeyboardShortcutReference's `unprintedKeys` so the two cannot drift: Pointer gains \"\u2325-drag duplicates the selection; double-click empty canvas hands the canvas to the hand and one click gives this tool back; Escape mid-drag puts the drag back\"; Multi-Select gains the same double-click clause; Link gains \"or press on a node and drag to a second one; drag out and back onto a station for a self-loop\".",
+  "workstream": "W2 (Sources/Qnet/Models.swift)"
+ },
+ {
+  "title": "Align and Distribute: 3 of 8 commands exist and none is in the menu bar (headline metric 19 has not moved from its 0 baseline)",
+  "evidence": "`grep -rn 'Align \\|Distribute' Sources/Qnet/QnetCommands.swift` finds only a help string at :776. The only align/distribute call sites are NetworkCanvasView.swift:1394-1398 \u2014 Align Top, Align Left, Distribute Horizontally \u2014 in the node context menu. There is no Align Right, Align Bottom, Align Horizontal Centres, Align Vertical Centres or Distribute Vertically anywhere, and none of the three is reachable from the menu bar, a toolbar or a keyboard shortcut.",
+  "required_fix": "Add the missing five model methods beside the existing three in NetworkEditorModel.swift (aligning by node EDGES, per the backlog), and surface all eight as an Arrange submenu in the menu bar with the standard shortcuts, keeping the context menu titles verbatim identical. Every comparator (OmniGraffle, Visio, Figma, Simulink) puts these in the menu bar and a toolbar; a context menu only is where Qnet visibly reads as less finished than its peers.",
+  "workstream": "W2 (NetworkEditorModel.swift) with W5 for QnetCommands.swift"
+ },
+ {
+  "title": "The gallery opens on M/M/c Station, not on the Tandem Line the code declares as its default, so the common case costs an extra click",
+  "evidence": "Sources/Qnet/ArchetypeGallerySheet.swift:44 declares `@State private var highlighted: NetworkArchetype = .tandemLine`, but `.defaultFocus($focusedTile, highlighted)` combined with `.onChange(of: focusedTile) { highlighted = newValue }` (:172-175) lets focus settle on the first tile and overwrite it. Observed live twice: the panel opened with M/M/c Station highlighted, the Insert button's help read \"Insert M/M/c Station\u2026\", the footer read \"1 station, 4 nodes, 3 links\", and the Stations knob was absent because M/M/c does not use it.",
+  "required_fix": "Make the declared default stick \u2014 either seed `focusedTile` explicitly to `highlighted` in `onAppear` before the `onChange` can fire, or gate the `onChange` so it only adopts a focus change the user caused. Headline metric 0's own recipe names Tandem Line as the default path, and a one-station M/M/c is not what \"3-station tandem in \u2264 6 clicks\" means.",
+  "workstream": "W2 (Sources/Qnet/ArchetypeGallerySheet.swift)"
+ },
+ {
+  "title": "The gallery's canvas-dependent footer is a snapshot while the canvas underneath stays fully editable",
+  "evidence": "ArchetypeGalleryPanel.sync passes `canvasNodeCount`/`canvasSourceCount` as values read once at `present` time (ArchetypeGalleryPanel.swift:57-71), and DSPanelWindow's `.documentModal` explicitly runs no modal loop (DSPanelWindow.swift:117-121), so mouse events still reach the canvas behind the panel. With the panel open on an empty canvas the footer reads \"This canvas is empty, so the choice above becomes the whole network's\"; place a node behind it and that sentence is false, while `insertSubnetwork` reads the live `nodes` and behaves correctly.",
+  "required_fix": "Make the two counts and the regime live rather than captured \u2014 hold them in an observable box the presenter updates from the editor, or have the sheet read them through an injected closure evaluated in `body`. The behaviour is already right; only the sentence can lie, which is the half a user will believe.",
+  "workstream": "W2 (ArchetypeGallerySheet.swift) with one integration request to W6 for the QnetGUIApp.swift call site"
+ },
+ {
+  "title": "A VoiceOver user's default action on a gallery tile inserts immediately instead of selecting it",
+  "evidence": "Sources/Qnet/ArchetypeGallerySheet.swift:473 \u2014 `.accessibilityAction { onChoose() }`. `onChoose` is the double-click path, which calls `insert(...)` and closes the panel. A VoiceOver user arrowing through the five tiles and pressing the default action inserts the archetype at whatever parameters currently stand, with no opportunity to review the Stations / Servers / \u03bb / \u03c1 / Buffers knobs on the right \u2014 the mouse equivalent of that keystroke (a single click) only highlights.",
+  "required_fix": "Make the tile's default accessibility action `onSelect()`, matching the single click, and add an explicit named action for the commit: `.accessibilityAction(named: \"Insert\") { onChoose() }`.",
+  "workstream": "W2 (Sources/Qnet/ArchetypeGallerySheet.swift)"
+ },
+ {
+  "title": "Two files under validation/ still do not match FILES.sha256, from an earlier round, and nobody has reconciled the baseline",
+  "evidence": "`shasum -a 256 -c FILES.sha256` reports validation/result_output_parser/stubs.swift and .../main.swift as FAILED; their mtime is 2026-09-04 23:14, before round 3 opened. I checked the integrator's judgement rather than taking it: main.swift still defines 11 check functions and still throws `CheckFailure.failed` on a mismatch, and `validation/result_output_parser_check.sh` exits 0 with \"ResultOutputParser classification and semantic-row checks passed.\" The gate is not weakened.",
+  "required_fix": "Regenerate FILES.sha256 in the same change that next runs ./build_app.sh (which is already outstanding, since `find Qnet.app -name '*.bnet' | wc -l` is still 0 against a target of 50), and note in VERIFICATION.md that the parser harness grew when its file under test gained a dependency. Leaving a permanently-red hash baseline trains everyone to ignore the check that would catch a real weakening.",
+  "workstream": "Integrator (FILES.sha256, ./build_app.sh)"
+ },
+ {
+  "title": "A document-modal panel adopts whatever window happens to be key, so \u2325\u2318N with Settings or Help in front parents the Insert Archetype dialog to the wrong window",
+  "evidence": "DSPanelWindow.swift:232-234 captures `NSApp.keyWindow ?? NSApp.mainWindow` as the parent and :265 calls `parent?.addChildWindow(window, ordered: .above)`. QnetCommands.swift:252-255 gates File \u25b8 New from Archetype\u2026 only on `sheetPresented`, not on `menuContext.keyWindowIsMain` \u2014 unlike the canvas commands, which use `canvasCommandsActive` (QnetCommands.swift:194). Pressing \u2325\u2318N while Settings or Qnet Help is key therefore makes the archetype gallery a child of that window: it travels with it, orders above it, and vanishes when it closes, while its Insert acts on a canvas the user cannot see.",
+  "required_fix": "Resolve the parent through `MainWindowRegistry` rather than `NSApp.keyWindow` (prefer the key window when it is main content, else the first registered main window) inside DSPanelWindow.present; or add `|| !menuContext.keyWindowIsMain` to the `.disabled` of every panel-opening command. The registry fix is better because it protects future `.documentModal` callers rather than one menu item.",
+  "workstream": "W4 (DSPanelWindow.swift:232-234), or W5 (QnetCommands.swift:254) for the menu-gating alternative"
+ },
+ {
+  "title": "The Window menu shows two different items both called \"Shell\" whenever the Shell pane is detached",
+  "evidence": "Read from the live menu with the Shell in its own window: `\u2026 Focus Inspector, Focus Results, Shell, (separator), Shell, Untitled (Unsaved network)`. The first is `Menu(\"Shell\")` \u2014 the Clear / Find / Restart submenu at WorkspaceCommands.swift:250 \u2014 and the second is AppKit's automatic window-list entry for the detached pane window, titled `pane.displayName` (PaneDetachment.swift:247).",
+  "required_fix": "Rename the actions submenu to something that cannot collide with a window title (\"Shell Session\" or \"Shell Actions\"), or title the detached window \"<network> \u2014 Shell\" the way Xcode titles a separate editor window. Keep `FocusRouter.Pane.displayName` as the single table so the header, the toggles and the tooltips stay in step.",
+  "workstream": "W3 (Sources/Qnet/WorkspaceCommands.swift:250, or PaneDetachment.swift:247)"
+ },
+ {
+  "title": "A detached pane window prints its own name twice \u2014 once in the title bar, once in the DSSectionHeader immediately under it",
+  "evidence": "Screenshot of the detached Shell: the title bar reads \"Shell\" and 30 pt below it the pane's `DSSectionHeader(\"Shell\", \u2026)` reads \"Shell \u25cf ~/Dropbox/0_CODE/0_CLAUDE/2_QNET\". PaneDetachment.swift:110-113 documents the intent (\"no extra chrome, no second title\") but the second title is the one that was already there.",
+  "required_fix": "In a detached pane, suppress the section header's title text and keep only its status accessory and trailing controls, or give the window title the document context the header cannot carry (\"3d3cfin.bnet \u2014 Shell\") so the two lines say different things. The header must keep drawing its focus rule and its `PaneSoloButton`, the only reattach control inside the window.",
+  "workstream": "W3 (Sources/Qnet/PaneDetachment.swift / ContentView.swift's TerminalPaneView header)"
+ },
+ {
+  "title": "`TerminalHostView` has no `layout()` override, so the terminal's frame depends entirely on notification timing",
+  "evidence": "`layoutTerminal()` (TerminalConsoleView.swift:505) returns early whenever `clipView.bounds` is degenerate, and the only paths back into it are `clipView`'s `frameDidChange` observer \u2014 dispatched asynchronously through `Task { @MainActor }` at :376-382 \u2014 plus `SwiftTermView.updateNSView`. There is no `override func layout()`. In several captures during my session the docked Shell pane rendered as an empty black rectangle with the green \"shell running\" dot lit and no prompt, then rendered normally later; I could not attribute it, because a second Qnet process was running against the same UserDefaults domain and the two main windows share the `BNETMainWindow` autosave frame. I am reporting the mechanism, not the sighting.",
+  "required_fix": "Add `override func layout() { super.layout(); layoutTerminal() }` to `TerminalHostView` so the frame is recomputed on every AppKit layout pass rather than only when a frame-change notification happens to arrive, and drop the async hop in the `frameDidChange` observer now that `positionFindBar` is idempotent. Then re-check the docked Shell on a cold launch with a large saved transcript.",
+  "workstream": "W5 (Sources/Qnet/TerminalConsoleView.swift:376-382, 505)"
+ },
+ {
+  "title": "SwiftTerm's find bar reports no match count, so \u2318F in the Shell gives no feedback that a term matched nothing",
+  "evidence": "Vendor/SwiftTerm/Sources/SwiftTerm/Mac/MacFindBarView.swift builds search field + prev/next + Aa/.*/Word + close and nothing else; `MacTerminalView.findNext(_:options:)` returns a Bool. Verified on screen: typing into the bar highlights a hit but shows no \"1 of 42\". Terminal.app and iTerm both show a count.",
+  "required_fix": "The full fix needs a change inside `Vendor/SwiftTerm` (a `search(term:options:) -> [Range]` alongside `findNext`), which no workstream owns. Either give Vendor/ an owner for one round, or \u2014 cheaper and honest \u2014 have `TerminalModel.showFind()`/`findNext` write a status-log line when a search finds nothing, so \"no matches\" is never silent.",
+  "workstream": "W5 (Sources/Qnet/TerminalModel.swift) with a Vendor/SwiftTerm owner for the full fix"
+ },
+ {
+  "title": "`WindowFrameAutosave.savedFrame` clamps to the union of all screens, which can place a window in the dead space between two screens of different heights",
+  "evidence": "ContentView.swift:2103-2117 reduces `NSScreen.screens.map(\\.visibleFrame)` with `union` and clamps the origin into that single rect. With a 27\" display beside a laptop display the union contains regions covered by neither, so a frame saved on the taller screen and clamped after it is unplugged can land partly in dead space.",
+  "required_fix": "Clamp against the screen whose visible frame has the largest intersection with the saved rect, falling back to `NSScreen.main`, rather than against the union. About ten lines, and it makes the unplugged-display case exact rather than approximately right.",
+  "workstream": "W3 (Sources/Qnet/ContentView.swift:2103-2117)"
+ },
+ {
+  "title": "Wall-clock timings are rewritten at results precision on some lines and left alone on others, so one run shows a duration two ways",
+  "evidence": "`./infinite/BNAlp/srbm_lp --input infinite/BNAlp/examples/example1.txt` at decimals 6 yields `[Parse] 0.000000 s`, `[Basis] 0.000000 s`, `[Build LP] 62 rows, 10201 cols, 539027 nnz, 0.004000 s` \u2014 because %.3f has a space before the 's', so the (?![\\w%\\/]) lookahead lets it through. The same run's final line, `Elapsed time: 0.412s` (QnetGUIApp.swift:6577), is untouched because there is no space. `0.000000 s` for a sub-millisecond parse reads as a measured zero.",
+  "required_fix": "Exclude a numeric token whose next non-space run is a bare unit word (s, ms, GHz, MB) from reformatting, or normalise the other way by routing the wrapper's Elapsed line through the same rule. Either is fine; showing both spellings in one run is not.",
+  "workstream": "W6 (QnetGUIApp.swift, outputPrecisionProgram regex)"
+ },
+ {
+  "title": "A two-component version or identifier in prose is reformatted (Python 3.11 \u2192 Python 3.110000)",
+  "evidence": "Verified against the shipped program at decimals 6: `Python 3.11 detected` \u2192 `Python 3.110000 detected`; `using gcc 15.0` \u2192 `gcc 15.000000`; `macOS 26.1 build` \u2192 `26.100000`; `see Table 3.2` \u2192 `Table 3.200000`. Three-component versions are safe (the (?!\\.\\S) guard catches 0.90.34). I could not find a currently-reachable normalized run path that prints a two-component version \u2014 the `This is GJN 1.1, C version` banners (infinite/BNAsim/gjn.c:197, mcn.c:219, BNAsm/bnetio.c:52) sit behind -v/-V flags the app never passes \u2014 so this is latent rather than live.",
+  "required_fix": "Add a disqualifier for a token preceded by a capitalised word plus a space, or at minimum record the hazard in the program's comment block so the next person adding a diagnostic line knows it.",
+  "workstream": "W6 (QnetGUIApp.swift, outputPrecisionProgram regex)"
+ },
+ {
+  "title": "A number immediately following an ANSI escape is never reformatted, so a coloured value would silently keep the solver's precision",
+  "evidence": "`ESC-color: \\e[32m0.523456789\\e[0m done` at decimals 6 comes out unchanged: the lookbehind (?<![\\w.\\@\\/]) sees the 'm' terminating the CSI sequence and refuses the match. Not currently reachable from a solver I could find, but the run wrapper does emit CSI (\\033[A\\033[2K, the progress bar's \\e[7m), so any future coloured value opts out silently.",
+  "required_fix": "After branch 1 consumes an escape, allow branch 2 to match at that position \u2014 e.g. let the lookbehind be satisfied by an immediately preceding CSI terminator. Low priority; note it in the comment if not fixed.",
+  "workstream": "W6 (QnetGUIApp.swift, outputPrecisionProgram regex)"
+ },
+ {
+  "title": "A metric whose value happens to be an exact integer keeps the solver's spelling next to its reformatted siblings",
+  "evidence": "truncated_ctmc at decimals 6: `Node 1 entry: E[N]=0.250000 utilization=0.200000 departure=0` on one line and `departure=0.400000` on the next \u2014 same metric, two spellings, adjacent lines. Same in product_form: `R=1.333333` on one row and `R=2` on the next. This is the documented cost of integer protection ('Plain counts, indices, seeds and exit codes carry neither and stay out of scope by construction') and there is no safe token-local way to tell departure=0 from iterations=110.",
+  "required_fix": "Probably nothing in the filter. The honest fix is solver-side for the handful of human-output writers that print a measurement with %g (regenerative_mc.py, truncated_ctmc.py, product_form/solver.py): print measurements with an explicit fixed format so they always carry a decimal point. If out of scope, say so in the program's comment so a future round does not re-derive it as a bug.",
+  "workstream": "W6, with the Python solver authors"
+ },
+ {
+  "title": "steady_state_suite.sh fails reproducibly from a module cache poisoned by the two spellings of the repository path",
+  "evidence": "Two consecutive full runs exited 1 at rqna_integration_check.sh with a swift-frontend signal 11. The real diagnostic is in the log: `error: module 'DarwinFoundation' is defined in both '/Users/nemecj/Dropbox/\u2026/.build/module-cache/\u2026pcm' and '/Users/nemecj/Library/CloudStorage/Dropbox/\u2026/.build/module-cache/\u2026pcm'` \u2014 the same directory reached under both the symlink and the CloudStorage path. The identical swiftc invocation succeeds with a fresh cache. After `rm -rf .build/module-cache` the suite exits 0 and prints 'All added steady-state method checks passed.' The integrator recorded this class of crash as transient; it is not, it is path-spelling dependent, which is why it appeared to move between checks.",
+  "required_fix": "In the checks that set CHECK_CACHE (validation/rqna_integration_check.sh:9 and siblings), resolve CHECK_ROOT with `cd \u2026 && pwd -P` so the cache is keyed to one spelling, or point CHECK_CACHE at a per-run mktemp -d. This is a validation/ edit, so it belongs to the integrator, not an implementer.",
+  "workstream": "integrator (validation/rqna_integration_check.sh and the other checks sharing .build/module-cache)"
+ },
+ {
+  "title": "FILES.sha256 is stale: 48 recorded files no longer match, including two under validation/",
+  "evidence": "Recomputed every hash in FILES.sha256: 48 mismatches, 0 missing. 46 are Sources/Qnet files changed across rounds 1\u20133 (expected). The two under validation/ are result_output_parser/main.swift and stubs.swift, mtime 2026-09-04 23:14 \u2014 before round 3 opened. I read main.swift: 11 check functions, all still called from main(), covering empty/malformed output, BAR-without-bounds, adaptive/regenerative/MLMC/truncated/SBD partials, comparison outcomes, simulation half-widths, product-form and QBD success. I concur with the integrator that it is strengthened, not weakened \u2014 but nobody disclosed the change when it was made.",
+  "required_fix": "Regenerate FILES.sha256 in the same change that finally runs ./build_app.sh, and note in the release record that the parser harness gained checks in round 1 or 2.",
+  "workstream": "integrator"
+ },
+ {
+  "title": "withSpinner discards the entire output of a cancelled run and leaks its capture file",
+  "evidence": "QnetGUIApp.swift:6235 redirects the wrapped command to a private capture file and :6252 cats it only after wait returns. Run \u25b8 Stop Run sends SIGINT to the process group, so the wrapper dies before the cat: the user sees the spinner line and nothing else, where before round 3 the partial output had already streamed. The capture path is not in commandWithCleanup's paths: and the EXIT trap (QnetGUIApp.swift:6578) removes only the perl program, so each cancelled spinner run leaves a BNET_spin_<pid>_<token>.out behind.",
+  "required_fix": "Add the capture path to the wrapper's EXIT trap alongside the perl program, and have the trap cat it before removing it so a cancelled run still shows what the solver produced. Three lines, and it restores the pre-round-3 behaviour on cancel.",
+  "workstream": "W6 (QnetGUIApp.swift, withSpinner and runScript's trap)"
+ },
+ {
+  "title": "The $debt column-repayment machinery holds header alignment only at the shipped default and cites solver formats that do not exist",
+  "evidence": "On bna_qna's own %-6s%-9s%-11s\u2026 table the filtered value columns sit exactly under their headers at decimals 6 (offsets 0,6,15,26,37,48,59,70 for both header and rows) and drift as the setting moves: +1 at 5, +2 at 4, +2/+4 at 2, +5/+7 at 0. That is a real improvement over reclaiming leading spaces, and rows always stay mutually aligned. It is also currently unreachable: bna_qna, bna_sbd and bna_rqna all run -c into a file and display through buildComparisonAwk, and grep finds no %-11 in the two files the comment names (rbm_mlmc.c, srbm_output.c).",
+  "required_fix": "Correct the comment to name formats that exist, or drop the debt tracking together with the prose-padding fix \u2014 a filter that never grows a token beyond the gap does not need it. Do not spend a round widening headers; the idempotency result shows the awk path needs nothing.",
+  "workstream": "W6 (QnetGUIApp.swift, outputPrecisionProgram)"
+ },
+ {
+  "title": "Column headers and values separate at every non-default decimals setting",
+  "evidence": "Measured with the extracted filter against bna_qna.c:1067-1071's own printf formats. Header field starts are [0,6,15,26,37,48,59,70]. Row starts by setting: D=6 \u2192 identical (drift 0); D=4 \u2192 +2 on three columns; D=3 \u2192 +1/+1/+3/+3/+3/+1; D=2 \u2192 +2/+4; D=1 \u2192 +3/+5; D=0 \u2192 +5/+7. Rows stay mutually aligned and each value still lands inside its own 11-character field, so the table remains readable \u2014 but the backlog's own recipe for this metric says \"set it to 3\", which is where the drift shows.",
+  "required_fix": "Not worth blocking on. If it is closed later, record the measured drift table above in the code comment so the next round does not re-derive it; a third option W6 has not written down is to carry the debt across the whole record rather than repaying it into the next gap, trading header alignment for row alignment.",
+  "workstream": "W6 (Sources/Qnet/QnetGUIApp.swift, outputPrecisionProgram)"
+ },
+ {
+  "title": "AppSettings.detachedPanes rebuilds a Set from a string on the node-drag hot path",
+  "evidence": "AppSettings.swift:609-615 splits detachedPanesRawValue and constructs a Set on every call. ContentView.shows(_:) calls isDetached(pane) first (ContentView.swift:74), and shows is called 15 times in one ContentView body evaluation (:90, :94, :102, :110, :119-135, :165, :205, :213, :243, :249, :280, :289, :301, :304, :325) plus detachedPaneWindows (:84). ContentView re-renders on every editor publish, i.e. every frame of a node drag.",
+  "required_fix": "Cache the parsed set in a stored property invalidated by the setter, the way soloedPane already resolves to a single value. W3 raised this themselves; the cost is real but small.",
+  "workstream": "W3 (Sources/Qnet/AppSettings.swift)"
+ },
+ {
+  "title": "The one empty-state component now has two visual grammars for the same job",
+  "evidence": "CanvasEmptyHint (NetworkCanvasOverlays.swift:243-256) bypasses DSEmptyState's action slot and draws its buttons itself, the primary with `.buttonStyle(.borderedProminent)` (:250) \u2014 not a DS token, and the third raw use alongside AIPaneView.swift:1175 and MethodChooserView.swift:717. Side by side on one screen (screenshot) the canvas's empty state has a prominent primary and the AI pane's has a plain bordered \"Open AI Settings\u2026\", so the same component reads two ways in two panes of one window.",
+  "required_fix": "Add a prominent variant to DSEmptyState \u2014 actionProminent: plus actionHelp: so the button can carry a sentence rather than repeating its own title \u2014 and move the canvas call site back into it. The change belongs in the DS component, not in the caller.",
+  "workstream": "W4 owns DSEmptyState.swift; W1 owns the NetworkCanvasOverlays.swift call site"
+ },
+ {
+  "title": "The Tools palette is the one pane that cannot be torn out",
+  "evidence": "PaneChrome.swift:62 \u2014 `var canBeDetached: Bool { self != .canvas && self != .palette }`. View \u25b8 Panes offers six toggleable panes; Separate Windows offers five (Status, Shell, AI Assistant, Inspector, Results \u2014 enumerated over the AX menu tree). The headline metric's target is 6 of 6.",
+  "required_fix": "Excluding the canvas is obviously right; excluding the Tools palette is not \u2014 a floating tool palette is the most conventional torn-off panel on the Mac and in MATLAB. Either allow it, or split the comment so the palette's exclusion has its own stated reason instead of sharing the canvas's.",
+  "workstream": "W3 (Sources/Qnet/PaneChrome.swift)"
+ },
+ {
+  "title": "Two validation harness files differ from FILES.sha256, from an earlier round, and nothing in the tree checks the manifest",
+  "evidence": "shasum -a 256 -c over the 60 validation/ and AppVersion.swift lines in FILES.sha256: exactly two FAILED \u2014 validation/result_output_parser/stubs.swift and main.swift, both mtime 2026-09-04 23:14, before round 3 opened. I read both. main.swift holds 11 check functions (empty/malformed output, BAR-without-bounds, adaptive/regenerative/MLMC/truncated/SBD partials, comparison outcomes, simulation half-widths, product-form and QBD success) with nothing weakened; stubs.swift gained only a DS.Number.format shim whose body matches DesignSystem.swift:1469 exactly, which is the documented cost of ResultOutputParser.swift:411 gaining that dependency. Both files are legitimately W6-owned per BACKLOG.json. The check passes standalone, exit 0. Separately, `grep -rn FILES.sha256` across the tree returns nothing outside the manifest \u2014 no script verifies it.",
+  "required_fix": "Regenerate FILES.sha256 in the same change that runs build_app.sh, and consider having verify_source_package.sh actually verify it: a manifest nothing checks records drift rather than preventing it. No gate was weakened; this is bookkeeping.",
+  "workstream": "W6 / integrator"
+ },
+ {
+  "title": "A reproducible SwiftUI blanking in Settings was worked around rather than root-caused",
+  "evidence": "W4's own report: a VStack of SettingsStatusLabel (SettingsComponents.swift:1059) carrying .dsChromeBar(.bottom) (DesignSystem.swift:2108, frozen), placed above `detail` in the Settings NavigationSplitView, renders the entire window blank \u2014 both columns, main thread idle, no log output \u2014 confirmed by screenshot four times, with a plain Text in the same slot rendering fine. Shipped code uses the plain-Text workaround, so no user path hits it today; I confirmed Settings opens and renders correctly as shipped.",
+  "required_fix": "Worth someone's round, because dsChromeBar is used across the app and the failure is silent rather than diagnostic. W4's reproduction is exact: delete one line from SettingsRegistry.unindexedKeys, restore the VStack/SettingsStatusLabel/dsChromeBar form of registryAuditNotice, build debug, press \u2318,.",
+  "workstream": "W4 (SettingsComponents.swift), possibly the frozen DesignSystem.swift, which needs the integrator"
+ },
+ {
+  "title": "Small dead code, and one comment that contradicts what ships",
+  "evidence": "ArchetypeGalleryPanel.isOpen (ArchetypeGalleryPanel.swift:41) has no callers \u2014 `grep -rn isOpen Sources/Qnet` finds only the declaration, DSPanelWindow.isOpen's definition and CanvasExportOptionsSheet.swift:205. Separately, PaneDetachment.swift:99 says a detached pane is hosted \"unchanged and unwrapped \u2014 no extra chrome, no second title\"; the detached Shell window I screenshotted carries an AppKit title bar reading \"Shell\" and, immediately below it, the pane's own DSSectionHeader also reading \"Shell \u25cf ~/Dropbox/0_CODE/0_CLAUDE/2_QNET\".",
+  "required_fix": "Delete ArchetypeGalleryPanel.isOpen or give it a caller. Amend the PaneDetachment.swift:99 comment to say what actually happens \u2014 the pane header stays, deliberately, because it carries the working directory and the control that puts the pane back.",
+  "workstream": "W2 (ArchetypeGalleryPanel.swift), W3 (PaneDetachment.swift)"
+ },
+ {
+  "title": "The two forms a user opens most often are still the pinned ones",
+  "evidence": "`grep -rn '\\.sheet(' Sources/Qnet` returns four: the startup dependency check (QnetGUIApp.swift:731, deliberately a sheet) and ContentView.swift:490, :496, :502 \u2014 the node parameter editor, the link parameter editor and the SRBM export sheet. Eight forms are now DSPanelWindow panels, exceeding the metric's target of \u22656 of 12; but double-clicking a node to set its service rate, the most repeated form interaction in the app, still pins a sheet over the canvas whose station it describes \u2014 the exact argument DSPanelWindow.swift:8-13 makes for why panels exist.",
+  "required_fix": "Convert the node and link parameter editors last, with the same .documentModal recipe the five round-3 conversions used. They are @Published `item:` presentations rather than `isPresented:` Bools, so the presenter must key its panel id on the target's identity and re-present on a change of target rather than bringing a stale panel forward.",
+  "workstream": "W3 owns ContentView.swift (the presentations); W4 owns NodeParameterEditorSheet.swift / LinkParameterEditorSheet.swift"
+ }
+]

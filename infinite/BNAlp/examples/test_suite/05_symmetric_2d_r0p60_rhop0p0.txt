@@ -1,0 +1,26 @@
+# 05_symmetric_2d_r0p60_rhop0p0
+# Source: Dai-Harrison 1992 Table 2 (d=2 symmetric, r=0.6, rho=0.0)
+# Symmetric 2D SRBM: R=[[1,-0.6],[-0.6,1]], sigma=[[1,0.0],[0.0,1]], mu=(-1,-1).
+# Closed form: E[Z_i] = (1+r*rho)/(2(1+r)) = 0.312500
+
+dimension  2
+grid_n     100
+basis_m    6
+grid_type  exponential
+
+drift
+  -1.000000  -1.000000
+
+covariance
+   1.000000   0.000000
+   0.000000   1.000000
+
+reflection
+   1.000000  -0.600000
+  -0.600000   1.000000
+
+grid_spacing
+   0.000000   0.000000
+
+tightness_bounds
+  100000 100000 100000 100000 100000

@@ -1,0 +1,31 @@
+# SRBM Solver Input File - 3-Station Tandem Queue
+# Models a production line with 3 stations
+
+# Number of dimensions (stations)
+dimension 3
+
+# Polynomial approximation order
+degree 3
+
+# Buffer sizes (+1 for customer in service)
+a 10.0 10.0 10.0
+
+# Covariance matrix (identity)
+Gamma
+1.0 0.0 0.0
+0.0 1.0 0.0
+0.0 0.0 1.0
+
+# Drift vector (slightly below critical load)
+mu -0.1 0.0 0.0
+
+# Reflection matrix (tandem queue)
+# Columns: [v_{x1=0}, v_{x1=a1}, v_{x2=0}, v_{x2=a2}, v_{x3=0}, v_{x3=a3}]
+R
+ 1.0 -1.0  0.0  0.0  0.0  0.0
+-1.0  0.0  1.0 -1.0  0.0  0.0
+ 0.0  0.0 -1.0  0.0  1.0 -1.0
+
+# Expected behavior:
+# Queue 1 should have lower average than queues 2,3
+# due to the negative drift in dimension 1

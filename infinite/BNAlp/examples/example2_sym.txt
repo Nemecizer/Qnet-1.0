@@ -1,0 +1,27 @@
+# Example 2: Symmetric 2D SRBM - independent reflected BMs
+# R = I, drift = (-1, -1), G = I
+# rho = -R^{-1} mu = (1, 1).  Marginals exponential with rate 2 (skew-symmetric).
+# Grid spacing 0 0 triggers auto-compute = rho/2 = 0.5, 0.5.
+# Expected: E[Z1] = E[Z2] = 0.5
+
+dimension  2
+grid_n     100
+basis_m    6
+grid_type  exponential
+
+drift
+  -1.0  -1.0
+
+covariance
+  1.0  0.0
+  0.0  1.0
+
+reflection
+  1.0  0.0
+  0.0  1.0
+
+grid_spacing
+  0.0  0.0
+
+tightness_bounds
+  100000  100000  100000  100000  100000
