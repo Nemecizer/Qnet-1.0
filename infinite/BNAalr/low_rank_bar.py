@@ -223,20 +223,55 @@ def _accelerated_primitives(a: Sequence[Sequence[float]]):
     matrix = _np.asarray(a, dtype=float)
     if matrix.ndim != 2 or matrix.size == 0:
         return None
+    if not _np.isfinite(matrix).all():
+        # A non-finite collocation matrix is a real modelling failure, not a
+        # rounding artefact. Hand it back to the pure-Python path, which sums
+        # exactly and lets the caller's own diagnostics report it, rather than
+        # letting BLAS turn it into a silent NaN.
+        return None
     rows = matrix.shape[0]
 
+    # Apple's Accelerate BLAS raises spurious IEEE status flags — "divide by
+    # zero", "overflow", "invalid value" — from the vectorised GEMM kernels,
+    # which evaluate padding lanes that hold uninitialised data. NumPy 2.x
+    # surfaces those flags as RuntimeWarnings, so a perfectly ordinary fit
+    # printed nine warnings naming this file to the user's shell.
+    #
+    # They are not describing this computation. Verified two ways: the
+    # collocation matrix is entirely finite with a largest entry of 0.58 and v
+    # is unit-norm, so no product here can overflow; and a synthetic random
+    # matrix of the same shape raises the identical three warnings while
+    # agreeing with a non-BLAS einsum evaluation to 3.3e-16.
+    #
+    # So the flags are suppressed for these two calls only — never globally,
+    # and never for the caller's own arithmetic — and each result is checked
+    # for finiteness afterwards. A genuine overflow therefore still stops the
+    # fit; only the vendor's noise is withheld.
+    def _finite(values, what):
+        if not _np.isfinite(values).all():
+            raise FloatingPointError(
+                "non-finite value in {} during low-rank BAR fitting".format(what)
+            )
+        return values
+
     def objective_and_gradient(_a, x):
-        residual = matrix @ _np.asarray(x, dtype=float)
-        objective = 0.5 * float(residual @ residual) / rows
-        return objective, (matrix.T @ residual / rows).tolist()
+        with _np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+            residual = matrix @ _np.asarray(x, dtype=float)
+            objective = 0.5 * float(residual @ residual) / rows
+            gradient = matrix.T @ residual / rows
+        _finite(residual, "BAR residual")
+        _finite(gradient, "BAR gradient")
+        return objective, gradient.tolist()
 
     def lipschitz(_a):
         n = matrix.shape[1]
         v = _np.full(n, 1.0 / math.sqrt(n))
         estimate = 0.0
         for _ in range(60):
-            w = matrix.T @ (matrix @ v) / rows
-            norm = float(_np.sqrt(w @ w))
+            with _np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+                w = matrix.T @ (matrix @ v) / rows
+                norm = float(_np.sqrt(w @ w))
+            _finite(w, "Lipschitz power iteration")
             if norm <= 1e-30:
                 return 1.0
             v = w / norm

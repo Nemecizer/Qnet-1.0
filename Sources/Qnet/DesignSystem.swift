@@ -1154,6 +1154,15 @@ enum DS {
         /// than a footer: enough for a Run Comparison table's ~28 rows plus
         /// its banner without scrolling, at the default monospace size.
         static let shellRowIdealHeight: CGFloat = 424
+        /// Clearance under the terminal's last text row.
+        ///
+        /// macOS rounds the window's bottom corners, and the Shell sits on the
+        /// bottom edge, so a terminal laid out flush to y = 0 has its final
+        /// line — usually the live prompt — sliced by the corner arc. The
+        /// terminal draws its own background, so the inset is invisible except
+        /// that the last row is now whole. Sized to clear the system corner
+        /// radius at the bottom-left, where the prompt begins.
+        static let terminalBottomInset: CGFloat = 10
         /// Settings sidebar (NavigationSplitView column band).
         static let settingsSidebarMinWidth: CGFloat = 208
         static let settingsSidebarIdealWidth: CGFloat = 232

@@ -513,7 +513,16 @@ final class TerminalHostView: NSView, @preconcurrency LocalProcessTerminalViewDe
         let maxOffset = max(0, targetWidth - visibleWidth)
         if hOffset > maxOffset { hOffset = maxOffset }
 
-        terminalView.frame = NSRect(x: -hOffset, y: 0, width: targetWidth, height: visibleHeight)
+        // Hold the last row clear of the window's rounded bottom corner. The
+        // clip view is unflipped, so insetting the origin lifts the terminal
+        // off the bottom edge; the height shrinks by the same amount, which is
+        // what keeps SwiftTerm's row count in step with the visible area
+        // instead of laying out a row it cannot fully draw.
+        let bottomInset = min(DS.Layout.terminalBottomInset, max(0, visibleHeight - 1))
+        terminalView.frame = NSRect(x: -hOffset,
+                                    y: bottomInset,
+                                    width: targetWidth,
+                                    height: visibleHeight - bottomInset)
 
         // Horizontal scroller state.
         let overflow = targetWidth > visibleWidth + 0.5
