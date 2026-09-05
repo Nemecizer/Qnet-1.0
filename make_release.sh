@@ -104,6 +104,14 @@ ok "minimum macOS required by the bundled binaries: ${MINOS:-unknown}"
 
 # ── 5. Signature ────────────────────────────────────────────────────────────
 log "Verifying the code signature"
+# Clear inherited sync metadata first. This project normally lives in a Dropbox
+# CloudStorage folder, and Dropbox stamps com.dropbox.attrs / com.dropbox.internal
+# / com.apple.FinderInfo onto every file it touches. codesign rejects FinderInfo
+# as "resource fork, Finder information, or similar detritus", so a bundle that
+# verified at build time stops verifying once it has been synced — with nothing
+# actually wrong inside it. A bundle keeps its signature in Contents/_CodeSignature
+# and inside the Mach-O files, never in an xattr, so clearing them is safe.
+xattr -cr "$APP" 2>/dev/null || true
 codesign --verify --deep --strict "$APP" || die "signature verification failed"
 # Capture first, match second. `codesign -dv … | grep -q` looks correct and is
 # not: grep -q exits on the first match, codesign takes SIGPIPE, and `pipefail`

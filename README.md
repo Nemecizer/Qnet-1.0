@@ -67,7 +67,8 @@ The repository holds source only — `Qnet.app` is a build product and is not co
 ./build_app.sh     # → a fully standalone Qnet.app beside Package.swift
 ```
 
-or, for a checksummed archive you can move to another Mac, `./make_release.sh`.
+or build a double-clickable installer with `./make_pkg.sh`, or a checksummed archive with
+`./make_release.sh`.
 
 Because a locally built app is ad-hoc signed rather than notarized, macOS warns on first launch:
 Control-click `Qnet.app` → **Open**, and confirm once. Subsequent launches are silent.
@@ -253,9 +254,16 @@ swift run Qnet --version     # → "Qnet 0.90.34", no GUI
 
 ./build_all_algorithms.sh    # every native solver; syntax-check every Python solver
 ./build_app.sh               # → a fully standalone Qnet.app
-./make_release.sh            # build + verify + a checksummed, distributable .zip
+./make_pkg.sh                # → a double-clickable .pkg installer for /Applications
+./make_release.sh            # → a checksummed .zip for drag-and-drop installs
 ./verify_source_package.sh   # the full gate: both build paths, signature, examples
 ```
+
+`make_pkg.sh` produces `dist/Qnet-<version>-arm64.pkg`: double-click it, click through, and Qnet is
+in Applications and Launchpad. The installer enforces the minimum macOS and architecture computed
+from the bundled binaries, so it refuses a machine that could not run the app rather than installing
+one that fails to launch. Both packaging scripts refuse to package an app that still links against
+Homebrew.
 
 `build_app.sh` produces a genuinely standalone bundle: all fifteen required libraries — `libomp`,
 SuiteSparse, HiGHS, cJSON, and the GCC runtime — are copied into `Contents/Frameworks` with their
