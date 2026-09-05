@@ -46,12 +46,12 @@ This plan contains concrete expected outputs where they can be established. Some
 | `StartupDependencyChecker.swift`, `MethodChooserView.swift`, `AnalyticalTractability.swift` | Dependency checks, method selection, mathematical admission | Package availability and mathematical applicability are separate states. Missing optional research dependencies must not disable baseline methods. |
 | `ResultsWorkspace.swift`, `ResultOutputParser.swift` | Typed result archive, semantic text parsing, uncertainty/provenance | Add a versioned rich-result adapter for new distributions and bounds, retaining existing contracts and old archive decoding. |
 | `QnetGUIApp.swift`, terminal runner | Export, temporary input, process launch, failure sentinel | Reuse cleanup/cancellation/failure behavior; no success on empty output. Inspect exact current contracts before editing. |
-| `infinite/matrix_analytic` | General dense QBD blocks, standard-library Python | Extend with model compilers and faster solvers; do not call an arbitrary network QBD merely because the backend accepts blocks. |
-| `infinite/product_form` | Exact closed/open/mixed BCMP and one-resource loss recursion | Add MVA/convolution/MoM without deleting enumeration, which is an independent small-case oracle. |
-| `infinite/truncated_ctmc`, `finite/generic_ctmc` | Truncation and finite Markov state construction | Add phase/priority/blocking states and stronger certificates in separate modules. |
-| `infinite/bar_bounds`, `infinite/adaptive_srbm` | Moment relaxation and positive separable-mixture BAR prototypes | Extend, do not duplicate. Existing floating-point conic optima are not generally certified. |
+| `infinite/BNAqbd` | General dense QBD blocks, standard-library Python | Extend with model compilers and faster solvers; do not call an arbitrary network QBD merely because the backend accepts blocks. |
+| `infinite/BNApf` | Exact closed/open/mixed BCMP and one-resource loss recursion | Add MVA/convolution/MoM without deleting enumeration, which is an independent small-case oracle. |
+| `infinite/BNAtc`, `finite/fBNAgc` | Truncation and finite Markov state construction | Add phase/priority/blocking states and stronger certificates in separate modules. |
+| `infinite/BNAbb`, `infinite/BNAalr` | Moment relaxation and positive separable-mixture BAR prototypes | Extend, do not duplicate. Existing floating-point conic optima are not generally certified. |
 | `finite/fBNAfm`, `finite/fBNAsm`, `infinite/BNAsm`, `infinite/BNAfm` | FEM/spectral Brownian engines | Reuse after explicit domain/coordinate conversion. `finite/fBNAlp` is documented as an unfinished rectangle scaffold. |
-| `infinite/regenerative_mc`, `infinite/BNAsim` | Current simulation | Keep as baselines. Priority, closed, reliability and general perfect-sampling support are new tasks, not existing promises. |
+| `infinite/BNArmc`, `infinite/BNAsim` | Current simulation | Keep as baselines. Priority, closed, reliability and general perfect-sampling support are new tasks, not existing promises. |
 
 The current QBD convention is row-vector stationary probabilities with `Aup + Rq*Asame + Rq^2*Adown = 0`, and `pi[n]=pi[1]*Rq^(n-1)` for n>=1. Call its matrix `Rq`, never confuse it with the **column-reflection matrix R** of an RBM.
 
@@ -417,7 +417,7 @@ Each card specifies a future owner, file scope, build profile, implementation se
 
 ### A01. PH/MAP model compilers and matrix-analytic acceleration
 
-**Owner:** matrix-model agent. **Scope:** extend `infinite/matrix_analytic/` with `ph.py`, `map.py`, `model_compiler.py`, `reduction.py`, tests/examples; F00 owns shared schemas. **Build:** D0 oracle, D1 acceleration. **Depends:** F00, E01/E02. **Effort:** H. **Sources:** P43, P47, P54 primary record; current QBD README.
+**Owner:** matrix-model agent. **Scope:** extend `infinite/BNAqbd/` with `ph.py`, `map.py`, `model_compiler.py`, `reduction.py`, tests/examples; F00 owns shared schemas. **Build:** D0 oracle, D1 acceleration. **Depends:** F00, E01/E02. **Effort:** H. **Sources:** P43, P47, P54 primary record; current QBD README.
 
 1. Validate PH `(alpha,T)` using nonnegative initial probabilities, transient subgenerator, exit vector `t=-T*1`, proper absorption and finite moments. Compute moment k by `k!*alpha*(-T)^(-k)*1` using solves. Handle atoms at zero only through an explicit extension.
 2. Validate MAP `(D0,D1)`: D1>=0, D0 substochastic generator, D=D0+D1 irreducible generator; solve eta*D=0, eta*1=1; arrival rate=eta*D1*1. Keep arrival-epoch and arbitrary-time phase distributions distinct.
@@ -429,7 +429,7 @@ Each card specifies a future owner, file scope, build profile, implementation se
 
 ### A02. Non-product-form CTMC truncation with defensible error bounds
 
-**Owner:** truncation agent. **Scope:** extend `infinite/truncated_ctmc/` with sparse state builder, boundary policies and certificate records; reuse `finite/generic_ctmc` event definitions. **Build:** D1, D3 optional bounds. **Depends:** F00/A01 phase schema. **Effort:** H. **Sources:** P26/P28.
+**Owner:** truncation agent. **Scope:** extend `infinite/BNAtc/` with sparse state builder, boundary policies and certificate records; reuse `finite/fBNAgc` event definitions. **Build:** D1, D3 optional bounds. **Depends:** F00/A01 phase schema. **Effort:** H. **Sources:** P26/P28.
 
 1. Separate true-chain generator callbacks from the finite approximation. State includes counts, phases and policy state sufficient for Markovianity. Start with a two-node PH tandem; use total population plus phase count caps and deterministic state indexing.
 2. Enumerate reachable states, report all cut transitions, and implement separately named augmentation/reflection policies. Suppressing arrivals changes the process; report the approximate chain actually solved.
@@ -475,7 +475,7 @@ Each card specifies a future owner, file scope, build profile, implementation se
 
 ### A06. Exact finite two-machine and small-line building blocks
 
-**Owner:** manufacturing Markov-model agent. **Scope:** proposed `finite/transfer_line_exact/`, with adapters to `finite/generic_ctmc/`. **Build:** D0 tiny enumerator, D1 sparse. **Depends:** F00, E12. **Effort:** H. **Sources:** P34/P35 model definitions; P48/P53 for blocking taxonomy when obtained.
+**Owner:** manufacturing Markov-model agent. **Scope:** proposed `finite/transfer_line_exact/`, with adapters to `finite/fBNAgc/`. **Build:** D0 tiny enumerator, D1 sparse. **Depends:** F00, E12. **Effort:** H. **Sources:** P34/P35 model definitions; P48/P53 for blocking taxonomy when obtained.
 
 1. Implement E12 first using named machine states, not merely buffer occupancies. Extend to intermediate capacity B=0,1,2, service phases, machine up/down states and specified BAS transfer events.
 2. Define simultaneous transfer as an atomic state transition when downstream capacity is released. Construct the reachable graph from a declared initial state; aggregate duplicate event rates and set diagonal to negative total off-diagonal rate. Include blocked completed jobs in system population.
@@ -519,7 +519,7 @@ Each card specifies a future owner, file scope, build profile, implementation se
 
 ### A10. Exact MVA and convolution for closed networks
 
-**Owner:** closed-network agent. **Scope:** extend `infinite/product_form/` with `mva.py`, `convolution.py`, algorithm selection and tests; keep existing enumeration. **Build:** D0, optional D1. **Depends:** F00/E09. **Effort:** M-H. **Sources:** P51 primary record, current BCMP factors, P29 background.
+**Owner:** closed-network agent. **Scope:** extend `infinite/BNApf/` with `mva.py`, `convolution.py`, algorithm selection and tests; keep existing enumeration. **Build:** D0, optional D1. **Depends:** F00/E09. **Effort:** M-H. **Sources:** P51 primary record, current BCMP factors, P29 background.
 
 1. Start with load-independent single-server BCMP centers and delay centers. For population vector N and active class r, evaluate the smaller population N-e_r first. Per-visit residence at a single-server center is `T_ir(N)=S_ir*(1+sum_s Q_is(N-e_r))`; for delay centers `T_ir=S_ir`.
 2. Class reference throughput is `X_r=N_r/sum_i V_ir*T_ir`; update `Q_ir=X_r*V_ir*T_ir`. Set zero-population class results explicitly. Cache population states in a dependency-safe order and estimate their count `product_r(N_r+1)` before allocation.
@@ -530,7 +530,7 @@ Each card specifies a future owner, file scope, build profile, implementation se
 
 ### A11. Multi-branched Method of Moments / normalizer recursions
 
-**Owner:** closed-normalizer specialist. **Scope:** `infinite/product_form/mom.py` plus isolated recurrence/basis tests. **Build:** D0 rational oracle; D1/D2 optional. **Depends:** A10 exact normalizers/E09. **Effort:** H. **Source:** P29 sections 2-4; missing full RECAL reference must be acquired before a separately named RECAL implementation.
+**Owner:** closed-normalizer specialist. **Scope:** `infinite/BNApf/mom.py` plus isolated recurrence/basis tests. **Build:** D0 rational oracle; D1/D2 optional. **Depends:** A10 exact normalizers/E09. **Effort:** H. **Source:** P29 sections 2-4; missing full RECAL reference must be acquired before a separately named RECAL implementation.
 
 1. Implement the paper's convolution and population constraints over multiplicity/population-indexed normalizers. Construct the initial basis exactly for the two-center/two-class motivating example; unit-test each row by substituting independently enumerated G values.
 2. Build the matrix difference system and the multi-branched basis reduction, retaining deterministic index maps. Use exact rational arithmetic for small integer/rational demands to expose coefficient or normalization errors.
@@ -541,7 +541,7 @@ Each card specifies a future owner, file scope, build profile, implementation se
 
 ### A12. Approximate MVA and Linearizer track
 
-**Owner:** closed-approximation agent. **Scope:** `infinite/product_form/amva.py` or separately labeled approximate module; no change to exact claim labels. **Build:** D0/D1. **Depends:** A10. **Effort:** M-H. **Sources:** P51 and Chandy-Neuse 1982 primary record.
+**Owner:** closed-approximation agent. **Scope:** `infinite/BNApf/amva.py` or separately labeled approximate module; no change to exact claim labels. **Build:** D0/D1. **Depends:** A10. **Effort:** M-H. **Sources:** P51 and Chandy-Neuse 1982 primary record.
 
 1. Implement a named initial AMVA closure: in the arrival-theorem expression approximate removal of class r by scaling only its occupancy contribution `Q_ir*(N_r-1)/N_r`, leaving other class contributions unchanged. Zero populations are excluded. Use fixed-point initialization and damping explicitly; output convergence history.
 2. Test this on exactly the single-server/delay BCMP class admitted by A10; do not initially add arbitrary-service FCFS, priority or blocking corrections.
@@ -645,7 +645,7 @@ Each card specifies a future owner, file scope, build profile, implementation se
 
 ### A21. Exact RBM structure detection and special distributions
 
-**Owner:** exact-diffusion agent. **Scope:** extend `infinite/bar_bounds/` exact utilities or proposed `common/qnet_diffusions/exact.py`; avoid duplicate skew-symmetry tests with inconsistent tolerances. **Build:** D0/D1/D2. **Depends:** F00/E04/E06/E08. **Effort:** M-H. **Sources:** P19/P20/P22/P23.
+**Owner:** exact-diffusion agent. **Scope:** extend `infinite/BNAbb/` exact utilities or proposed `common/qnet_diffusions/exact.py`; avoid duplicate skew-symmetry tests with inconsistent tolerances. **Build:** D0/D1/D2. **Depends:** F00/E04/E06/E08. **Effort:** M-H. **Sources:** P19/P20/P22/P23.
 
 1. Implement exact rational skew testing for supplied decimal/rational primitives where feasible, alongside a separately labeled approximate residual. Check `2*Sigma=R*diag(R)^(-1)*diag(Sigma)+diag(Sigma)*diag(R)^(-1)*R^T`. Compute rate vector `a=-2*diag(Sigma)^(-1)*diag(R)*R^(-1)*b` and require positive rates/admitted stable R.
 2. Return exact product transform, independent exponential moments and unnormalized boundary transforms with beta=-R^-1*b. Close-but-not-exact parameters must not inherit the exact label.
@@ -678,7 +678,7 @@ Each card specifies a future owner, file scope, build profile, implementation se
 
 ### A24. Stronger moment LP/SDP bounds
 
-**Owner:** moment-optimization agent. **Scope:** extend `infinite/bar_bounds/`; add box/simplex support only with F00 domain contract. **Build:** D3 plus D0 rational checks. **Depends:** F00/A09/A21. **Effort:** H. **Sources:** P27, P50 accessible record, P19; existing BAR-bound README.
+**Owner:** moment-optimization agent. **Scope:** extend `infinite/BNAbb/`; add box/simplex support only with F00 domain contract. **Build:** D3 plus D0 rational checks. **Depends:** F00/A09/A21. **Effort:** H. **Sources:** P27, P50 accessible record, P19; existing BAR-bound README.
 
 1. Generate monomial multi-indices and independent interior/face moment sequences. For f=x^a, use drift coefficient a_j*b_j and diffusion coefficient `0.5*Sigma_jk*a_j*(a_k-delta_jk)` at the correctly reduced exponent. Generate face derivatives before restricting to the face; some terms survive even when f itself vanishes there.
 2. Add BAR equalities, m0=1, face-mass identities and moment/localizing PSD matrices. Orthant constraints are Stieltjes; a box also uses K_i-x_i; a simplex uses remaining population. Enforce face support exactly (x_i=0 or K_i), not merely with sampled penalties.
@@ -808,7 +808,7 @@ Required outputs: interior/face transform queries with supported domain, boundar
 
 ### A31. Rare-event importance sampling and splitting
 
-**Owner:** rare-event simulation agent. **Scope:** extend `infinite/regenerative_mc/` through an isolated general event estimator or proposed `infinite/rare_event/`. **Build:** D0/D1. **Depends:** F00, exact event oracles, A02/small CTMC. **Effort:** H. **Sources:** P32, P33 (full splitting derivation still needed for that named variant).
+**Owner:** rare-event simulation agent. **Scope:** extend `infinite/BNArmc/` through an isolated general event estimator or proposed `infinite/rare_event/`. **Build:** D0/D1. **Depends:** F00, exact event oracles, A02/small CTMC. **Effort:** H. **Sources:** P32, P33 (full splitting derivation still needed for that named variant).
 
 1. Require an explicit event/observable: hitting overflow before return to empty, finite-horizon loss, stationary tail reward, or stationary loss fraction. They are different quantities and must use different estimators.
 2. First implement a two-node Markov tandem state-dependent tilt using documented likelihood ratios for event choices and holding times; accumulate log weights. If uniformization is used, its self-transitions/proposal probabilities are part of the likelihood.
@@ -858,7 +858,7 @@ Select nonoverlapping or explicitly coordinated bottleneck pairs in a three/four
 
 ### H4. Positive dependent distribution/transform mixture
 
-**Owner/files:** positive-representation research agent, extend `infinite/adaptive_srbm/` in isolated `dependent_components.py`. **Build/dependencies:** D1/D2, F00/A21/A26 or A01 tractable components. **Effort:** R.
+**Owner/files:** positive-representation research agent, extend `infinite/BNAalr/` in isolated `dependent_components.py`. **Build/dependencies:** D1/D2, F00/A21/A26 or A01 tractable components. **Effort:** R.
 
 Use convex weights over normalized nonnegative joint components, with at least one component family that has **within-component dependence** (such as validated 2D transform blocks or a nonnegative latent-factor PH construction). Fit corresponding boundary measures, not merely the interior distribution. Keep beta normalization and face support separate. Use BAR training and independent transform/moment validation; rank/component growth needs a memory estimate and stopping rule.
 

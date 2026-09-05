@@ -150,7 +150,7 @@ struct QnetCommands: Commands {
     private var infinite: Bool { editor.infiniteBuffers }
     private var multiClassSolverLookup: SolverRuntimeLookup {
         SolverRuntimeResolver.shared.resolveExecutable(
-            name: "mc_solver", subdirectory: "multiclass_diffusion"
+            name: "mc_solver", subdirectory: "BNAmd"
         )
     }
     private var textFocused: Bool { menuContext.textInputHasFocus }

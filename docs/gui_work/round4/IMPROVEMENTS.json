@@ -33,7 +33,7 @@
   "title": "A solver value that happens to print without a decimal point is left bare beside its formatted neighbours",
   "evidence": "product_form at D=3: `Analytic probability mass: 1  minimum stability margin: 0.550`. The filter only rewrites a token carrying a decimal point (or a bare mantissa before an exponent) \u2014 which is exactly what correctly protects station indices, seeds, thread counts and exit codes, verified against a line holding all four \u2014 but a probability that lands exactly on 1.0 and is printed by Python as `1` is indistinguishable from a count.",
   "required_fix": "Not fixable in the filter without losing the integer guarantee. Fix it in the one solver that does it: have product_form print its probability mass and margins with an explicit format so they always carry a point.",
-  "workstream": "W6 (infinite/product_form/solver.py), or accept and document"
+  "workstream": "W6 (infinite/BNApf/solver.py), or accept and document"
  },
  {
   "title": "QNA and BNA-SRBM still export a fabricated network for a singular routing system, and the solver prints a full table of `nan`",

@@ -46,15 +46,15 @@ capacity = bufferSize + numberOfServers
 The solver has no third-party Python dependencies.
 
 ```sh
-python3 finite/generic_ctmc/solver.py \
-  finite/generic_ctmc/examples/mm1k.json
+python3 finite/fBNAgc/solver.py \
+  finite/fBNAgc/examples/mm1k.json
 ```
 
 Structured JSON can be printed or written to a file:
 
 ```sh
-python3 finite/generic_ctmc/solver.py MODEL.json --json
-python3 finite/generic_ctmc/solver.py MODEL.json --output result.json
+python3 finite/fBNAgc/solver.py MODEL.json --json
+python3 finite/fBNAgc/solver.py MODEL.json --output result.json
 ```
 
 Add `--include-states` to include every reachable state and stationary
@@ -187,7 +187,7 @@ arrivals, priorities, preemption, processor sharing, batch events, or BAS.
 Run the deterministic standard-library test suite from the repository root:
 
 ```sh
-python3 -m unittest discover -s finite/generic_ctmc/tests -v
+python3 -m unittest discover -s finite/fBNAgc/tests -v
 ```
 
 The suite checks the full analytical M/M/1/K distribution and means, the

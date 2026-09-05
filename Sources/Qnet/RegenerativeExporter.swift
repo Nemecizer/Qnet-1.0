@@ -161,7 +161,7 @@ struct RegenerativeStoppingOptions: Equatable, Sendable {
 }
 
 /// Converts a visual Qnet document to the narrow Markovian model accepted by
-/// `infinite/regenerative_mc/regenerative_mc.py`. Unsupported primitives are
+/// `infinite/BNArmc/regenerative_mc.py`. Unsupported primitives are
 /// rejected rather than silently approximated.
 @MainActor
 enum RegenerativeExporter {

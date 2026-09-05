@@ -34,7 +34,7 @@ swiftc \
 
 "$CHECK_BUILD/product_form_exporter_check" "$CHECK_JSON" "$CHECK_DISJOINT_JSON"
 for model in "$CHECK_JSON" "$CHECK_DISJOINT_JSON"; do
-    python3 "$CHECK_ROOT/infinite/product_form/solver.py" \
+    python3 "$CHECK_ROOT/infinite/BNApf/solver.py" \
         "$model" --json > "$CHECK_RESULT"
     python3 -c '
 import json, math, sys

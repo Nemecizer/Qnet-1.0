@@ -156,22 +156,22 @@ enum MethodAdvisor {
             qbdReason = error.localizedDescription
         }
         let productFormRuntime = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "solver.py", subdirectory: "product_form", groups: ["infinite"]
+            name: "solver.py", subdirectory: "BNApf", groups: ["infinite"]
         )
         let qbdRuntime = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "qbd_solver.py", subdirectory: "matrix_analytic", groups: ["infinite"]
+            name: "qbd_solver.py", subdirectory: "BNAqbd", groups: ["infinite"]
         )
         let regenerativeRuntime = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "regenerative_mc.py", subdirectory: "regenerative_mc", groups: ["infinite"]
+            name: "regenerative_mc.py", subdirectory: "BNArmc", groups: ["infinite"]
         )
         let truncatedRuntime = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "truncated_ctmc.py", subdirectory: "truncated_ctmc", groups: ["infinite"]
+            name: "truncated_ctmc.py", subdirectory: "BNAtc", groups: ["infinite"]
         )
         let adaptiveBARRuntime = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "low_rank_bar.py", subdirectory: "adaptive_srbm", groups: ["infinite"]
+            name: "low_rank_bar.py", subdirectory: "BNAalr", groups: ["infinite"]
         )
         let momentBoundsRuntime = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "solver.py", subdirectory: "bar_bounds", groups: ["infinite"]
+            name: "solver.py", subdirectory: "BNAbb", groups: ["infinite"]
         )
         let productFormReady = productFormApplicable && productFormRuntime.url != nil
         let qbdReady = qbdApplicable && qbdRuntime.url != nil
@@ -181,7 +181,7 @@ enum MethodAdvisor {
             && editor.tractabilityMeansLabel.localizedCaseInsensitiveContains("Jackson")
             && editor.tractabilityMeans.reduce(0, +) > 20
         let multiClassRuntimeAvailable = SolverRuntimeResolver.shared.resolveExecutable(
-            name: "mc_solver", subdirectory: "multiclass_diffusion"
+            name: "mc_solver", subdirectory: "BNAmd"
         ).url != nil
         return [
             MethodAdvice(
@@ -387,10 +387,10 @@ enum MethodAdvisor {
             && hasClassIndependentService(editor)
         let ctmcLikely = markovian && stationCount <= 6
         let regenerativeRuntime = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "regenerative_mc.py", subdirectory: "regenerative_mc", groups: ["infinite"]
+            name: "regenerative_mc.py", subdirectory: "BNArmc", groups: ["infinite"]
         )
         let ctmcRuntime = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "solver.py", subdirectory: "generic_ctmc", groups: ["finite"]
+            name: "solver.py", subdirectory: "fBNAgc", groups: ["finite"]
         )
         let decompositionRuntime = SolverRuntimeResolver.shared.resolvePythonSupportFile(
             name: "fbna_decomp.py", subdirectory: "fBNAdecomp", groups: ["finite"]

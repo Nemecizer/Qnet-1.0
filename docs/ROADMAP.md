@@ -36,15 +36,15 @@ which changes the effort estimate by an order of magnitude.
 
 | Project | Existing code it extends | What is genuinely new |
 |---|---|---|
-| A01 PH/MAP compilers | `infinite/matrix_analytic/` (QBD solver, working) | PH/MAP validation, MAP/PH/1 compilation, logarithmic reduction |
-| A02 CTMC truncation bounds | `infinite/truncated_ctmc/` + `finite/generic_ctmc/` | Non-product-form generators, Foster–Lyapunov certificates |
+| A01 PH/MAP compilers | `infinite/BNAqbd/` (QBD solver, working) | PH/MAP validation, MAP/PH/1 compilation, logarithmic reduction |
+| A02 CTMC truncation bounds | `infinite/BNAtc/` + `finite/fBNAgc/` | Non-product-form generators, Foster–Lyapunov certificates |
 | A09 Bounded-domain BAR | **`finite/fBNAlp/` — a Phase-1 scaffold** | The entire rectangle extension. See §3.1 |
-| A10 Exact MVA/convolution | `infinite/product_form/` (closed BCMP by enumeration) | Polynomial-time algorithms replacing a 200,000-state cap |
+| A10 Exact MVA/convolution | `infinite/BNApf/` (closed BCMP by enumeration) | Polynomial-time algorithms replacing a 200,000-state cap |
 | A21 RBM structure detection | `AnalyticalTractability.swift` (skew-symmetry check) | Broader exact-structure detection, special distributions |
 | A22 Adaptive spectral | `infinite/BNAsm/`, `finite/fBNAsm/` | Adaptive reference density, error-driven refinement |
 | A23 Occupation-measure LP | `infinite/BNAlp/` (orthant LP, working) | Adaptive basis and refinement |
-| A24 Moment LP/SDP bounds | `infinite/bar_bounds/` | Higher-order cones, verified certificates |
-| A30/A31 Sampling | `infinite/regenerative_mc/`, `infinite/BNAmc/` | Perfect sampling; importance splitting |
+| A24 Moment LP/SDP bounds | `infinite/BNAbb/` | Higher-order cones, verified certificates |
+| A30/A31 Sampling | `infinite/BNArmc/`, `infinite/BNAmc/` | Perfect sampling; importance splitting |
 | A32 Poisson controls | `infinite/BNAsim/`, `finite/fBNAsim/` | Martingale control variates |
 
 **A07 (transfer-line decomposition)** overlaps `finite/fBNAdecomp/` but targets a different model
@@ -131,7 +131,7 @@ blocked. Those choices cannot be averaged away.
 
 **The certificate rule, non-negotiable:** a floating-point CVXPY optimum is a *candidate*, not a
 certificate. A candidate becomes certified only through independent rational or outward-rounded
-verification (`Plans.md` §11). The existing `infinite/bar_bounds/` already marks CVXPY output
+verification (`Plans.md` §11). The existing `infinite/BNAbb/` already marks CVXPY output
 `certified: false` — keep that discipline as the bar rises.
 
 ### 3.5 Research track (parallel, unscheduled)

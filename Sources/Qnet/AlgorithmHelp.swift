@@ -1947,7 +1947,7 @@ enum AlgorithmHelp {
     M/M/c networks. It solves a sequence of finite continuous-time Markov
     chains obtained by capping the network's total population, rather than
     replacing the queues by a diffusion. Implementation:
-    `infinite/truncated_ctmc/truncated_ctmc.py`.
+    `infinite/BNAtc/truncated_ctmc.py`.
 
     HOW IT WORKS
     ------------
@@ -1991,7 +1991,7 @@ enum AlgorithmHelp {
     complete empty-system-to-empty-system cycles. It estimates steady-state
     reward ratios and their uncertainty without pretending individual events
     or time slices are independent. Implementation:
-    `infinite/regenerative_mc/regenerative_mc.py`.
+    `infinite/BNArmc/regenerative_mc.py`.
 
     SEQUENTIAL PRECISION
     --------------------
@@ -2025,7 +2025,7 @@ enum AlgorithmHelp {
     ----------
     A grid-free numerical approximation of an orthant SRBM's stationary
     transform by a nonnegative mixture of separable exponentials.
-    Implementation: `infinite/adaptive_srbm/low_rank_bar.py`.
+    Implementation: `infinite/BNAalr/low_rank_bar.py`.
 
     HOW IT WORKS
     ------------
@@ -2065,7 +2065,7 @@ enum AlgorithmHelp {
     A polynomial Basic Adjoint Relationship outer relaxation for stationary
     SRBM moments. It builds interior and boundary Stieltjes moment matrices,
     face-support identities and BAR equalities. Implementation:
-    `infinite/bar_bounds/solver.py`.
+    `infinite/BNAbb/solver.py`.
 
     CERTIFICATION POLICY
     --------------------
@@ -2099,7 +2099,7 @@ enum AlgorithmHelp {
     networks under loss-on-full semantics. It supports arbitrary routing,
     feedback, multiple FCFS servers, multiple classes, and class changes.
     Queue order is retained, so class-dependent service rates remain exact.
-    Implementation: `finite/generic_ctmc/solver.py`.
+    Implementation: `finite/fBNAgc/solver.py`.
 
     HOW IT WORKS
     ------------
@@ -3040,7 +3040,7 @@ enum AlgorithmHelp {
     reflection matrix by the Harrison–Reiman construction. The
     resulting SRBM is then solved by a finite-element discretisation
     on a growing box.
-    Implementation: `infinite/multiclass_diffusion/mc_solver`. It is
+    Implementation: `infinite/BNAmd/mc_solver`. It is
     part of the maintained source tree and is included in release app
     bundles. Its numerical-library dependencies are listed in that
     directory's README.

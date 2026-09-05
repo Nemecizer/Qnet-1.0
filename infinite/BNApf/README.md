@@ -211,24 +211,24 @@ reduced-load approximation for a network of multiple simultaneous resources.
 From the repository root:
 
 ```sh
-python3 infinite/product_form/solver.py \
-  infinite/product_form/examples/closed_single_class.json
+python3 infinite/BNApf/solver.py \
+  infinite/BNApf/examples/closed_single_class.json
 
-python3 infinite/product_form/solver.py \
-  infinite/product_form/examples/open_multiclass_bcmp.json
+python3 infinite/BNApf/solver.py \
+  infinite/BNApf/examples/open_multiclass_bcmp.json
 
-python3 infinite/product_form/solver.py \
-  infinite/product_form/examples/mixed_bcmp.json
+python3 infinite/BNApf/solver.py \
+  infinite/BNApf/examples/mixed_bcmp.json
 
-python3 infinite/product_form/solver.py \
-  infinite/product_form/examples/multirate_loss.json
+python3 infinite/BNApf/solver.py \
+  infinite/BNApf/examples/multirate_loss.json
 ```
 
 Structured JSON output:
 
 ```sh
-python3 infinite/product_form/solver.py MODEL.json --json
-python3 infinite/product_form/solver.py MODEL.json --output result.json
+python3 infinite/BNApf/solver.py MODEL.json --json
+python3 infinite/BNApf/solver.py MODEL.json --output result.json
 ```
 
 For closed BCMP models, `--include-states` includes every state probability.
@@ -297,7 +297,7 @@ Kaufman-Roberts results include:
 ## Tests
 
 ```sh
-python3 -m unittest discover -s infinite/product_form/tests -v
+python3 -m unittest discover -s infinite/BNApf/tests -v
 ```
 
 The deterministic suite checks hand-derived Gordon-Newell and BCMP state

@@ -39,7 +39,7 @@ enum ProductFormExportError: LocalizedError {
 }
 
 /// Exports the exact subclass of the visual editor supported by
-/// `infinite/product_form/solver.py` with `model_type = open_bcmp`.
+/// `infinite/BNApf/solver.py` with `model_type = open_bcmp`.
 ///
 /// The GUI currently models service stations as FCFS. Consequently the exact
 /// adapter accepts only independent Poisson arrivals, exponential service,

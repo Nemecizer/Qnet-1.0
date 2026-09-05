@@ -57,8 +57,8 @@ print(f"Validated {len(paths)} Python source files.")
 PY
 
 printf 'Building optional multiclass diffusion solver\n'
-if make -C infinite/multiclass_diffusion solver >/dev/null 2>&1 \
-    && [[ -x infinite/multiclass_diffusion/mc_solver ]]; then
+if make -C infinite/BNAmd solver >/dev/null 2>&1 \
+    && [[ -x infinite/BNAmd/mc_solver ]]; then
     printf 'Optional multiclass diffusion solver built successfully.\n'
 else
     printf '%s\n' \

@@ -13,14 +13,14 @@ run() {
 }
 
 run finite/fBNAdecomp test
-run finite/generic_ctmc test
-run infinite/matrix_analytic check
-run infinite/product_form check
-run infinite/truncated_ctmc check
-run infinite/bar_bounds check
-run infinite/regenerative_mc check
-run infinite/adaptive_srbm check
-run infinite/multiclass_diffusion check
+run finite/fBNAgc test
+run infinite/BNAqbd check
+run infinite/BNApf check
+run infinite/BNAtc check
+run infinite/BNAbb check
+run infinite/BNArmc check
+run infinite/BNAalr check
+run infinite/BNAmd check
 
 printf '\n==> Native solver safety contracts\n'
 bash "$PROJECT_ROOT/validation/mlmc_native_check.sh"

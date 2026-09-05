@@ -159,8 +159,8 @@ modify.
      integer is as likely to be a count (`Complete empty-to-empty cycles: 20000`, a station index,
      an iteration count) as a measurement. Rewriting them all would break the one guarantee the
      filter is built on. The honest fix is solver-side, in the three human-output writers that
-     print a measurement with `%g` (`infinite/regenerative_mc/regenerative_mc.py`,
-     `infinite/truncated_ctmc/truncated_ctmc.py`, `infinite/product_form/solver.py`).
+     print a measurement with `%g` (`infinite/BNArmc/regenerative_mc.py`,
+     `infinite/BNAtc/truncated_ctmc.py`, `infinite/BNApf/solver.py`).
   2. **Prose that carries no `=`, `:` or `,` at all still takes padding**, and so does prose whose
      first numeric token is an unmatched bare integer. Both are reachable only *below* the shipped
      default of 6 decimals — at 6 and at 9 the whitespace scanner reports **zero** inserted spaces

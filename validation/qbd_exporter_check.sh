@@ -32,7 +32,7 @@ swiftc -parse-as-library \
     -o "$CHECK_BUILD/qbd_exporter_check"
 
 "$CHECK_BUILD/qbd_exporter_check" "$CHECK_INPUT"
-python3 "$CHECK_ROOT/infinite/matrix_analytic/qbd_solver.py" \
+python3 "$CHECK_ROOT/infinite/BNAqbd/qbd_solver.py" \
     "$CHECK_INPUT" --compact > "$CHECK_RESULT"
 python3 -c '
 import json, math, sys
@@ -46,7 +46,7 @@ assert abs(result["queue_length"]["mean"] - 1.0) < 1e-9
 assert result["stability"]["classification"] == "positive_recurrent"
 ' "$CHECK_RESULT"
 
-python3 "$CHECK_ROOT/infinite/matrix_analytic/qbd_solver.py" \
+python3 "$CHECK_ROOT/infinite/BNAqbd/qbd_solver.py" \
     "$CHECK_INPUT" --human > "$CHECK_HUMAN"
 grep -Eq '^QNET_QBD_METRIC_V1 metric=mean_level estimate=' "$CHECK_HUMAN"
 grep -Eq '^QNET_QBD_EVIDENCE_V1 key=stability_classification value=positive_recurrent$' "$CHECK_HUMAN"

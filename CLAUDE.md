@@ -37,12 +37,12 @@ Makefile):
 
 ```sh
 make -C infinite/BNAqna                 # one native solver
-make -C infinite/product_form test      # Python unit tests for one method
-make -C infinite/product_form check     # tests + run its examples/*.json
-make -C infinite/product_form open-example
+make -C infinite/BNApf test      # Python unit tests for one method
+make -C infinite/BNApf check     # tests + run its examples/*.json
+make -C infinite/BNApf open-example
 ```
 
-A single Python test: `cd infinite/product_form && python3 -m unittest tests.test_bcmp.TestX.test_y -v`.
+A single Python test: `cd infinite/BNApf && python3 -m unittest tests.test_bcmp.TestX.test_y -v`.
 
 Headless CLI entry points on the app binary, used by the validation scripts and
 useful for driving a network without the GUI: `--dump-help <method>`,

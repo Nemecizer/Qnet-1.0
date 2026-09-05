@@ -187,7 +187,7 @@ REQUIRED_C_TARGETS=(
 # installed. Their absence is recorded in the runtime status manifest so the
 # GUI can disable/explain the action instead of exposing a missing command.
 OPTIONAL_C_TARGETS=(
-    "infinite/multiclass_diffusion:mc_solver"
+    "infinite/BNAmd:mc_solver"
 )
 
 # Python solvers launched by the GUI. Keep the source-tree
@@ -195,25 +195,25 @@ OPTIONAL_C_TARGETS=(
 # development checkout and in the bundled app.
 PYTHON_SUPPORT_FILES=(
     "finite/fBNActmc/ctmc_dtandem.py"
-    "finite/generic_ctmc/solver.py"
+    "finite/fBNAgc/solver.py"
     "finite/fBNAdecomp/fbna_decomp.py"
-    "infinite/truncated_ctmc/truncated_ctmc.py"
-    "infinite/adaptive_srbm/low_rank_bar.py"
-    "infinite/bar_bounds/__init__.py"
-    "infinite/bar_bounds/bar_bounds.py"
-    "infinite/bar_bounds/cvxpy_backend.py"
-    "infinite/bar_bounds/solver.py"
-    "infinite/bar_bounds/schema.json"
-    "infinite/regenerative_mc/regenerative_mc.py"
-    "infinite/matrix_analytic/qbd_solver.py"
-    "infinite/product_form/__init__.py"
-    "infinite/product_form/bcmp.py"
-    "infinite/product_form/common.py"
-    "infinite/product_form/kaufman_roberts.py"
-    "infinite/product_form/mixed_bcmp.py"
-    "infinite/product_form/open_bcmp.py"
-    "infinite/product_form/schema.json"
-    "infinite/product_form/solver.py"
+    "infinite/BNAtc/truncated_ctmc.py"
+    "infinite/BNAalr/low_rank_bar.py"
+    "infinite/BNAbb/__init__.py"
+    "infinite/BNAbb/bar_bounds.py"
+    "infinite/BNAbb/cvxpy_backend.py"
+    "infinite/BNAbb/solver.py"
+    "infinite/BNAbb/schema.json"
+    "infinite/BNArmc/regenerative_mc.py"
+    "infinite/BNAqbd/qbd_solver.py"
+    "infinite/BNApf/__init__.py"
+    "infinite/BNApf/bcmp.py"
+    "infinite/BNApf/common.py"
+    "infinite/BNApf/kaufman_roberts.py"
+    "infinite/BNApf/mixed_bcmp.py"
+    "infinite/BNApf/open_bcmp.py"
+    "infinite/BNApf/schema.json"
+    "infinite/BNApf/solver.py"
 )
 
 # Non-standard-library imports required by individual Python solvers. Entries

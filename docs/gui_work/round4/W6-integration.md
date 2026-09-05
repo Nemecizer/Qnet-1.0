@@ -25,7 +25,7 @@ numeric token flush against an `=`.
 
 Measured through the exact pipeline shape the wrapper builds
 (`{ solver ; } 2>&1 | tee <archive> | { … exec perl <program> <decimals> … }`), on
-`infinite/matrix_analytic/examples/mm1.json`:
+`infinite/BNAqbd/examples/mm1.json`:
 
     before (any decimals setting, unchanged by it):
       QNET_QBD_METRIC_V1 metric=mean_level estimate=1.9999999999722793
@@ -48,7 +48,7 @@ Measured through the exact pipeline shape the wrapper builds
       QNET_QBD_EVIDENCE_V1 key=net_level_drift value=-1
       QNET_QBD_EVIDENCE_V1 key=name value=M%2FM%2F1%20with%20lambda%3D2%20and%20mu%3D3
 
-Regenerative Monte Carlo, `infinite/regenerative_mc/examples/mm1.json`, decimals = 6 — the two
+Regenerative Monte Carlo, `infinite/BNArmc/examples/mm1.json`, decimals = 6 — the two
 spellings of one quantity on one screen are now one spelling:
 
     before:

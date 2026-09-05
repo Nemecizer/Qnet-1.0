@@ -310,8 +310,8 @@ Each `finite/*` and `infinite/*` directory owns its Makefile:
 
 ```sh
 make -C infinite/BNAqna                # build one native solver
-make -C infinite/product_form test     # Python unit tests for one method
-make -C infinite/product_form check    # tests plus its bundled examples
+make -C infinite/BNApf test     # Python unit tests for one method
+make -C infinite/BNApf check    # tests plus its bundled examples
 ```
 
 ---

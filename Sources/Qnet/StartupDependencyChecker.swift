@@ -266,7 +266,7 @@ enum StartupDependencyCatalog {
             summary: "Bundled only when the experimental multiclass workload-diffusion solver was built.",
             scope: .optional,
             probe: .bundledExecutable(
-                name: "mc_solver", subdirectory: "multiclass_diffusion", groups: ["infinite"]
+                name: "mc_solver", subdirectory: "BNAmd", groups: ["infinite"]
             ),
             brewFormulae: ["cjson", "suite-sparse", "libomp"]
         ),

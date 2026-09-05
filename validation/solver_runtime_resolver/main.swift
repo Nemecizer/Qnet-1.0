@@ -233,7 +233,7 @@ try require(timeoutElapsed < 1.25, "Python timeout probe exceeded its bound")
 
 private let manifest = resources.appendingPathComponent("solver-runtime-status-v1.tsv")
 try write(
-    "QNET_SOLVER_RUNTIME_V1\nunavailable\texecutable\tinfinite/multiclass_diffusion/mc_solver\trequires research dependencies\n",
+    "QNET_SOLVER_RUNTIME_V1\nunavailable\texecutable\tinfinite/BNAmd/mc_solver\trequires research dependencies\n",
     to: manifest
 )
 private let unavailableResolver = SolverRuntimeResolver(
@@ -244,7 +244,7 @@ private let unavailableResolver = SolverRuntimeResolver(
 )
 private let unavailable = unavailableResolver.resolveExecutable(
     name: "mc_solver",
-    subdirectory: "multiclass_diffusion",
+    subdirectory: "BNAmd",
     groups: ["infinite"],
     probeTimeout: 0.2
 )

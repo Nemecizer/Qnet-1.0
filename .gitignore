@@ -39,8 +39,8 @@ infinite/BNAqna/bna_qna
 infinite/BNArqna/bna_rqna
 infinite/BNAsm/bnet
 infinite/BNAfm/bna_fm
-infinite/multiclass_diffusion/mc_solver
-infinite/multiclass_diffusion/tests/test_params
+infinite/BNAmd/mc_solver
+infinite/BNAmd/tests/test_params
 
 # Catch-all for any other build product the Makefiles produce
 finite/fBNAlp/obj/

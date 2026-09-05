@@ -2200,7 +2200,7 @@ struct QnetGUIApp: App {
     /// at its state limit rather than silently truncating the chain.
     private func runGenericCTMC() {
         let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "solver.py", subdirectory: "generic_ctmc", groups: ["finite"]
+            name: "solver.py", subdirectory: "fBNAgc", groups: ["finite"]
         )
         guard let solver = lookup.url,
               let python = lookup.resolution?.runtimeExecutableURL else {
@@ -2335,7 +2335,7 @@ struct QnetGUIApp: App {
     /// analytical banner, this is a first-class auditable solver run.
     private func runOpenProductForm() {
         let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "solver.py", subdirectory: "product_form", groups: ["infinite"]
+            name: "solver.py", subdirectory: "BNApf", groups: ["infinite"]
         )
         guard let solver = lookup.url,
               let python = lookup.resolution?.runtimeExecutableURL else {
@@ -2396,7 +2396,7 @@ struct QnetGUIApp: App {
     /// remains exact because only non-feedback completions lower the level.
     private func runQBD() {
         let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "qbd_solver.py", subdirectory: "matrix_analytic", groups: ["infinite"]
+            name: "qbd_solver.py", subdirectory: "BNAqbd", groups: ["infinite"]
         )
         guard let solver = lookup.url,
               let python = lookup.resolution?.runtimeExecutableURL else {
@@ -2466,7 +2466,7 @@ struct QnetGUIApp: App {
             return
         }
         let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "truncated_ctmc.py", subdirectory: "truncated_ctmc"
+            name: "truncated_ctmc.py", subdirectory: "BNAtc"
         )
         guard let solver = lookup.url,
               let python = lookup.resolution?.runtimeExecutableURL else {
@@ -2557,7 +2557,7 @@ struct QnetGUIApp: App {
     /// and a reproducible 64-bit seed/stream pair in result provenance.
     private func runRegenerativeMonteCarlo() {
         let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "regenerative_mc.py", subdirectory: "regenerative_mc"
+            name: "regenerative_mc.py", subdirectory: "BNArmc"
         )
         guard let solver = lookup.url,
               let python = lookup.resolution?.runtimeExecutableURL else {
@@ -2721,7 +2721,7 @@ struct QnetGUIApp: App {
     /// model layer and parameter convention directly comparable.
     private func runAdaptiveLowRankBAR() {
         let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "low_rank_bar.py", subdirectory: "adaptive_srbm"
+            name: "low_rank_bar.py", subdirectory: "BNAalr"
         )
         guard let solver = lookup.url,
               let python = lookup.resolution?.runtimeExecutableURL else {
@@ -2790,7 +2790,7 @@ struct QnetGUIApp: App {
     /// 1D/product-form answers or a useful auditable relaxation summary.
     private func runBARMomentBounds() {
         let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "solver.py", subdirectory: "bar_bounds"
+            name: "solver.py", subdirectory: "BNAbb"
         )
         guard let solver = lookup.url,
               let python = lookup.resolution?.runtimeExecutableURL else {
@@ -3037,7 +3037,7 @@ struct QnetGUIApp: App {
     }
 
     /// Runs the class-aware workload SRBM solver
-    /// (`infinite/multiclass_diffusion/mc_solver`).
+    /// (`infinite/BNAmd/mc_solver`).
     /// Differs from the production FEM path: mc_solver parses the .bnet JSON
     /// directly (not SRBMExporter output), and uses compound service-time and
     /// per-class routing-variance formulas with a Harrison-Reiman reflection
@@ -3052,7 +3052,7 @@ struct QnetGUIApp: App {
             return
         }
         let lookup = SolverRuntimeResolver.shared.resolveExecutable(
-            name: "mc_solver", subdirectory: "multiclass_diffusion"
+            name: "mc_solver", subdirectory: "BNAmd"
         )
         guard let binary = lookup.url else {
             reportBlocked(
