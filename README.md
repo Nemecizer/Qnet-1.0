@@ -349,6 +349,7 @@ It carries none of Qnet's domain: no canvas, no solvers, no queueing theory.
 | Document | What it covers |
 |---|---|
 | [`docs/STEADY_STATE_METHODS.md`](docs/STEADY_STATE_METHODS.md) | The full contract for every method: scope, inputs, evidence, limitations |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | How the research playbook becomes shipped revisions |
 | [`docs/ALGORITHM_RESEARCH_2026-09-04.md`](docs/ALGORITHM_RESEARCH_2026-09-04.md) | Survey of further methods — **proposed, not implemented** |
 | [`BUILDING.md`](BUILDING.md) | Dependencies and the SDK workaround for the tested Mac |
 | [`VERIFICATION.md`](VERIFICATION.md) | Exactly what was and was not tested, and on what host |
