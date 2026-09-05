@@ -27,7 +27,7 @@ d70a4f392185295ccbc56bea42a3f09cb4dd8e3960c49adcee3350a4897113e7  ./GUIKit/Sourc
 73eabbb7501c2bca7f3f3e5be2dafb243db6ac705f3f8b938ff4960a4c9e5b43  ./GUIKit/Sources/GUIKit/WindowSupport.swift
 b3e0cc3c3440a8e8e2463ee2a626b07bfa4b84b0755a12f2a6354a9a3a25358c  ./GUIKit/Validation/design_lint.sh
 5cd9bf477673a083a565911d9bd2d2e1ff8d9dbe477d653fac4667e2a5d7a836  ./GUIKit/Validation/ds_contrast.swift
-8e013215569edd2b45a7e0678212717cdfbfa28c53bf202819d98036f4602759  ./LICENSE
+5c9f6c5f2cdf9081a3d0b7e1028e00004f9ba4e63988ccf88579a7dc52509396  ./LICENSE
 5aa7c40b2067a15ceee1126ef78c65c0b074f893d73910945e96b1f4b3a939e7  ./Package.swift
 050860497250092cbc3615d10fa82844c00c85663f917c23dfa39adce74cc466  ./Plans.md
 23b9906aef92477f99361a3d3d138cf90f19c7fe84aa8e5d6c184ced0b6009c0  ./Qnet.app/Contents/Frameworks/libamd.3.dylib
@@ -143,7 +143,7 @@ d9ae8950d7d5fb108b0bb9b973540e9b252193c78021a745b4e32f8c42bd20e1  ./Qnet.app/Con
 86c719cfeb0c93b645c619008173c1600ff84d2f6d440d701c3df4fb873b668f  ./Qnet.app/Contents/Resources/examples/random4c2.bnet
 b156db2ccde5a92a93d83ce68ea2d9c358e440bc2c9070ec220c488915b03fe3  ./Qnet.app/Contents/Resources/solver-runtime-status-v1.tsv
 6bf71655877f6a978e779ec6d56f2efd7e1c5f3b9e0f195afe7e36e74f878758  ./Qnet.app/Contents/_CodeSignature/CodeResources
-72a02fa4b82716b72345dadca8b381ac6afa16d2b3a3e2d24ea7c87656d3b75a  ./README.md
+a720f5e11bf74674b58df6df0a24a2f06549575dad77e27b5f2b04dc825ecb9a  ./README.md
 80ea6183c942e10523631539e7982851d2eb1be166aed8dc12dd7202fcf164be  ./Sources/Qnet/AIPaneView.swift
 f14f5988675b34476c19afd3b757afb15d1a62a1723e69e4fbec940c1228ac6f  ./Sources/Qnet/AITools.swift
 bcbb1d071d2fdac160175bda021c783344caa3b927a7cf3f3d7e48aba28f9247  ./Sources/Qnet/AboutQnetWindow.swift
