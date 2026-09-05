@@ -2774,16 +2774,39 @@ struct QnetGUIApp: App {
             // alternative reading — a missing in-service customer, E[X] - rho —
             // is refuted by the first network, where it predicts 1.4019 / 8.1 /
             // 0.3682 rather than what the solver returns.
+            //
+            // MULTI-SERVER IS DELIBERATELY EXCLUDED. The identity above is the
+            // single-server one. Checked against exact M/M/c answers on a
+            // three-station tandem of c = 3 stations:
+            //
+            //   rho = 0.90   E[Z] = 3.000   exact L_q =  7.354   c*E[Z] = 9.00  (+22%)
+            //   rho = 0.95   E[Z] = 6.333   exact L_q = 17.233   c*E[Z] = 19.00 (+10%)
+            //
+            // The error halves as rho climbs, so for c > 1 the relation is
+            // asymptotic in heavy traffic rather than exact, and no scalar
+            // recovers E[X] across loads — unlike the single-server case, which
+            // was exact at rho = 0.45, 0.675 and 0.9. Printing a converted
+            // queue length for a multi-server station would therefore be
+            // presenting a heavy-traffic approximation as if it were the same
+            // exact conversion. The workload rows still print; only the
+            // converted column is withheld, with the reason said out loud.
             var muList = ""
             var indexWidth = 1
+            let multiServerStations = activeEditor.nodes
+                .filter { $0.kind == .station && $0.numberOfServers > 1 }
+                .map(\.name)
             if case .success(let data) = BNASRBMExporter.computeData(
                 nodes: activeEditor.nodes, links: activeEditor.links
             ) {
-                let mu = data.meanServiceTimes.map { tau in tau > 0 ? 1.0 / tau : 1.0 }
+                // meanServiceTimes is tau[i] = 1 / (s_i * muEff_i), so its
+                // reciprocal is the station's TOTAL capacity c_i = s_i * muEff_i,
+                // not a per-server rate. For a single-server station the two
+                // coincide, which is the case this conversion is verified for.
+                let capacity = data.meanServiceTimes.map { tau in tau > 0 ? 1.0 / tau : 1.0 }
                 // %.17g, not a rounded literal: awk consumes these numerically
-                // and a station whose mu is small must not be handed a zero.
-                muList = mu.map { String(format: "%.17g", $0) }.joined(separator: " ")
-                indexWidth = String(mu.count).count
+                // and a station whose capacity is small must not become zero.
+                muList = capacity.map { String(format: "%.17g", $0) }.joined(separator: " ")
+                indexWidth = String(capacity.count).count
             }
 
             // `solve` stays the name of the command handed to
@@ -2798,7 +2821,15 @@ struct QnetGUIApp: App {
             // ResultOutputParser already reads as a queue length
             // (convertedQueueRow), so this adds no new parser contract, and the
             // workload it was converted from stays visible beside it.
-            if !muList.isEmpty {
+            if !multiServerStations.isEmpty {
+                let names = multiServerStations.joined(separator: ", ")
+                let verb = multiServerStations.count == 1 ? "has" : "have"
+                let note = "  Queue lengths not derived: \(names) \(verb) more than one "
+                    + "server, and the workload-to-queue identity used for single-server "
+                    + "stations is only asymptotic in heavy traffic when c > 1. The workload "
+                    + "means above are the solver's own output."
+                solve += " && printf '%s\\n' \(shellQuote(note))"
+            } else if !muList.isEmpty {
                 // -v, not an environment assignment: awk does not import the
                 // environment into its own variable namespace, so `mu=... awk`
                 // leaves `mu` empty and the conversion silently emits nothing.
