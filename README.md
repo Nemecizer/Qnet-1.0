@@ -50,7 +50,7 @@ Third-party components keep their own terms. `Vendor/SwiftTerm` is MIT. A built
 libomp, HiGHS, cJSON, SuiteSparse and the GCC 13 runtime libraries — each under
 its own license, with the texts retained in `ThirdPartyLicenses/`. The GCC
 runtime libraries carry the GCC Runtime Library Exception, which is what allows
-them to ship inside an MIT-licensed application. `LICENSE` sets this out in full.
+them to ship inside an MIT-licensed application. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for the full statement.
 
 The published papers under `Papers/` are third-party copyrighted works, excluded
 from the repository and not redistributed; `Papers/Qnet_Bibliography.ris` cites
