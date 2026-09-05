@@ -1,5 +1,9 @@
 # Algorithm review — measured, 2026-09-05
 
+> **Status: recommendations 1–3 implemented and re-measured.** See
+> [§5 Implemented](#5-implemented-2026-09-05) for before/after numbers and for one
+> correction to recommendation 2, which was partly wrong as originally written.
+
 Every solver in `infinite/` and `finite/` was built, executed, and timed on this machine
 (Apple silicon, 128 GB RAM, macOS 26, Python 3.9.6, NumPy 2.0.2). This document records what was
 **measured**, not what the code appears to do.
@@ -383,3 +387,81 @@ cd infinite/BNAalr && python3 -c "import cProfile,unittest;\
 cProfile.run('unittest.TextTestRunner().run(unittest.TestLoader().discover(\"tests\"))','p');\
 import pstats;pstats.Stats('p').sort_stats('cumulative').print_stats(8)"
 ```
+
+
+---
+
+## 5. Implemented (2026-09-05)
+
+### #1 — `fBNAsm` boundary integral cache
+
+| | Before | After |
+|---|---|---|
+| d=10 | 51 s of work, then `Failed to allocate boundary integral cache` | **0.39 s**, clean refusal naming the size (15,020 GB), the budget (64 GB), physical RAM and the remedy |
+| d=5 | 0.09 s, `N_total = 8.842176` | 0.08 s, `N_total = 8.842176` — unchanged |
+
+**A correctness bug was found while fixing this.** `compute_cache_size` returned `int` and
+multiplied in `int`, so `(max_degree+1)^n_dim` **silently wrapped** past `INT_MAX`. This is
+reachable inside the solver's own `MAX_DIM 10`: at `n_approx=6, d=9` the true size is
+10,604,499,373 entries and the wrapped value is 2,014,564,781 — positive, allocatable as 16 GB on a
+large machine, and then indexed with strides that overflowed the same way. That path returns
+**numbers rather than an error**, which is the worst outcome available.
+
+Fixed by computing in `uint64_t`, pre-flighting through `bnet_memcheck_alloc` before any allocation,
+and refusing explicitly above `INT_MAX` since the index arithmetic downstream is `int`-typed. One
+guard covers both caches because every boundary face routes through `integral_cache_init`.
+
+### #2 — Memory guards: partly implemented, and the recommendation was partly wrong
+
+Guards added where the allocation genuinely scales with user input:
+
+- **`BNArqna`** — the `N x N` per-class coefficient matrix.
+- **`BNAsim`** — replication storage, sized by `-n`, which is user-supplied and unbounded.
+- **`fBNAsim`** — the same, via `num_runs`.
+
+Verified firing: `jackson_sim -n 900000000` now refuses in milliseconds with
+`requested 73760.75 GB, budget 64.00 GB`, and normal runs are unaffected (0.04 s; RQNA self-test
+passes).
+
+**Not implemented, because on inspection a memory guard is the wrong control:**
+
+- **`BNAfm`** allocates nothing dynamically. It uses fixed stack arrays under `MAX_DIM 8`. A guard
+  here would be dead code.
+- **`BNAmc`** allocates O(d), O(d²), O(K), O(C·K) and O(threads) — all small. MLMC is bounded by
+  *time*, not memory; its existing `--adaptive` SE-target stopping is the control that matters.
+
+Recommendation 2 originally said "add the guard to five solvers". Two of those five do not need it,
+and adding ceremonial guards to satisfy a checklist would have been worse than not adding them.
+Guarded native solvers: **7 of 12 → 10 of 12**, with the remaining two justified above.
+
+### #3 — `BNAalr` vectorisation
+
+| | Time | Tests |
+|---|---:|---|
+| Before | 73.30 s | 11 pass |
+| After, NumPy present | **3.56 s** | 11 pass |
+| After, NumPy hidden (fallback) | 71.97 s | 11 pass |
+
+**20.6× faster**, and the pure-Python path is genuinely unchanged — its 71.97 s matches the original
+73.30 s.
+
+NumPy is an **optional** import. This module is one of the standard-library solvers that must keep
+working on a bare interpreter, which is what the packaged app relies on; when NumPy is absent the
+original code runs untouched.
+
+Only the two O(rows × n) primitives were swapped — `A x` and `Aᵀ r`. The FISTA body is O(n) per
+iteration with n = rank × groups and was left alone.
+
+**Numerical agreement was verified, not assumed.** The same example run through both paths and
+compared field by field: 157 numeric fields, worst relative difference **3.19e-12**, status and
+claim strings identical. That is the expected difference between `math.fsum` (exact summation) and
+BLAS (pairwise) — well inside every tolerance the module asserts.
+
+The tolerance loosening also suggested under #3 was **not** applied. The speedup made it
+unnecessary, and changing a convergence criterion changes results; that belongs with the independent
+oracles (§3.5), not bundled into a performance change.
+
+### Gate after all three
+
+`build_all_algorithms.sh`, `steady_state_suite.sh`, `gui_runtime_contracts.sh`,
+`mlmc_native_check.sh`, `verify_source_package.sh`, `make_pkg.sh` — all pass.

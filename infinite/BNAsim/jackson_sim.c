@@ -24,6 +24,7 @@
 
 #define QNET_RNG_IMPLEMENTATION
 #include "../../common/rng.h"
+#include "../../common/bnet_memcheck.h"
 
 /* Compact output mode (-c flag) */
 static int compact_mode = 0;
@@ -1840,6 +1841,13 @@ int main(int argc, char *argv[]) {
     /* Allocate storage for run values */
     nc = network.num_classes;
     ns = network.num_stations;
+    /* -n is user-supplied and unbounded, so this is the one allocation here a
+       user can make arbitrarily large by accident. Everything else scales with
+       jobs in system, which a stable network keeps small. */
+    bnet_memcheck_alloc((uint64_t) sim_params.num_replications
+                            * (uint64_t) sizeof(*run_values),
+        "simulation replication results",
+        "reduce the replication count (-n)");
     run_values = (double (*)[RUN_VALUES_COLS])
                  malloc(sim_params.num_replications * sizeof(*run_values));
     if (!run_values) {

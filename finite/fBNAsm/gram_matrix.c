@@ -16,6 +16,9 @@
 #endif
 
 #include "gram_matrix.h"
+#include <limits.h>
+#include <stdint.h>
+#include "../../common/bnet_memcheck.h"
 
 #define TOLERANCE 1e-14
 
@@ -23,11 +26,20 @@
  * Monomial Integral Cache
  * ============================================================================ */
 
-static int compute_cache_size(int n_dim, int max_degree) {
-    /* Total entries: (max_degree + 1)^n_dim */
-    int size = 1;
+/* Total entries: (max_degree + 1)^n_dim.
+ *
+ * Computed in uint64_t, and it must be. This returned `int` and multiplied in
+ * `int`, so the product silently wrapped once (max_degree+1)^n_dim passed
+ * INT_MAX — reachable well inside MAX_DIM. At n_approx=6, d=9 the true size is
+ * 10,604,499,373 entries and the wrapped value is 2,014,564,781: positive,
+ * allocatable as 16 GB on a large machine, and indexed with strides that
+ * overflowed the same way. That path produced numbers rather than an error,
+ * which is the worst outcome available. The caller now pre-flights this value
+ * and refuses anything it cannot represent or afford. */
+static uint64_t compute_cache_size(int n_dim, int max_degree) {
+    uint64_t size = 1;
     for (int d = 0; d < n_dim; d++) {
-        size *= (max_degree + 1);
+        size *= (uint64_t)(max_degree + 1);
     }
     return size;
 }
@@ -66,7 +78,33 @@ MonomialIntegralCache* integral_cache_init(int n_dim, int max_degree, const doub
     cache->n_dim = n_dim;
     cache->max_degree = max_degree;
     cache->normalized = normalized;
-    cache->total_size = compute_cache_size(n_dim, max_degree);
+
+    /* Pre-flight before any of this is allocated. Both the interior cache and
+       every face of the boundary cache come through here, so one guard covers
+       both — the boundary cache is 2*n_dim of these at dimension n_dim-1.
+       Previously nothing sized them, and a d=10 run spent 51 s building basis
+       functions before failing here. */
+    uint64_t entries = compute_cache_size(n_dim, max_degree);
+    bnet_memcheck_alloc(entries * (uint64_t) sizeof(double),
+        "SRBM finite-buffer monomial integral cache",
+        "reduce polynomial-approximation order (n_approx) or network "
+        "dimension (d); the cache holds (2*n_approx+1)^d doubles per face");
+
+    /* The index arithmetic below is int-typed throughout (strides, idx,
+       exponents_to_index). Refuse explicitly rather than wrap. A budget large
+       enough to reach this line would need ~17 GB for one cache, so in
+       practice bnet_memcheck_alloc has already refused; this is the backstop
+       that makes the int-indexing assumption checked rather than assumed. */
+    if (entries > (uint64_t) INT_MAX) {
+        fprintf(stderr,
+                "Error: monomial integral cache needs %llu entries, which "
+                "exceeds this build's %d-entry index limit.\n"
+                "       Reduce n_approx or the network dimension.\n",
+                (unsigned long long) entries, INT_MAX);
+        free(cache);
+        return NULL;
+    }
+    cache->total_size = (int) entries;
 
     /* Compute strides for index calculation */
     cache->strides = (int*)malloc(n_dim * sizeof(int));

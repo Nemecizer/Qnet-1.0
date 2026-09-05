@@ -27,6 +27,7 @@
 #include "parser.h"
 #include "simulator.h"
 #include "stats.h"
+#include "../../common/bnet_memcheck.h"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -279,6 +280,11 @@ int main(int argc, char **argv)
     }
 
     /* ── Run simulation ──────────────────────────────────────── */
+    /* Same reasoning as the infinite engine: num_runs is user-supplied and
+       unbounded; the event queue scales with jobs in system instead. */
+    bnet_memcheck_alloc((uint64_t) config.num_runs * (uint64_t) sizeof(RunResult),
+        "finite-buffer simulation run results",
+        "reduce the replication count (-n)");
     RunResult *results = (RunResult *)calloc((size_t)config.num_runs,
                                             sizeof(RunResult));
     if (!results) {

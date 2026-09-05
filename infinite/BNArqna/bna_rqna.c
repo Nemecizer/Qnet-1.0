@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../../common/bnet_memcheck.h"
 
 #define MAX_NODES  64
 #define LINE_BUF   4096
@@ -1281,6 +1282,14 @@ static void free_pc_arrays(void)
 static int compute_xi_pc(void)
 {
     int N = N_pc;
+    /* N is bounded by MAX_NODES*MAX_CLASSES today, so this is ~33 MB at the
+       cap. The guard is here because N*N is the one allocation in this solver
+       that grows with the model rather than with a constant, and raising
+       either cap makes it the first thing to bite. */
+    bnet_memcheck_alloc((uint64_t) N * (uint64_t) N * (uint64_t) sizeof(double),
+        "RQNA per-class coefficient matrix",
+        "reduce the number of stations or customer classes; this matrix is "
+        "(stations x classes) squared");
     double *A   = (double *)malloc((size_t)N * (size_t)N * sizeof(double));
     double *rhs = (double *)malloc((size_t)N * sizeof(double));
     if (!A || !rhs) { free(A); free(rhs); return 0; }
