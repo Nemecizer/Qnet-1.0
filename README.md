@@ -38,3 +38,20 @@ Write access was approved and this distribution was copied there on
 and all 35 packaged RQNA examples passed in the Dropbox directory.
 The existing Dropbox `Qnet` folder was not changed. This local output copy
 is also retained as the distribution source.
+
+## License
+
+Qnet's own source — the Swift GUI, the solvers under `finite/` and `infinite/`,
+the GUIKit framework, the validation suite and the build scripts — is released
+under the MIT License. See [LICENSE](LICENSE).
+
+Third-party components keep their own terms. `Vendor/SwiftTerm` is MIT. A built
+`Qnet.app` also redistributes the native libraries its solvers link against —
+libomp, HiGHS, cJSON, SuiteSparse and the GCC 13 runtime libraries — each under
+its own license, with the texts retained in `ThirdPartyLicenses/`. The GCC
+runtime libraries carry the GCC Runtime Library Exception, which is what allows
+them to ship inside an MIT-licensed application. `LICENSE` sets this out in full.
+
+The published papers under `Papers/` are third-party copyrighted works, excluded
+from the repository and not redistributed; `Papers/Qnet_Bibliography.ris` cites
+them so they can be obtained from their publishers.
