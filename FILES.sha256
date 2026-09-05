@@ -46,7 +46,7 @@ cd745ccfe7c852198ed0949d0106f6227bbc2fdbc794324dda70460ed401ce38  ./Qnet.app/Con
 a455d1b088e194c9a450a3a7d7a3dd9ebc88f93f1f14a3954e78cb5567d13aa0  ./Qnet.app/Contents/Frameworks/libsuitesparseconfig.7.dylib
 c9ef0f8393d0a9b1f6dbd4a3f4439541fe00adca63d9f0b6da1fe22794d0ccb5  ./Qnet.app/Contents/Frameworks/libumfpack.6.dylib
 ca76cbe577b4d4a3a98baba57a339dfd2253230ef3b8f4099ca76d6d04d11e02  ./Qnet.app/Contents/Info.plist
-22e95bea8df06664d0e352e878f35c5c21b958f11e901f865b902b2f045dd277  ./Qnet.app/Contents/MacOS/Qnet
+c3f176f436c050a2b4cf9d12be27950ad770f94a6557abb7938d5a13208591d3  ./Qnet.app/Contents/MacOS/Qnet
 c1464b64554b749e54bd53adafa932907ceb3ca8ddf5fcfccb91220d9f4075ec  ./Qnet.app/Contents/Resources/AppIcon.icns
 5f9f1d64f238821d11e4eda5f33c933d85d4e7f124a2c3bd8a930f8726b2fc12  ./Qnet.app/Contents/Resources/SwiftTerm_SwiftTerm.bundle/Shaders.metal
 4e90377e29fea366ca7a6835ec35e00529896df88562d4720b4de03b71e48407  ./Qnet.app/Contents/Resources/ThirdPartyLicenses/README.md
@@ -209,7 +209,7 @@ c63e321dabb0ac39cbd16d99488fb57e3551cd19180afb48cdb2f9e13d2810a0  ./Sources/Qnet
 4d3a9a2b6c6910b370fffcb67f221884855891b012edb193b07007be5af08ff9  ./Sources/Qnet/QBDExporter.swift
 0cf1819cc14b078778fe1351b896a8b03173cbf4ab47e49431b57cb3e7d84337  ./Sources/Qnet/QNAExporter.swift
 248b09c74b59fba41273683affa94854293540c90b501e8da252389cf717040f  ./Sources/Qnet/QnetCommands.swift
-b5ab3a06d61012170503295985de028dab96a436170db23f6296537d638302dd  ./Sources/Qnet/QnetGUIApp.swift
+67c86017e477e2be4be273393f6e9ed2d093443940ca70f4438fbc657b1ea565  ./Sources/Qnet/QnetGUIApp.swift
 5d0064b4977327d2e72270f08d6a3a4d566ad82c6836247b6858bd5f2b25940a  ./Sources/Qnet/QnetHelpWindow.swift
 d57a1acdc2a5e8800ed29aa688b02767675c0238d8687f22c0e04888bda19e2c  ./Sources/Qnet/RandomNetworkGenerator.swift
 5e4e626e9f71ab7659ca9e7a92fb442c608a73b9e41edfb85270459320ca20c6  ./Sources/Qnet/RegenerativeExporter.swift

@@ -2755,7 +2755,63 @@ struct QnetGUIApp: App {
                 )
                 return
             }
-            let solve = "\(shellQuote(python.path)) -B \(shellQuote(solver.path)) \(shellQuote(inputFile.path))"
+            // The solver reports SRBM coordinates E[Z_i]: unfinished work, in
+            // time units. Every other method in a comparison reports a queue
+            // count, so the two were read side by side in different units and
+            // the BAR column looked uniformly small.
+            //
+            // The conversion is E[X_i] = mu_i * E[Z_i] — the identity that
+            // makes mu * E[W] = rho / (1 - rho) exact for M/M/1, a number in
+            // system that already includes the customer in service. BNAmc
+            // applies the same scaling to its own workload output.
+            //
+            // Verified against exact Jackson answers, not assumed. On
+            // DaiNguyenReiman94.d3.c1.1 every mu_eff is 1 and the solver
+            // returns 2.076923077 / 9.000000002 / 0.8181818182 against exact
+            // rho/(1-rho) of 2.0769230769 / 9 / 0.8181818182. On 3dtandem,
+            // where mu_eff is 1.1111, it returns 8.100000891 against an exact
+            // 9.0, and 9.0 / 1.1111 = 8.1. Scaling by mu reconciles both. The
+            // alternative reading — a missing in-service customer, E[X] - rho —
+            // is refuted by the first network, where it predicts 1.4019 / 8.1 /
+            // 0.3682 rather than what the solver returns.
+            var muList = ""
+            var indexWidth = 1
+            if case .success(let data) = BNASRBMExporter.computeData(
+                nodes: activeEditor.nodes, links: activeEditor.links
+            ) {
+                let mu = data.meanServiceTimes.map { tau in tau > 0 ? 1.0 / tau : 1.0 }
+                // %.17g, not a rounded literal: awk consumes these numerically
+                // and a station whose mu is small must not be handed a zero.
+                muList = mu.map { String(format: "%.17g", $0) }.joined(separator: " ")
+                indexWidth = String(mu.count).count
+            }
+
+            // `solve` stays the name of the command handed to
+            // commandWithCleanup: validation/gui_runtime_contracts.sh counts
+            // that exact call across the eight Python runners, and the
+            // cancellation-safe cleanup it pins is a property of the whole
+            // pipeline, conversion included.
+            var solve = "\(shellQuote(python.path)) -B \(shellQuote(solver.path)) \(shellQuote(inputFile.path))"
+
+            // Pass the solver's own output through untouched, then append one
+            // queue-length row per coordinate. `L_i` is the row
+            // ResultOutputParser already reads as a queue length
+            // (convertedQueueRow), so this adds no new parser contract, and the
+            // workload it was converted from stays visible beside it.
+            if !muList.isEmpty {
+                // -v, not an environment assignment: awk does not import the
+                // environment into its own variable namespace, so `mu=... awk`
+                // leaves `mu` empty and the conversion silently emits nothing.
+                let awk = "awk -v w=\(indexWidth) -v mu=\(shellQuote(muList)) '"
+                    + "BEGIN{n=split(mu,m,\" \")}"
+                    + "{print}"
+                    + "/^E\\[Z_[0-9]+\\] =/{s=$1;gsub(/[^0-9]/,\"\",s);i=s+0;"
+                    + "if(i>=1&&i<=n){q[i]=$3*m[i];z[i]=$3;u[i]=m[i];if(i>d)d=i}}"
+                    + "END{if(d>0){printf \"\\n\";"
+                    + "for(i=1;i<=d;i++)printf \"  L_%0*d = %.6f    (workload E[Z_%0*d] = %.6f, mu_i = %.6f)\\n\","
+                    + "w,i,q[i],w,i,z[i],u[i]}}'"
+                solve = "\(solve) | \(awk)"
+            }
             let command = withSpinner(
                 prefix: "Fitting adaptive low-rank BAR ...  ",
                 command: commandWithCleanup(solve, paths: [inputFile.path])
