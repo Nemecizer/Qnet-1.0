@@ -571,7 +571,27 @@ struct QnetGUIApp: App {
     @StateObject private var closedTabs = ClosedTabHistory()
 
     // Sheets driven from the menu bar.
-    @State private var showStartupDependencyCheck = true
+    ///
+    /// Shown at launch ONLY when running from the source tree. A packaged
+    /// application carries its native libraries inside `Contents/Frameworks`
+    /// with their load paths rewritten, so there is nothing about them for a
+    /// user to fix and nothing for this sheet to tell them: `build_app.sh`
+    /// already relocates and ad-hoc signs them, `validation/solver_bundle_audit.sh`
+    /// refuses to finish a release whose inventory is incomplete, and
+    /// `make_pkg.sh` re-verifies the payload before it ships. Interrogating
+    /// Homebrew on someone else's Mac at every launch asks a question whose
+    /// answer cannot matter, and blocks the menu bar behind a modal sheet
+    /// while it does (`appSheetPresented`, below, includes this flag).
+    ///
+    /// A developer running `swift run` is the opposite case: the solvers are
+    /// loose binaries linked against the local Homebrew cellar, so a missing
+    /// formula is exactly what they need told.
+    ///
+    /// The check itself is unchanged and still reachable on demand from
+    /// Help ▸ Check Dependencies…, which is also how a packaged user
+    /// diagnoses a Python-backed method that will not run — Python stays an
+    /// external prerequisite in both builds.
+    @State private var showStartupDependencyCheck = !StartupDependencyCatalog.isPackagedApplication
     @State private var showGenerateRandomSheet = false
     @State private var showArchetypeSheet = false
     @State private var showFindNodeSheet = false
@@ -1310,6 +1330,7 @@ struct QnetGUIApp: App {
             analyzeNetwork: { analyzeNetwork() },
             showNetworkPrimitives: { showNetworkPrimitives() },
             generateRandomNetwork: { generateRandomNetwork() },
+            checkDependencies: { showStartupDependencyCheck = true },
             insertArchetype: { insertArchetype() },
             runComparison: {
                 if activeEditor.infiniteBuffers { runComparisonInfinite() } else { runComparison() }

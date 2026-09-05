@@ -27,6 +27,9 @@ struct QnetCommandActions {
     var analyzeNetwork: () -> Void
     var showNetworkPrimitives: () -> Void
     var generateRandomNetwork: () -> Void
+    /// Help ▸ Check Dependencies… — re-runs the startup checklist on demand.
+    /// A packaged build no longer runs it at launch, so this is the route to it.
+    var checkDependencies: () -> Void
     var insertArchetype: () -> Void
     // Run
     var runComparison: () -> Void
@@ -1277,6 +1280,13 @@ struct QnetCommands: Commands {
                 .help("Open the SRBM MLMC topic (Settings ▸ Help chooses the window, Status pane or Shell)")
             Button("Release Notes") { ReleaseNotesWindow.show() }
                 .help("What changed in this build and in every earlier release")
+
+            // A packaged application does not run this at launch: its native
+            // libraries ship inside the bundle, so the only rows that can
+            // still fail are the external Python ones. This is the way to
+            // ask, rather than being asked every time the app opens.
+            Button("Check Dependencies…") { actions.checkDependencies() }
+                .help("Re-run the startup checklist: Python, optional modules, and the bundled solvers")
 
             Divider()
 
