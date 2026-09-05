@@ -112,3 +112,9 @@ assets/AppIcon-tinted.icns
 # would be in every clone forever. The project's OWN writing about them —
 # the survey, the index, the manifest and the bibliography — stays tracked.
 Papers/*.pdf
+
+# ── Release output ─────────────────────────────────────────
+dist/
+
+# ── GUIKit build products ──────────────────────────────────
+GUIKit/.build/
