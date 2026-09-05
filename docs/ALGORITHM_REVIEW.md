@@ -1,6 +1,6 @@
 # Algorithm review — measured, 2026-09-05
 
-> **Status: recommendations 1–3 implemented and re-measured.** See
+> **Status: recommendations 1–3 and 5–7 implemented or resolved, and re-measured.** See
 > [§5 Implemented](#5-implemented-2026-09-05) for before/after numbers and for one
 > correction to recommendation 2, which was partly wrong as originally written.
 
@@ -465,3 +465,108 @@ oracles (§3.5), not bundled into a performance change.
 
 `build_all_algorithms.sh`, `steady_state_suite.sh`, `gui_runtime_contracts.sh`,
 `mlmc_native_check.sh`, `verify_source_package.sh`, `make_pkg.sh` — all pass.
+
+
+---
+
+## 6. Second tier (2026-09-05)
+
+### #5 — Exact MVA for closed networks · **implemented**
+
+New `infinite/BNApf/mva.py`: exact multiclass Mean Value Analysis (Reiser–Lavenberg), including the
+load-dependent recursion with marginal probabilities for multi-server FCFS stations. `solver.py`
+now chooses per model, and `include_states` still forces enumeration because MVA never forms the
+joint law.
+
+**Cross-validated against an independent oracle.** The existing enumerating solver is separate code
+reaching the same product form by a different route, so agreement is a real check rather than a
+restatement. `tests/test_mva.py` asserts agreement to **1e-9** across eight model shapes: single
+class, delay stations, FCFS single- and multi-server, multiclass, multiclass with multi-server, a
+class that skips a station, and a zero-population class.
+
+What it unlocks, measured on a 120-job / 8-station machine-repair model:
+
+| | Enumeration | MVA |
+|---|---|---|
+| Work | **89,356,415,775 states — refused** | 121 lattice points |
+| Time | n/a | **0.9 ms** |
+| Little's law residual | n/a | 0.00e+00 |
+| Population conservation | n/a | 0.00e+00 |
+
+Throughput came out at exactly 5.000000 = 1/0.20, the saturated bottleneck demand, and the delay
+station held exactly 40.0 = X·D. Both are analytic checks the result must satisfy.
+
+MVA is polynomial in population and exponential only in the *number of classes*; enumeration is
+combinatorial in both. So this is a strict gain where enumeration cannot go, and the dispatcher
+picks on that basis rather than always preferring one.
+
+### #6 — Sparse assembly for `BNAsm` · **NOT implemented: the recommendation was wrong**
+
+The recommendation assumed the spectral system matrix is sparse. **It is not.** Measured by
+instrumenting a scratch build and counting entries above 1e-12 of the maximum:
+
+| Dimension | Basis size N | Density |
+|---|---:|---:|
+| d=3 | 164 | **45.7%** |
+| d=5 | 1,286 | **47.3%** |
+| d=10 | 43,757 | **47.7%** |
+
+Density is essentially constant in d. A sparse representation would store half of N² — no
+meaningful saving — and an iterative solve on a 47%-dense operator is normally *slower* than a
+dense direct factorisation.
+
+The 388 s at d=10 is also not slack: dense LU on N=43,757 is 2.79e13 flops, so 388 s is about
+**72 GFLOP/s**, a substantial fraction of peak for this machine. There is no large constant factor
+left in the linear algebra.
+
+**The lever is N, not the solve.** N = C(d+p, p), so the tractable move is a smaller approximation
+space:
+
+| | N | Dense LU flops |
+|---|---:|---:|
+| d=10, p=8 | 43,758 | 2.79e13 |
+| d=10, p=6 | 8,008 | 1.71e11 |
+| d=10, p=4 | 1,001 | 3.34e08 |
+| d=15, p=4 | 3,876 | 1.94e10 |
+
+`BNAsm`'s existing guard already tells the user exactly this — it refuses and names the degree as
+the thing to reduce. Recommendation #6 is therefore withdrawn and folded into #7: the remedy for
+both solvers is a reduced index set, not faster linear algebra.
+
+### #7 — `fBNAfm` scaling · **partly implemented**
+
+**Done — the trap is closed.** The measured cost is a *time* explosion, not memory: at d=5 the
+working set is only ~483 MB, so a memory budget cannot see it. Charged against a work budget
+instead, with the estimate shown:
+
+| | Before | After |
+|---|---|---|
+| d=2 | 0.04 s | 0.03 s |
+| d=3 | 0.27 s | 0.27 s |
+| d=5 | **ran past 600 s, no output** | **refuses in 0.02 s** |
+
+```
+ERROR: finite-element assembly exceeds the work budget.
+  mesh elements    : 248832 (mesh^d)
+  quadrature points: 1024 per element
+  local basis pairs: 1024 per point
+  estimated work   : 2.609e+11 operations
+  budget           : 8.000e+09 operations
+```
+
+Default 8e9 operations (~5 minutes at the measured 2.6e7 ops/s), overridable with
+`BNAFM_MAX_WORK` for a deliberate long run — verified both that it refuses and that the override
+proceeds. Applied to both the Gaussian-quadrature and CBC-QMC variants. `prod_u64` was added
+alongside `prod_int` because `mesh^K` wraps an `int` past d=8 at mesh 12, the same defect class
+found in `fBNAsm`.
+
+**Not done — Smolyak sparse grids.** Replacing the tensor-product mesh with a sparse grid is the
+actual scaling fix, and it changes the approximation space, so it changes results. `fBNAfm` has no
+independent oracle, which means a subtly wrong sparse-grid assembly would produce plausible numbers
+that nothing here could catch. That is the one failure mode this codebase's conventions exist to
+prevent, so it is left for the roadmap where the exact fixtures come first.
+
+### Gate
+
+`build_all_algorithms.sh`, `steady_state_suite.sh` (now 48 BNApf tests), `gui_runtime_contracts.sh`,
+`verify_source_package.sh` — all pass.

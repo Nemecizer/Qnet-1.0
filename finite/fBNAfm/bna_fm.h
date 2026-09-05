@@ -174,6 +174,16 @@ static inline int prod_int(const int *arr, int n) {
     return result;
 }
 
+/* The same product in 64 bits. A tensor-product mesh has prod(mesh_n) elements,
+ * which is mesh^K: at mesh 12 and K=8 that is 429,981,696,000 and wraps an int
+ * silently. Callers size their pre-flight from this, then use prod_int only
+ * once the value is known to fit. */
+static inline uint64_t prod_u64(const int *arr, int n) {
+    uint64_t result = 1;
+    for (int i = 0; i < n; i++) result *= (uint64_t) (arr[i] > 0 ? arr[i] : 0);
+    return result;
+}
+
 static inline double prod_double(const double *arr, int n) {
     double result = 1.0;
     for (int i = 0; i < n; i++) result *= arr[i];

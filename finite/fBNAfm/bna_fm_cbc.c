@@ -17,6 +17,8 @@
 #include <time.h>
 #include <pthread.h>
 #include <omp.h>
+#include <limits.h>
+#include <stdlib.h>
 #include "../../common/bnet_memcheck.h"
 
 int g_compact = 0;
@@ -264,6 +266,55 @@ static void idx_to_multi(int idx, const int *sizes, int K, int *multi) {
 static void build_fem_system(const BNAParams *params, int n_qmc,
                              SparseTriplet *A, double *y) {
     int K = params->K;
+    /* Pre-flight before the assembly loop, not after it.
+     *
+     * The binding constraint here is TIME, not memory: a tensor-product mesh
+     * has mesh^K elements, each visiting n_qmc quadrature points and
+     * (2^K)^2 local basis pairs, while the working set stays modest. Measured
+     * on this family: d=3 is 7.1e6 operations and 0.27 s; d=4 is 1.4e9 and
+     * about a minute; d=5 is 2.6e11 and roughly three hours. A memory budget
+     * cannot see that, so it is charged against a work budget instead.
+     *
+     * Default 8e9 operations (~5 minutes at the measured ~2.6e7 ops/s).
+     * Override with BNAFM_MAX_WORK for a deliberate long run. Refusing with
+     * the numbers beats a run that cannot be told apart from a hang. */
+    {
+        uint64_t elements = prod_u64(params->mesh_n, K);
+        uint64_t points = (uint64_t) (n_qmc > 0 ? n_qmc : 1);
+        uint64_t local = 1;
+        for (int lb = 0; lb < K; lb++) local *= 4ULL;   /* (2^K)^2 */
+        uint64_t work = elements * points * local;
+
+        uint64_t work_budget = 8000000000ULL;
+        const char *work_env = getenv("BNAFM_MAX_WORK");
+        if (work_env && *work_env) {
+            long long parsed = atoll(work_env);
+            if (parsed > 0) work_budget = (uint64_t) parsed;
+        }
+        if (work > work_budget) {
+            fprintf(stderr,
+                "\nERROR: finite-element assembly exceeds the work budget.\n"
+                "  mesh elements    : %llu (mesh^d)\n"
+                "  quadrature points: %llu per element\n"
+                "  local basis pairs: %llu per point\n"
+                "  estimated work   : %.3e operations\n"
+                "  budget           : %.3e operations\n"
+                "  suggestion       : reduce the mesh resolution or the network\n"
+                "                     dimension; a tensor-product mesh costs\n"
+                "                     mesh^d elements, so each added station\n"
+                "                     multiplies the work by mesh * N_GAUSS * 4.\n"
+                "Set BNAFM_MAX_WORK=<operations> to override.\n",
+                (unsigned long long) elements, (unsigned long long) points,
+                (unsigned long long) local, (double) work, (double) work_budget);
+            exit(2);
+        }
+        if (elements > (uint64_t) INT_MAX) {
+            fprintf(stderr, "Error: mesh has %llu elements, beyond this "
+                    "build's %d-element index limit.\n",
+                    (unsigned long long) elements, INT_MAX);
+            exit(2);
+        }
+    }
     int n_elem = prod_int(params->mesh_n, K);
     int max_local = ipow(2, K) * ipow(2, K);
     int n_basis = get_n_basis(K, params->mesh_n);

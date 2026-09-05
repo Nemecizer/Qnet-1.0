@@ -10,7 +10,8 @@ from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, Sequence
 
 try:  # Package import.
-    from .bcmp import parse_bcmp, solve_bcmp
+    from .bcmp import parse_bcmp, solve_bcmp, state_count
+    from .mva import lattice_size, solve_mva
     from .common import (
         ConfigError,
         StateSpaceLimitError,
@@ -22,7 +23,8 @@ try:  # Package import.
     from .mixed_bcmp import parse_mixed_bcmp, solve_mixed_bcmp
     from .open_bcmp import parse_open_bcmp, solve_open_bcmp
 except ImportError:  # Direct script execution.
-    from bcmp import parse_bcmp, solve_bcmp
+    from bcmp import parse_bcmp, solve_bcmp, state_count
+    from mva import lattice_size, solve_mva
     from common import (
         ConfigError,
         StateSpaceLimitError,
@@ -63,7 +65,28 @@ def solve_document(
         raise ConfigError("document is missing required field 'model_type'")
     model_type = nonempty_string(root["model_type"], "model_type")
     if model_type == "closed_bcmp":
-        return solve_bcmp(parse_bcmp(root), include_states=include_states)
+        model = parse_bcmp(root)
+        # Two exact routes to the same product form. Enumeration is
+        # combinatorial in population AND stations; MVA is a recursion over the
+        # population lattice, so it is polynomial in population and exponential
+        # only in the number of CLASSES. Pick per model rather than declaring a
+        # winner: MVA is the only option for large populations, enumeration is
+        # the only option when the joint state law is wanted.
+        #
+        # `include_states` forces enumeration because MVA never forms the joint
+        # distribution — it cannot return what it does not compute.
+        if include_states:
+            return solve_bcmp(model, include_states=True)
+        try:
+            states = state_count(model)
+        except StateSpaceLimitError:
+            states = None          # past the guard: enumeration is not on offer
+        points = lattice_size(model)
+        if states is None or points < states:
+            result = solve_mva(model)
+            result["diagnostics"]["enumerated_states_avoided"] = states
+            return result
+        return solve_bcmp(model, include_states=False)
     if model_type == "open_bcmp":
         if include_states:
             raise ConfigError(

@@ -46,7 +46,7 @@ cd745ccfe7c852198ed0949d0106f6227bbc2fdbc794324dda70460ed401ce38  ./Qnet.app/Con
 a455d1b088e194c9a450a3a7d7a3dd9ebc88f93f1f14a3954e78cb5567d13aa0  ./Qnet.app/Contents/Frameworks/libsuitesparseconfig.7.dylib
 c9ef0f8393d0a9b1f6dbd4a3f4439541fe00adca63d9f0b6da1fe22794d0ccb5  ./Qnet.app/Contents/Frameworks/libumfpack.6.dylib
 ca76cbe577b4d4a3a98baba57a339dfd2253230ef3b8f4099ca76d6d04d11e02  ./Qnet.app/Contents/Info.plist
-4b2bcd37cd352a43e057d1006f1d013634b2b28083d97ec65c7ea3eab389308a  ./Qnet.app/Contents/MacOS/Qnet
+9abb80ec29831ec15eda3237f1917fc4a4aed80f450c161ad6fbf0fcd0830fe7  ./Qnet.app/Contents/MacOS/Qnet
 c1464b64554b749e54bd53adafa932907ceb3ca8ddf5fcfccb91220d9f4075ec  ./Qnet.app/Contents/Resources/AppIcon.icns
 5f9f1d64f238821d11e4eda5f33c933d85d4e7f124a2c3bd8a930f8726b2fc12  ./Qnet.app/Contents/Resources/SwiftTerm_SwiftTerm.bundle/Shaders.metal
 4e90377e29fea366ca7a6835ec35e00529896df88562d4720b4de03b71e48407  ./Qnet.app/Contents/Resources/ThirdPartyLicenses/README.md
@@ -60,8 +60,8 @@ a9bdde5616ecdd1e980b44f360600ee8783b1f99b8cc83a2beb163a0a390e861  ./Qnet.app/Con
 c07f7bb69aa870c774bd01f040dabd179b7cc8c60021c2c56db9d63d37deabcb  ./Qnet.app/Contents/Resources/ThirdPartyLicenses/suite-sparse/LICENSE.txt
 31c8ba5dcafe766530d9053828f9d713cd263cca5873e49690c4f40bcafdaf72  ./Qnet.app/Contents/Resources/bin/finite/fBNActmc/ctmc_dtandem.py
 56c12b66cde9d8312fc349c6b74090339cc34b85e03a0579e9ecaecd5d44fd95  ./Qnet.app/Contents/Resources/bin/finite/fBNAdecomp/fbna_decomp.py
-5dfd861f538c6d9bdba1a1ae71c57290b8b375939b8bde251439fb07e3d5f09a  ./Qnet.app/Contents/Resources/bin/finite/fBNAfm/bna_fm_cbc
-ee4eb144931c54e4eaf44ed3f4b2d2c0efd89701df79a9c34f813273b6b77f52  ./Qnet.app/Contents/Resources/bin/finite/fBNAfm/bna_fm_gauss
+41c23a98d9475cb5c3199bdaff431cc92c2ce350b083468f9f2939ab48233f08  ./Qnet.app/Contents/Resources/bin/finite/fBNAfm/bna_fm_cbc
+a23e1446ecd492c29651499b3e88344673a76f9c97508ff93f7dd61921e4c177  ./Qnet.app/Contents/Resources/bin/finite/fBNAfm/bna_fm_gauss
 49692ed927dae857c535c6b6ed02d914a89c8d550ae675317e496cf1b37cebe4  ./Qnet.app/Contents/Resources/bin/finite/fBNAgc/solver.py
 3dfd2f4335123fb3c4fe2e65b1382634964b94761af665805ddddf9e0befa46b  ./Qnet.app/Contents/Resources/bin/finite/fBNAlp/fBNAlp_solver
 c01e29c9cdc3e828e910a3233c65bf506784eed158e8d612f492419aa55fb45f  ./Qnet.app/Contents/Resources/bin/finite/fBNAsim/fBNAsim
@@ -82,7 +82,7 @@ ffa1fa7f213d74616f2abf5d00fdbc553613db0605cab82cf1c747490f915f98  ./Qnet.app/Con
 cbfab1c535c3184866eb917fec43cbf40d071a924a0752a1e63e61855274c190  ./Qnet.app/Contents/Resources/bin/infinite/BNApf/mixed_bcmp.py
 dbc14b6d521ad0ffbd1fa49b3107fdd2846694e23ec0d0a9014e8da9e52a19d7  ./Qnet.app/Contents/Resources/bin/infinite/BNApf/open_bcmp.py
 067fe3603692803c6c79585b017f3ab93862bc660855aec3b1d7ffb9ce8e0b82  ./Qnet.app/Contents/Resources/bin/infinite/BNApf/schema.json
-91ecbfc49406d498a39099b53236e103f4feaa989bcc4ef158816c9f4e200295  ./Qnet.app/Contents/Resources/bin/infinite/BNApf/solver.py
+b5ba99ec75e55a60d736c6e01eca2464892a1eadf8364eb67ffe870dcd12d637  ./Qnet.app/Contents/Resources/bin/infinite/BNApf/solver.py
 6e202e128875c53adb7658f61aa41cda7e92ee6f3780b0df335f576b8494a525  ./Qnet.app/Contents/Resources/bin/infinite/BNAqbd/qbd_solver.py
 2b7e307272a69b0e02fcb8f1444b57ddb9e02597c61271b63a96314f86e07c14  ./Qnet.app/Contents/Resources/bin/infinite/BNAqna/bna_qna
 3db7136181ee0c0009b52f083e0b37fd399762a3ee2b933b3a27abf5d3985e75  ./Qnet.app/Contents/Resources/bin/infinite/BNArmc/regenerative_mc.py
@@ -142,7 +142,7 @@ da4892ac4b351856429fcef048e507ef48f5d5b3b8cf02eae9c7f861b2a5361e  ./Qnet.app/Con
 d9ae8950d7d5fb108b0bb9b973540e9b252193c78021a745b4e32f8c42bd20e1  ./Qnet.app/Contents/Resources/examples/random3.bnet
 86c719cfeb0c93b645c619008173c1600ff84d2f6d440d701c3df4fb873b668f  ./Qnet.app/Contents/Resources/examples/random4c2.bnet
 79c17302590e2ccc8d8a160012aad9ae127486d6448d192880302a2396f9e757  ./Qnet.app/Contents/Resources/solver-runtime-status-v1.tsv
-412db14553c0fb771eb732eac3b3fcf394d0280d1fb30fb5fc236a7c0672d28e  ./Qnet.app/Contents/_CodeSignature/CodeResources
+b9c0cbdb4fe294adaf3ed1b93f726ba3258f427d83d935eec870a461d17e4764  ./Qnet.app/Contents/_CodeSignature/CodeResources
 9574826aee27604815191a84971537e1bd618025ec08e19bf401e111d6ef6ac1  ./README.md
 80ea6183c942e10523631539e7982851d2eb1be166aed8dc12dd7202fcf164be  ./Sources/Qnet/AIPaneView.swift
 f14f5988675b34476c19afd3b757afb15d1a62a1723e69e4fbec940c1228ac6f  ./Sources/Qnet/AITools.swift
@@ -331,7 +331,7 @@ a33cb8b88dc57124d35f758603512ac063a6a539aae068e74a46b1de40c2e60b  ./build_all_al
 f0ca8d4f4160e4d45f2769cc81e297099b26f7d05de48e3bb3c4e0460b93872e  ./common/bnet_memcheck.h
 8ee792b28c04d5222cad177728ca798055ee3f400a6b99007aba622e84de2dba  ./common/rng.h
 f1139eff379642263cfa98abddb88f4379eeda4281956371adfbc3e9e9c1afe7  ./docs/ALGORITHM_RESEARCH_2026-09-04.md
-00680b6450dae60bac1b7d4ff7fc89bb1cb500fd6039d73202d45c1cdf8ba3d5  ./docs/ALGORITHM_REVIEW.md
+4902cc6efadbf53e94979229bdeb52bd730e387fcc9db6390bca71361ec76858  ./docs/ALGORITHM_REVIEW.md
 82cb84e52707cbaa281d0daf9bf463f8c0c9141bd9281a279215415f235208ab  ./docs/ROADMAP.md
 175535123921fab4037dab3c08ca2b5ec69b44ff88ca54714efacc115db006a3  ./docs/STEADY_STATE_METHODS.md
 1154a9738af98b519529e1698e28972cc7a76fd8295b3d7bb26a550dd7eb6c26  ./docs/gui_work/AUDITS.json
@@ -405,10 +405,10 @@ c2351b4556248999c398a1deb7aecb4cd67b71c6f226acd4c34599f8ed2d8fbb  ./finite/fBNAf
 55344c410c78cd7a4377565b4b96847afe55eaf0053415b160f3c51b46bd7294  ./finite/fBNAfm/4d9.in
 0b46e68b8cf14cdbe98562610ab5dd7022f8b588c4d965b237c99a26cbae7203  ./finite/fBNAfm/8d.in
 7de08c313a44739f9afcb7b8b7d35c00af02c6ce16974768d28b7bf9ff0f82b0  ./finite/fBNAfm/Makefile
-51ae626e1037d2db5e02657aede6199224797ac335bb85e979e2d3e3ac1b4b1f  ./finite/fBNAfm/bna_fm.h
-e46b380f7e8b3787fc160d3d604844b48674b149d1467a58c0583a9152305c91  ./finite/fBNAfm/bna_fm_cbc.c
+23567a251295659b00f748dcf879f257e5acb38aa0c82736a9d656237f8daf62  ./finite/fBNAfm/bna_fm.h
+ed502306db1e42fa50fdb0a660020a164acc774da75b099948c42f716734a232  ./finite/fBNAfm/bna_fm_cbc.c
 06a8513faebfe68c10c23eb23170d6c1723992a41a46152b4782230f1ed10652  ./finite/fBNAfm/bna_fm_common.c
-8a7705926b426f36a1b24370ca087feb4470983dbac846b95cbc946263792a8d  ./finite/fBNAfm/bna_fm_gauss.c
+4ba46efab8b113426b4d63e5b27c4dec2c4d1e62fc9a09c9c99b08ee892eb613  ./finite/fBNAfm/bna_fm_gauss.c
 1243cf2c868956e0a4a4d5baec76d50009fab0516b0909a8fc44a33979e68216  ./finite/fBNAfm/generate_inputs.sh
 13b4fdcf416a0b951c559b5da66bcae9212bd9ccc4d93ee089ff7fbf4e2b84ba  ./finite/fBNAfm/meta_input.in
 9f874a1fdba98a24f65eb57d4ddf14f61bb8a88c6c9793fce86a4ae94b7c34cc  ./finite/fBNAfm/qmc.h
@@ -663,9 +663,11 @@ fdefa7c25c10b62f375fcefdf553c274bcc35adbe703178de0ee939aad041781  ./infinite/BNA
 c938753c91cbd7083d3aca71f3371aeb519a49072975b31fe9da828ca85bfebb  ./infinite/BNApf/examples/open_multiclass_bcmp.json
 ffa1fa7f213d74616f2abf5d00fdbc553613db0605cab82cf1c747490f915f98  ./infinite/BNApf/kaufman_roberts.py
 cbfab1c535c3184866eb917fec43cbf40d071a924a0752a1e63e61855274c190  ./infinite/BNApf/mixed_bcmp.py
+39bd62f90133764ad0a44e65359d3d7f2414d925c32ce838253127c1b2da6570  ./infinite/BNApf/mva.py
 dbc14b6d521ad0ffbd1fa49b3107fdd2846694e23ec0d0a9014e8da9e52a19d7  ./infinite/BNApf/open_bcmp.py
 067fe3603692803c6c79585b017f3ab93862bc660855aec3b1d7ffb9ce8e0b82  ./infinite/BNApf/schema.json
-91ecbfc49406d498a39099b53236e103f4feaa989bcc4ef158816c9f4e200295  ./infinite/BNApf/solver.py
+b5ba99ec75e55a60d736c6e01eca2464892a1eadf8364eb67ffe870dcd12d637  ./infinite/BNApf/solver.py
+0ffcc08fc1b820ee4a0e22bf846dfb8882f102a020982a5781f5b48742d3992d  ./infinite/BNApf/tests/test_mva.py
 9def3128b57e76ad82892877d293050dcb61d2c6b2b5504934f8a1ee9b2cfe9d  ./infinite/BNApf/tests/test_open_mixed_bcmp.py
 e54ca9a0f720aecd1934379bac33ec457e2c3072369345d6f01b6170bc4a8d48  ./infinite/BNApf/tests/test_product_form.py
 2408844fb5c2b3510714af38f13db85168dfe418ba728bdc5e2d4d9d9c7511ef  ./infinite/BNAqbd/Makefile
