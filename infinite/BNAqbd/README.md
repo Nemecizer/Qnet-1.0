@@ -114,11 +114,26 @@ Successful output includes:
 Invalid, unstable, or nonconvergent inputs produce JSON with `"status":
 "error"` and a stable error `code`; the command exits with status 2.
 
-`--human` replaces JSON with a line-oriented parser contract. Scalar and tail
-results use `QNET_QBD_METRIC_V1`; numerical/method diagnostics use
-`QNET_QBD_EVIDENCE_V1`. Text values are percent-encoded, so every record stays
-on one line. Errors use `QNET_QBD_ERROR_V1` and retain exit status 2. This form
-is intended for the Qnet GUI; JSON remains the complete archival output.
+`--human` replaces JSON with a report followed by a line-oriented parser
+contract, in that order.
+
+The report is what a reader sees: a title, the model layer, the evidence class,
+a one-line run summary, and three aligned tables — queue length and drift, tail
+probabilities, and numerical diagnostics. Values are printed at a fixed fraction
+length so that the GUI, which rewrites every number on screen to the configured
+decimal places without padding, maps a column of uniform width to a column of
+uniform width.
+
+The records follow it. Scalar and tail results use `QNET_QBD_METRIC_V1`;
+numerical/method diagnostics use `QNET_QBD_EVIDENCE_V1`. Text values are
+percent-encoded, so every record stays on one line. Errors print the same way —
+a prose line first, then `QNET_QBD_ERROR_V1` — and retain exit status 2.
+
+The records are a contract for `ResultOutputParser` and the CSV export, which
+read them out of the tee'd archive; the GUI's display filter withholds the whole
+`QNET_QBD_*` class from the screen because the report above carries the same
+numbers. Do not remove the records to tidy the output, and do not make the report
+the only place a number appears. JSON remains the complete archival output.
 
 ## Supported scope and limitations
 

@@ -294,6 +294,33 @@ class QBDSolverTests(unittest.TestCase):
             for line in lines
         ))
 
+        # The report comes first and the records after it. Order is the whole
+        # point of the 0.90.35 rewrite: the GUI's display filter withholds the
+        # QNET_QBD_* class from the screen, so if the records were all this
+        # method printed, the method would show nothing at all.
+        self.assertEqual(lines[0], "Exact Matrix-Analytic QBD")
+        self.assertTrue(any(line.startswith("Model layer:") for line in lines))
+        self.assertTrue(any(line.startswith("Evidence:") for line in lines))
+        first_record = next(
+            index for index, line in enumerate(lines)
+            if line.startswith("QNET_QBD_")
+        )
+        self.assertGreater(first_record, 10, "the report did not precede the records")
+        self.assertTrue(
+            all(line.startswith("QNET_QBD_") for line in lines[first_record:]),
+            "prose was interleaved with the machine records",
+        )
+
+        # The report's own numbers, not just the records'. Mean level is 2 for
+        # this M/M/1, and the table must say so at the fixed width the columns
+        # are laid out in.
+        mean_row = next(
+            line for line in lines if line.startswith("Mean level")
+        )
+        self.assertAlmostEqual(float(mean_row.split()[-1]), 2.0, places=5)
+        for row in lines[:first_record]:
+            self.assertNotIn("%2F", row, "percent-encoded prose reached the report")
+
         failure = subprocess.run(
             [
                 sys.executable,
@@ -307,8 +334,15 @@ class QBDSolverTests(unittest.TestCase):
             text=True,
         )
         self.assertEqual(failure.returncode, 2, failure.stderr)
-        self.assertTrue(failure.stdout.startswith(
-            "QNET_QBD_ERROR_V1 code=not_positive_recurrent message="
+        error_lines = failure.stdout.splitlines()
+        self.assertEqual(error_lines[0], "Exact Matrix-Analytic QBD")
+        self.assertTrue(error_lines[1].startswith(
+            "Solver error [not_positive_recurrent]: "
+        ))
+        # Still emitted, still last, still exactly this shape.
+        self.assertTrue(any(
+            line.startswith("QNET_QBD_ERROR_V1 code=not_positive_recurrent message=")
+            for line in error_lines
         ))
 
 

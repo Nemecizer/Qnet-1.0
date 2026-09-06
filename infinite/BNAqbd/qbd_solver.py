@@ -1055,14 +1055,164 @@ def _human_token(value: Any) -> str:
     return quote(str(value), safe="-._~")
 
 
+def _fmt(value: Any, digits: int = 6) -> str:
+    """Report column value, at a FIXED fraction length.
+
+    Fixed rather than %g for the reason regenerative_mc.py fixes it: the GUI
+    rewrites every number on screen to Settings > Output Format > Decimal
+    places, and it never pads. A column whose source values differ in width
+    comes out ragged after that rewrite, so a column of uniform width is the
+    only column that survives as a column. The fraction length here is the
+    pre-image; what the reader sees is their own setting.
+    """
+
+    if value is None or isinstance(value, bool) or not isinstance(value, (int, float)):
+        return "-"
+    number = float(value)
+    if not math.isfinite(number):
+        return "-"
+    return f"{number:.{digits}f}"
+
+
+def _fmt_residual(value: Any) -> str:
+    """Residuals sit near machine epsilon; fixed point prints them all as zero.
+
+    The GUI's display filter chooses notation from the VALUE, so a token this
+    small stays scientific after the rewrite; it is only the mantissa length
+    that follows the user's setting.
+    """
+
+    if value is None or isinstance(value, bool) or not isinstance(value, (int, float)):
+        return "-"
+    number = float(value)
+    if not math.isfinite(number):
+        return "-"
+    return f"{number:.6e}"
+
+
+#: Label column, then a right-aligned value column. One width for all three
+#: tables so their rules line up under each other.
+_LABEL_WIDTH = 38
+_VALUE_WIDTH = 14
+_RULE = "-" * (_LABEL_WIDTH + _VALUE_WIDTH)
+
+
+def _row(label: str, value: str) -> str:
+    return f"{label:<{_LABEL_WIDTH}}{value:>{_VALUE_WIDTH}}"
+
+
+#: The `process` token is a machine identifier; the report spells it out.
+_PROCESS_LABELS = {"continuous_time_qbd": "continuous-time QBD"}
+
+
+def _count(number: int, noun: str) -> str:
+    """"1 boundary phase" / "2 interior phases" — a plural, not "phase(s)"."""
+
+    return f"{number} {noun}" if number == 1 else f"{number} {noun}s"
+
+
 def format_human(payload: dict[str, Any]) -> str:
-    """Return the stable line grammar consumed by Qnet's result workspace."""
+    """Reader-facing report, followed by the machine records.
+
+    Until 0.90.35 this printed the QNET_QBD_*_V1 records and nothing else, which
+    made Exact Matrix-Analytic QBD the one shipped method whose whole visible
+    output was a parser contract: `key=value` pairs at 17 significant digits,
+    with prose fields percent-encoded (`value=M%2FM%2F1`). The records are still
+    written, unchanged in content and format, because ResultOutputParser and the
+    CSV export read them out of the tee'd archive — but they are no longer what a
+    person is shown, and the GUI's display filter drops them from the screen now
+    that the report above carries the same numbers.
+
+    House style, matching truncated_ctmc.py and regenerative_mc.py: a title, the
+    model layer, the evidence class, a short run summary, then aligned tables.
+    """
 
     queue_length = payload["queue_length"]
     stationary = payload["stationary"]
     stability = payload["stability"]
     diagnostics = payload["diagnostics"]
+    dimensions = payload["dimensions"]
+    probability_empty = math.fsum(stationary["level_0_vector"])
+
     lines = [
+        "Exact Matrix-Analytic QBD",
+        "Model layer: queueing process (exact)",
+        "Evidence: matrix-geometric stationary distribution of the "
+        "level-independent QBD; the residuals below are evidence that it was "
+        "solved accurately, not that the QBD matches the network",
+        f"Model: {payload.get('name', 'unnamed')}",
+        f"Process: {_PROCESS_LABELS.get(payload['process'], payload['process'])}, "
+        f"{_count(dimensions['boundary_phases'], 'boundary phase')}, "
+        f"{_count(dimensions['interior_phases'], 'interior phase')}",
+        f"Stability: {stability['classification'].replace('_', ' ')}",
+        f"Algorithm: {diagnostics['algorithm'].replace('_', ' ')}, "
+        f"{int(diagnostics['iterations'])} iterations",
+        "",
+    ]
+
+    # -- Queue length and drift ---------------------------------------
+    # The level IS the queue length for this model class, so these are the
+    # performance measures; the drift rates are here rather than in the
+    # diagnostics table because they are what the stability line above asserts.
+    lines.append(_row("Quantity", "value"))
+    lines.append(_RULE)
+    for label, value in (
+        ("Mean level", queue_length["mean"]),
+        ("Second moment of level", queue_length["second_moment"]),
+        ("Variance of level", queue_length["variance"]),
+        ("Standard deviation of level", queue_length["standard_deviation"]),
+        ("P(level = 0)", probability_empty),
+        ("Mean upward rate", stability["mean_upward_rate"]),
+        ("Mean downward rate", stability["mean_downward_rate"]),
+        ("Net level drift", stability["net_level_drift"]),
+    ):
+        lines.append(_row(label, _fmt(value)))
+    lines.append("")
+
+    # -- Tail probabilities -------------------------------------------
+    if payload["tail_probabilities"]:
+        lines.append(_row("Level", "P(level >= L)"))
+        lines.append(_RULE)
+        for tail in payload["tail_probabilities"]:
+            lines.append(
+                _row(str(int(tail["level_at_least"])), _fmt(tail["probability"]))
+            )
+        lines.append("")
+
+    # -- Numerical evidence -------------------------------------------
+    lines.append(_row("Diagnostic", "value"))
+    lines.append(_RULE)
+    for label, value in (
+        ("Rate-equation residual (inf)", diagnostics["rate_equation_residual_inf"]),
+        (
+            "Boundary balance residual (scaled)",
+            diagnostics["boundary_balance_residual_scaled"],
+        ),
+        ("Normalization residual", diagnostics["normalization_residual"]),
+    ):
+        lines.append(_row(label, _fmt_residual(value)))
+    lines.append(
+        _row(
+            "Spectral radius of R, upper bound",
+            _fmt(diagnostics["rate_spectral_radius_certificate_upper_bound"]),
+        )
+    )
+    lines.append(
+        _row(
+            "Condition estimate of I - R (inf)",
+            _fmt(diagnostics["identity_minus_rate_condition_inf_estimate"]),
+        )
+    )
+    lines.append("")
+    lines.append(
+        "The spectral radius bound is a certificate: a value below 1 proves the "
+        "matrix-geometric tail converges."
+    )
+
+    # -- Machine records, last ----------------------------------------
+    # Byte-identical to what this function emitted before the report existed.
+    # ResultOutputParser matches these exactly.
+    machine = [
         "QNET_QBD_EVIDENCE_V1 key=status value=ok",
         "QNET_QBD_METRIC_V1 metric=mean_level estimate={}"
         .format(_human_number(queue_length["mean"])),
@@ -1073,10 +1223,10 @@ def format_human(payload: dict[str, Any]) -> str:
         "QNET_QBD_METRIC_V1 metric=standard_deviation_level estimate={}"
         .format(_human_number(queue_length["standard_deviation"])),
         "QNET_QBD_METRIC_V1 metric=probability_empty estimate={}"
-        .format(_human_number(math.fsum(stationary["level_0_vector"]))),
+        .format(_human_number(probability_empty)),
     ]
     for tail in payload["tail_probabilities"]:
-        lines.append(
+        machine.append(
             "QNET_QBD_METRIC_V1 metric=tail_probability level={} estimate={}"
             .format(
                 int(tail["level_at_least"]),
@@ -1117,12 +1267,14 @@ def format_human(payload: dict[str, Any]) -> str:
             ),
         ),
     )
-    lines.extend(
+    machine.extend(
         "QNET_QBD_EVIDENCE_V1 key={} value={}".format(
             _human_token(key), _human_token(value)
         )
         for key, value in evidence
     )
+    lines.append("")
+    lines.extend(machine)
     return "\n".join(lines) + "\n"
 
 
@@ -1171,9 +1323,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         }
         try:
             if args.human:
-                message = _human_token(error)
-                text = "QNET_QBD_ERROR_V1 code={} message={}\n".format(
-                    _human_token(error.code), message
+                # The report first, the record after it — the same order the
+                # success path uses, and for the same reason: a percent-encoded
+                # `message=` field is a parser contract, not something a reader
+                # should have to decode. Nothing in the app matches the record at
+                # the start of the output; ResultOutputParser reads it by line.
+                text = (
+                    "Exact Matrix-Analytic QBD\n"
+                    "Solver error [{}]: {}\n"
+                    "\n"
+                    "QNET_QBD_ERROR_V1 code={} message={}\n"
+                ).format(
+                    error.code,
+                    error,
+                    _human_token(error.code),
+                    _human_token(error),
                 )
                 if args.output:
                     Path(args.output).write_text(text, encoding="utf-8")

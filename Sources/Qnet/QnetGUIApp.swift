@@ -6637,14 +6637,10 @@ struct QnetGUIApp: App {
             # ends the row, so it ends the debt too.
             $debt = 0;
             $prose_run = 0;
-            # Machine sentinels are contracts — but they are also, for two shipped
-            # methods, the whole of what the user sees. `Run > Exact
-            # Matrix-Analytic QBD` prints QNET_QBD_*_V1 records and nothing else
-            # (qbd_solver.py format_human), and Regenerative Monte Carlo prints
-            # five QNET_NODE_METRIC_V1 records under a heading it writes for
-            # humans, beside the same numbers at a different precision. Skipping
-            # the whole record left `estimate=1.9999999999722793` on screen at
-            # every setting.
+            # Machine sentinels are contracts, and most of them accompany a
+            # report rather than replace it. Skipping the whole record left
+            # `estimate=1.9999999999722793` on screen at every setting, so a
+            # record that IS shown is rewritten here.
             #
             # So the record is rewritten, but far more conservatively than prose:
             # only a token that is the COMPLETE value of one of the NAMED
@@ -6657,20 +6653,26 @@ struct QnetGUIApp: App {
             # This is display only. ResultOutputParser and the CSV export read the
             # tee'd file, which is written by the pipeline stage BEFORE this one
             # and still holds every digit the solver printed.
-            # QNET_NODE_METRIC_V1 is the one sentinel a reader never needs to
-            # see. Regenerative Monte Carlo now prints a per-node table and a
-            # confidence-interval table carrying exactly these numbers, so the
-            # records below it were the same values a second time at 17
-            # significant digits — ten key=value pairs per node per metric. They
-            # are still WRITTEN, because ResultOutputParser and the CSV export
-            # read them out of the tee'd archive that this stage never touches;
-            # they are only withheld from the screen.
+            # Two sentinel classes a reader never needs to see, because the
+            # solver that writes them now prints the same numbers as a report
+            # directly above them.
             #
-            # Deliberately not generalised to every sentinel: Exact
-            # Matrix-Analytic QBD still prints QNET_QBD_*_V1 records and nothing
-            # else, so suppressing the class would leave that method with no
-            # visible output at all.
-            if ($rec =~ /\\AQNET_NODE_METRIC_V1(?![A-Za-z0-9_])/) {
+            # Regenerative Monte Carlo prints a per-node table and a
+            # confidence-interval table, so its QNET_NODE_METRIC_V1 records were
+            # the same values a second time at 17 significant digits — ten
+            # key=value pairs per node per metric. Exact Matrix-Analytic QBD used
+            # to print QNET_QBD_*_V1 records and NOTHING else, which is why this
+            # was once a single-class rule; qbd_solver.py format_human now leads
+            # with a report, so the records are duplicate here too — and they
+            # carried the last percent-encoded prose on screen
+            # (`value=M%2FM%2F1`).
+            #
+            # Both are still WRITTEN, because ResultOutputParser and the CSV
+            # export read them out of the tee'd archive that this stage never
+            # touches; they are only withheld from the screen. Still NOT
+            # generalised to every sentinel — QNET_METHOD_FAILURE_V1 and
+            # QNET_MLMC_STATUS_V1 are the only report of what they report.
+            if ($rec =~ /\\AQNET_(?:NODE_METRIC|QBD_(?:METRIC|EVIDENCE|ERROR))_V1(?![A-Za-z0-9_])/) {
                 return;
             }
             if ($rec =~ /\\AQNET_[A-Z0-9_]+_V1(?![A-Za-z0-9_])/) {
@@ -6679,16 +6681,19 @@ struct QnetGUIApp: App {
                 # exponent") skips a float-bearing field whose value happens to
                 # land on an exact integer, and then the SAME quantity appears
                 # twice on adjacent lines in two spellings:
-                #   QNET_QBD_METRIC_V1 metric=tail_probability level=0 estimate=1
-                #   QNET_QBD_METRIC_V1 metric=tail_probability level=1 estimate=0.900000
+                #   QNET_NODE_METRIC_V1 ... estimate=1 ci_low=1 ci_high=1
+                #   QNET_NODE_METRIC_V1 ... estimate=0.900000 ci_low=0.880000
+                # (both classes below are withheld from the screen today, but the
+                # rule governs every sentinel that is shown, and an exact-integer
+                # measurement is not rare)
                 # Naming the keys instead is what makes `estimate=1.000000`,
                 # `standard_error=0.000000` and `ci_low=1.000000` come out at the
                 # configured precision like every other measurement.
                 #
                 # Every other field of every sentinel is left byte-identical by
                 # construction, because it is not on this list: metric=, level=,
-                # node_id=, class_id=, iterations=, cap_hits=, exit=, successful=,
-                # fallback_used=, and QBD's percent-encoded value=M%2FM%2F1.
+                # node_id=, class_id=, iterations=, cap_hits=, exit=,
+                # successful=, fallback_used=.
                 #
                 # Known, deliberate, and NOT a bug to re-derive next round: the
                 # same exact-integer case in PROSE is still left at the solver's
@@ -6710,22 +6715,11 @@ struct QnetGUIApp: App {
                 $rec =~ s{
                     (?<![A-Za-z0-9_])($float_key=)($num)(?=[\\s;,]|\\z)
                 }{ $1 . fmtnum('', $2, 1, 0) }gex;
-                # QNET_QBD_EVIDENCE_V1 is a key/value pair whose value is a
-                # number for some keys and a percent-encoded string or an integer
-                # count for others, so the KEY decides. Anything not named here —
-                # status, process, name, stability_classification, algorithm,
-                # iterations — passes through untouched.
-                if ($rec =~ m{\\AQNET_QBD_EVIDENCE_V1\\s+key=(?:
-                        mean_upward_rate|mean_downward_rate|net_level_drift
-                      | rate_equation_residual_inf
-                      | boundary_balance_residual_scaled
-                      | normalization_residual
-                      | spectral_radius_certificate_upper_bound
-                      | identity_minus_rate_condition_inf_estimate)\\s}x) {
-                    $rec =~ s{
-                        (?<![A-Za-z0-9_])(value=)($num)(?=[\\s;,]|\\z)
-                    }{ $1 . fmtnum('', $2, 1, 0) }gex;
-                }
+                # There was a second rewrite here, for QNET_QBD_EVIDENCE_V1's
+                # `value=` field, whose contents are a number for some keys and a
+                # percent-encoded string for others. It is gone because the whole
+                # QBD class is suppressed above: unreachable code that still
+                # looked like a live rule about how values are formatted.
             } else {
                 # Branch 1 consumes ANSI escapes untouched. Branch 2 rewrites a
                 # token that carries a decimal point, and — only when an exponent
