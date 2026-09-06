@@ -340,10 +340,38 @@ def solve_mva(model: BCMPModel) -> Dict[str, Any]:
         )
         population_residual = max(population_residual, abs(total - closed_class.population))
 
+    # The envelope is `solve_bcmp`'s, field for field, because solver.py picks
+    # between the two routes per model and a caller must not be able to tell
+    # which one ran from the SHAPE of what it gets back. This function used to
+    # return `{"method", "model": <a string>, "network_type", "measures",
+    # "diagnostics"}` — no `model_type`, no `solver`, and `model` a name rather
+    # than the object every other route returns. print_human read
+    # `result["model_type"]` and died with a KeyError on any closed multiclass
+    # network, which is the route the GUI runs; the unit tests compared only
+    # `["measures"]`, so nothing caught it.
+    #
+    # Where MVA genuinely has no answer the field is None rather than a
+    # plausible-looking number: it never forms the joint distribution, so it has
+    # no state count and no probability mass, and inventing 1.0 for the mass
+    # would be a fabricated cross-check.
     return {
-        "method": "exact_mva",
-        "model": model.name,
-        "network_type": "closed",
+        "schema_version": 1,
+        "model_type": "closed_bcmp",
+        "model": {
+            "name": model.name,
+            "station_count": len(model.stations),
+            "class_count": len(model.classes),
+            "total_population": sum(c.population for c in model.classes),
+        },
+        "solver": {
+            "method": "exact mean value analysis (Reiser-Lavenberg)",
+            "state_count": None,
+            "lattice_points": total_points,
+            "log_normalizing_constant": None,
+            "probability_mass": None,
+            "maximum_population_residual": population_residual,
+            "maximum_throughput_cross_check_residual": little_residual,
+        },
         "measures": {
             "classes": class_results_top,
             "stations": station_results,

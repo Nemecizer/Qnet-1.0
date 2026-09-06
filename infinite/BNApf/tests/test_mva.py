@@ -237,5 +237,74 @@ class MVAScalesPastEnumeration(unittest.TestCase):
         self.assertAlmostEqual(previous, 4.0, delta=0.05)
 
 
+class EnvelopeIsIndistinguishableFromEnumeration(unittest.TestCase):
+    """solver.py picks the route per model; nothing downstream may be able to
+    tell which one ran from the shape of the result.
+
+    This class exists because the shapes DID diverge and it shipped. solve_mva
+    returned `{"method", "model": <string>, "network_type", "measures",
+    "diagnostics"}` while solve_bcmp returned `{"schema_version", "model_type",
+    "model": <object>, "solver", "measures"}`, so `print_human`, which reads
+    result["model_type"], raised KeyError on every closed multiclass network —
+    the route the GUI takes. MVAAgreesWithEnumeration compared only
+    ["measures"], and the Makefile's example target ran only --json, so the two
+    checks that could have caught it both looked past it.
+    """
+
+    DOC = document(
+        stations=[("cpu", "processor_sharing", None, [0.3, 0.7]),
+                  ("disk", "fcfs", 2, [0.5, 0.5])],
+        classes=[("batch", 3, [1.0, 2.0]), ("inter", 2, [1.0, 0.5])],
+    )
+
+    def test_top_level_keys_match(self):
+        model = parse_bcmp(self.DOC)
+        enumerated = solve_bcmp(model)
+        mva = solve_mva(model)
+        # MVA carries an extra "diagnostics" block; every key enumeration
+        # publishes must be present, spelled and nested the same way.
+        self.assertTrue(
+            set(enumerated).issubset(set(mva)),
+            "MVA is missing {}".format(sorted(set(enumerated) - set(mva))),
+        )
+        self.assertEqual(mva["model_type"], enumerated["model_type"])
+        self.assertEqual(mva["schema_version"], enumerated["schema_version"])
+        self.assertEqual(sorted(mva["model"]), sorted(enumerated["model"]))
+        self.assertEqual(mva["model"]["name"], enumerated["model"]["name"])
+        self.assertEqual(
+            mva["model"]["total_population"],
+            enumerated["model"]["total_population"],
+        )
+
+    def test_solver_block_reports_what_mva_actually_has(self):
+        mva = solve_mva(parse_bcmp(self.DOC))
+        solver = mva["solver"]
+        # Present, so a reader of the block does not have to know which route
+        # ran; None, because MVA forms neither and a plausible number here
+        # would be fabricated evidence.
+        self.assertIsNone(solver["state_count"])
+        self.assertIsNone(solver["probability_mass"])
+        self.assertIsNone(solver["log_normalizing_constant"])
+        self.assertEqual(solver["lattice_points"], lattice_size(parse_bcmp(self.DOC)))
+        self.assertLess(solver["maximum_population_residual"], 1e-9)
+        self.assertLess(solver["maximum_throughput_cross_check_residual"], 1e-9)
+
+    def test_every_packaged_example_survives_the_human_printer(self):
+        """The GUI runs solver.py with no --json, so the human printer is the
+        production path, not a convenience."""
+        import subprocess
+
+        examples = sorted((MODULE_DIR / "examples").glob("*.json"))
+        self.assertTrue(examples, "no packaged examples found")
+        for example in examples:
+            with self.subTest(example=example.name):
+                run = subprocess.run(
+                    [sys.executable, str(MODULE_DIR / "solver.py"), str(example)],
+                    check=False, capture_output=True, text=True,
+                )
+                self.assertEqual(run.returncode, 0, run.stderr)
+                self.assertTrue(run.stdout.strip(), "printed nothing")
+
+
 if __name__ == "__main__":
     unittest.main()

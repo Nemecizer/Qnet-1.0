@@ -130,11 +130,22 @@ def print_human(result: Mapping[str, Any], top_states: int = 0) -> None:
         solver = result["solver"]
         print("Exact closed BCMP product-form analysis")
         print("Model: {}".format(result["model"]["name"]))
-        print(
-            "Occupancy states: {}  probability mass: {:.12g}".format(
-                solver["state_count"], solver["probability_mass"]
+        print("Method: {}".format(solver["method"]))
+        # Two exact routes reach this branch. Enumeration counts occupancy
+        # states and reports the probability mass it summed; MVA forms neither,
+        # so it reports the size of the lattice it recursed over instead of a
+        # state count it does not have and a mass it never computed.
+        if solver.get("state_count") is None:
+            print(
+                "Population lattice points: {}  (the joint state law is not "
+                "formed)".format(_optional(solver.get("lattice_points")))
             )
-        )
+        else:
+            print(
+                "Occupancy states: {}  probability mass: {:.12g}".format(
+                    solver["state_count"], solver["probability_mass"]
+                )
+            )
         print(
             "Cross-check residuals: population={:.3e}  throughput={:.3e}".format(
                 solver["maximum_population_residual"],
