@@ -2957,22 +2957,31 @@ final class NetworkEditorModel: ObservableObject {
     /// undo fires, it captures the current state as the new "before"
     /// and re-registers — so hitting ⌘Z→⇧⌘Z roundtrips.
     private func registerReversal(to state: NetworkSnapshot, name: String) {
-        undoManager.registerUndo(withTarget: self) { [weak self] target in
-            guard let self else { return }
-            // `isUndoing` is true only while the UNDO stack is running; the
-            // same closure is re-registered onto the redo stack below, so
-            // this is what tells the two apart. Read it BEFORE the restore
-            // and the re-registration, while the manager is still inside
-            // the invocation it is running.
-            let verb = self.undoManager.isUndoing ? "Undid" : "Redid"
-            let current = self.snapshot()
-            self.restore(from: state)
-            self.registerReversal(to: current, name: name)
-            // An undone field run never continues: the next blur in the
-            // docked Inspector registers its own entry instead of folding
-            // into the one that was just reversed.
-            self.endParameterRun()
-            self.addStatus("\(verb): \(name).")
+        // The handler is `@Sendable` and this model is `@MainActor`, so every
+        // call in it is a main-actor call from a nonisolated context — thirty
+        // warnings in a clean build. `assumeIsolated` is the honest fix rather
+        // than a suppression: an undo handler runs on whichever thread called
+        // `undo()`, and every caller here is the Edit menu or ⌘Z on the main
+        // thread. Stating that turns a silent data race, if one is ever
+        // introduced, into a trap at the moment it happens.
+        undoManager.registerUndo(withTarget: self) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                // `isUndoing` is true only while the UNDO stack is running; the
+                // same closure is re-registered onto the redo stack below, so
+                // this is what tells the two apart. Read it BEFORE the restore
+                // and the re-registration, while the manager is still inside
+                // the invocation it is running.
+                let verb = self.undoManager.isUndoing ? "Undid" : "Redid"
+                let current = self.snapshot()
+                self.restore(from: state)
+                self.registerReversal(to: current, name: name)
+                // An undone field run never continues: the next blur in the
+                // docked Inspector registers its own entry instead of folding
+                // into the one that was just reversed.
+                self.endParameterRun()
+                self.addStatus("\(verb): \(name).")
+            }
         }
         undoManager.setActionName(name)
     }

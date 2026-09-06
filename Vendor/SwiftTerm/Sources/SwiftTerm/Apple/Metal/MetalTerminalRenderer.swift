@@ -1661,7 +1661,10 @@ final class MetalTerminalRenderer: NSObject, MTKViewDelegate {
                 return nil
             }
             vertices.withUnsafeBytes { raw in
-                memcpy(buffer.contents(), raw.baseAddress!, byteCount)
+                // `_ =` so the closure returns Void: without it the closure
+                // returns memcpy's pointer, withUnsafeBytes returns that, and
+                // the unused result warns at every build.
+                _ = memcpy(buffer.contents(), raw.baseAddress!, byteCount)
             }
             frameBuffers.append(buffer)
             return buffer
@@ -1861,7 +1864,10 @@ final class MetalTerminalRenderer: NSObject, MTKViewDelegate {
             return (nil, 0)
         }
         vertices.withUnsafeBytes { raw in
-            memcpy(buffer.contents(), raw.baseAddress!, byteCount)
+            // `_ =` so the closure returns Void: without it the closure
+            // returns memcpy's pointer, withUnsafeBytes returns that, and
+            // the unused result warns at every build.
+            _ = memcpy(buffer.contents(), raw.baseAddress!, byteCount)
         }
         return (buffer, count)
     }
