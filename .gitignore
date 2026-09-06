@@ -128,3 +128,10 @@ dist/
 
 # ── GUIKit build products ──────────────────────────────────
 GUIKit/.build/
+
+# ── Claude Code session transcripts ────────────────────────
+# The terminal log a `/loop`, `/init` or `/export` drops in the working
+# directory. Regenerable, hundreds of KB, and it would sit in the public
+# history forever once this repo is published. The file stays on disk; it just
+# stops cluttering `git status`.
+*-command-message*.txt
