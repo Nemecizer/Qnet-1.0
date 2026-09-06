@@ -390,7 +390,12 @@ final class TerminalHostView: NSView, @preconcurrency LocalProcessTerminalViewDe
             let handled: Bool = MainActor.assumeIsolated {
                 guard let self, let window = self.window,
                       window.windowNumber == windowNumber,
-                      self.desiredMinWidth > self.clipView.bounds.width else { return false }
+                      // `usableWidth`, not the clip view's: with the leading
+                      // margin taken out, content overflows a little sooner,
+                      // and a wheel gesture that would not pan while the
+                      // scroller says it can is a worse bug than the margin
+                      // fixes.
+                      self.desiredMinWidth > self.usableWidth else { return false }
                 let local = self.clipView.convert(locationInWindow, from: nil)
                 guard self.clipView.bounds.contains(local) else { return false }
                 self.panHorizontally(by: -dx)
@@ -498,19 +503,41 @@ final class TerminalHostView: NSView, @preconcurrency LocalProcessTerminalViewDe
 
     // MARK: Layout
 
+    /// Clearance at the pane's left edge, so the prompt and the first column
+    /// of every solver table are not flush against the border.
+    ///
+    /// Clamped against the pane's own width: a pane dragged narrower than the
+    /// margin still gets a column to draw in rather than a negative width.
+    private var leadingInset: CGFloat {
+        min(DS.Layout.terminalLeadingInset, max(0, clipView.bounds.width - 1))
+    }
+
+    /// The width the terminal actually draws into — the clip view less the
+    /// leading margin.
+    ///
+    /// Every horizontal calculation reads this rather than
+    /// `clipView.bounds.width`: the target width, the scroll range, the
+    /// scroller's knob proportion, the page step, and the find bar's anchors.
+    /// They were four separate copies of `clipView.bounds.width` before the
+    /// margin existed, and four places is four chances to apply the inset in
+    /// three of them.
+    private var usableWidth: CGFloat {
+        max(0, clipView.bounds.width - leadingInset)
+    }
+
     /// Resizes the terminal view within its clip view based on
     /// `desiredMinWidth` and the current clip size, then refreshes both
     /// scrollers (horizontal knob size from ratio, vertical knob size
     /// from SwiftTerm's scrollback).
     func layoutTerminal() {
-        let visibleWidth = clipView.bounds.width
         let visibleHeight = clipView.bounds.height
-        guard visibleWidth > 0, visibleHeight > 0 else { return }
+        let drawableWidth = usableWidth
+        guard drawableWidth > 0, visibleHeight > 0 else { return }
 
-        let targetWidth = max(desiredMinWidth, visibleWidth)
+        let targetWidth = max(desiredMinWidth, drawableWidth)
 
         // Clamp horizontal offset to valid range.
-        let maxOffset = max(0, targetWidth - visibleWidth)
+        let maxOffset = max(0, targetWidth - drawableWidth)
         if hOffset > maxOffset { hOffset = maxOffset }
 
         // Hold the last row clear of the window's rounded bottom corner. The
@@ -519,15 +546,20 @@ final class TerminalHostView: NSView, @preconcurrency LocalProcessTerminalViewDe
         // what keeps SwiftTerm's row count in step with the visible area
         // instead of laying out a row it cannot fully draw.
         let bottomInset = min(DS.Layout.terminalBottomInset, max(0, visibleHeight - 1))
-        terminalView.frame = NSRect(x: -hOffset,
+        // The same idea on the leading edge: the origin moves right by the
+        // margin, and the width the terminal is given is the pane's less that
+        // margin, so SwiftTerm's column count stays in step with the area it
+        // can actually draw in. `-hOffset` still does the sideways scrolling;
+        // the inset is added on top of it, not instead of it.
+        terminalView.frame = NSRect(x: leadingInset - hOffset,
                                     y: bottomInset,
                                     width: targetWidth,
                                     height: visibleHeight - bottomInset)
 
         // Horizontal scroller state.
-        let overflow = targetWidth > visibleWidth + 0.5
+        let overflow = targetWidth > drawableWidth + 0.5
         hScroller.isEnabled = overflow
-        hScroller.knobProportion = overflow ? visibleWidth / targetWidth : 1.0
+        hScroller.knobProportion = overflow ? drawableWidth / targetWidth : 1.0
         hScroller.doubleValue = maxOffset > 0 ? Double(hOffset / maxOffset) : 0
         if !overflow { hScroller.alphaValue = 0 }
 
@@ -550,9 +582,9 @@ final class TerminalHostView: NSView, @preconcurrency LocalProcessTerminalViewDe
     }
 
     private func panHorizontally(by delta: CGFloat) {
-        let visibleWidth = clipView.bounds.width
-        let targetWidth = max(desiredMinWidth, visibleWidth)
-        let maxOffset = max(0, targetWidth - visibleWidth)
+        let drawableWidth = usableWidth
+        let targetWidth = max(desiredMinWidth, drawableWidth)
+        let maxOffset = max(0, targetWidth - drawableWidth)
         guard maxOffset > 0 else { return }
         hOffset = min(maxOffset, max(0, hOffset + delta))
         layoutTerminal()
@@ -651,17 +683,19 @@ final class TerminalHostView: NSView, @preconcurrency LocalProcessTerminalViewDe
     /// horizontal scroller.
     private func positionFindBar() {
         guard let trailing = findBarTrailing, let leading = findBarLeading else { return }
-        let visibleWidth = clipView.bounds.width
-        guard visibleWidth > 0 else { return }
-        // The terminal view's frame origin is `-hOffset`, so in its own
-        // coordinates the pane shows [hOffset, hOffset + visibleWidth).
+        let drawableWidth = usableWidth
+        guard drawableWidth > 0 else { return }
+        // The terminal view's frame origin is `leadingInset - hOffset`, so in
+        // its own coordinates the pane shows [hOffset, hOffset + usableWidth)
+        // — the margin has already been taken out of the width, so it does not
+        // appear again here.
         //
         // Written only when it actually changed. `layoutTerminal()` is one of
         // the things a layout pass can call (SwiftTerm's `sizeChanged` lands
         // there), and re-assigning a constraint constant invalidates the
         // engine whether or not the value moved — an unconditional write
         // would be a self-sustaining layout loop on every resize.
-        let newTrailing = hOffset + visibleWidth - DS.Spacing.s
+        let newTrailing = hOffset + drawableWidth - DS.Spacing.s
         let newLeading = hOffset + DS.Spacing.s
         if trailing.constant != newTrailing { trailing.constant = newTrailing }
         if leading.constant != newLeading { leading.constant = newLeading }
@@ -702,12 +736,12 @@ final class TerminalHostView: NSView, @preconcurrency LocalProcessTerminalViewDe
     }
 
     @objc private func hScrollerChanged(_ sender: NSScroller) {
-        let visibleWidth = clipView.bounds.width
-        let targetWidth = max(desiredMinWidth, visibleWidth)
-        let maxOffset = max(0, targetWidth - visibleWidth)
+        let drawableWidth = usableWidth
+        let targetWidth = max(desiredMinWidth, drawableWidth)
+        let maxOffset = max(0, targetWidth - drawableWidth)
         guard maxOffset > 0 else { return }
 
-        let pageStep = visibleWidth * 0.9
+        let pageStep = drawableWidth * 0.9
         let lineStep: CGFloat = 40
         switch sender.hitPart {
         case .decrementPage: hOffset = max(0, hOffset - pageStep)

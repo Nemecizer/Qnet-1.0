@@ -1163,6 +1163,16 @@ enum DS {
         /// that the last row is now whole. Sized to clear the system corner
         /// radius at the bottom-left, where the prompt begins.
         static let terminalBottomInset: CGFloat = 10
+        /// Clearance at the terminal's left edge.
+        ///
+        /// SwiftTerm draws the first character hard against the view's leading
+        /// edge, which puts the prompt and every line of solver output flush
+        /// with the pane border — the one place in the app where text touches
+        /// its container. This is the gutter that gives it somewhere to sit;
+        /// it is deliberately smaller than `DS.Spacing.s`, because a terminal
+        /// column is a unit of layout and stealing a whole one from a wide
+        /// table costs more than the margin is worth.
+        static let terminalLeadingInset: CGFloat = 6
         /// Settings sidebar (NavigationSplitView column band).
         static let settingsSidebarMinWidth: CGFloat = 208
         static let settingsSidebarIdealWidth: CGFloat = 232
