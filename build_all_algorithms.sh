@@ -5,7 +5,17 @@
 
 set -euo pipefail
 
-BUILD_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Physical paths, not the ones the caller happened to type.
+#
+# A directory reached through a symlink has two spellings, and Clang records the
+# spelling it SAW in each module-cache entry. Build once through
+# ~/Library/CloudStorage/Dropbox/... and once through ~/Dropbox/... -- the same
+# directory, because macOS makes the second a symlink to the first -- and the
+# next compile fails with "module '_DarwinFoundation1' is defined in both", then
+# the SDK probe below segfaults and reports a compiler/SDK mismatch that does
+# not exist. `pwd -P` collapses the two spellings to one so the cache has a
+# single name for each module.
+BUILD_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$BUILD_ROOT"
 
 fail() {
@@ -39,6 +49,20 @@ build_native infinite/BNAsm bnet
 build_native infinite/BNAlp srbm_lp
 build_native infinite/BNAmc rbm_mlmc gen_symmetric gen_tridiag
 build_native infinite/BNAfm bna_fm
+
+# The C engines for the three methods that ship two implementations. Their
+# Makefiles' default target is `engine`, so `make -C` builds only the binary and
+# does not run the Python test suites; the parity tests that compare the two
+# engines are part of validation/steady_state_suite.sh, not of this script.
+#
+# These are REQUIRED, not optional. Settings > Solvers > Solver Engine defaults
+# to the C engine, and while a missing binary falls back to Python with a note
+# in the Status pane, a release that shipped without them would silently be the
+# slow one.
+build_native infinite/BNArmc bna_rmc
+build_native infinite/BNAqbd bna_qbd
+build_native infinite/BNAtc bna_tc
+build_native finite/fBNAgc fbna_gc
 
 printf 'Checking all Python algorithm sources\n'
 python3 - "$BUILD_ROOT" <<'PY'

@@ -163,3 +163,22 @@ stationary distribution and an M/E2/1 phase model with a known mean queue
 length. A separate exact two-phase fixture uses noncommuting blocks to catch
 matrix-order or transpose errors. Invalid, critical, unstable,
 convergence-limit, and command-line error cases are also covered.
+
+## Two engines
+
+This method ships two implementations of one algorithm: `qbd_solver.py` (the
+reference) and `bna_qbd` (a C engine). `Settings > Solvers > Solver Engine`
+chooses between them in the GUI; on the command line, run whichever binary you
+want.
+
+They are not two algorithms. The C engine was written to reproduce this
+Python's arithmetic operation by operation, and `tests/test_engine_parity.sh`
+runs both on every packaged example, on a sweep of model sizes, and on one
+malformed document per validation rule, then compares the output. `make check`
+runs it. The output is identical byte for byte, with no exceptions: this method is deterministic, so nothing here may legitimately differ.
+
+Measured on the machine this was developed on: an M/E_k/1 with 48 interior phases, 38.9 s under Python and 2.4 s in C, a factor of 16. The ratio is held down by exact summation: the Python's matrix multiply uses math.fsum, and reproducing that exactly costs about 23x against naive accumulation. That is the price of the byte-identical guarantee and it is worth paying.
+
+If you change either engine, run `make parity` before you believe the change.
+A failure there means the two have drifted, and the fix is to make them agree
+again -- not to loosen the test.

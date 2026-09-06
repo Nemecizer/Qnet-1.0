@@ -96,6 +96,20 @@ final class AppSettings: ObservableObject {
     // The `@AppStorage` key strings are part of the on-disk contract and
     // must never change; only the values here may.
     enum Defaults {
+        // Solver engine. Three methods ship two implementations of the same
+        // algorithm — a C one and the original Python one — and these choose
+        // which runs. The C engines default ON because they are the same
+        // computation: each was written to reproduce its Python counterpart's
+        // arithmetic step for step, and a per-method parity test compares the
+        // two on every packaged example. What changes is the wait.
+        //
+        // Python stays selectable, and stays the reference. It is the engine to
+        // reach for when a result looks wrong, when a machine has no compiler,
+        // and when a reader wants the algorithm in a form they can read.
+        static let engineRegenerative = 0   // 0 = C, 1 = Python
+        static let engineQBD          = 0
+        static let engineCTMC         = 0
+
         // Discrete-event simulation (jackson_sim / fBNAsim)
         static let simReplications = 50
         static let simWarmup       = 1_000_000
@@ -279,6 +293,7 @@ final class AppSettings: ObservableObject {
     // tags are the solver conventions documented beside the `@AppStorage`
     // declarations below.
     enum Choices {
+        static let solverEngine       = [0, 1]           // C, Python
         static let simParallel        = [0, 1, 2]        // GCD, OpenMP, Sequential
         static let simBlocking        = [0, 1, 2]        // Loss, BAS, BAS + external loss
         static let femSolver          = [0, 1]           // Gauss–Legendre, CBC QMC
@@ -310,6 +325,14 @@ final class AppSettings: ObservableObject {
     }
 
     // ── Simulation (Monte Carlo) ──
+    // Solver engine, one per dual-engine method. 0 = C, 1 = Python.
+    // If the chosen engine cannot be resolved at run time the app falls back to
+    // the other one and says so in the Status pane — a missing binary must
+    // never turn into a method the user cannot run.
+    @AppStorage("engine.regenerative") var engineRegenerative: Int = Defaults.engineRegenerative
+    @AppStorage("engine.qbd")          var engineQBD: Int = Defaults.engineQBD
+    @AppStorage("engine.ctmc")         var engineCTMC: Int = Defaults.engineCTMC
+
     @AppStorage("sim.replications")   var simReplications: Int = Defaults.simReplications
     @AppStorage("sim.warmup")         var simWarmup: Int = Defaults.simWarmup
     @AppStorage("sim.time")           var simTime: Int = Defaults.simTime
@@ -856,6 +879,9 @@ final class AppSettings: ObservableObject {
     // once; keep the two lists in step when adding a setting.
     static let defaultsByKey: [String: Any] = {
         var t: [String: Any] = [
+            "engine.regenerative": Defaults.engineRegenerative,
+            "engine.qbd": Defaults.engineQBD,
+            "engine.ctmc": Defaults.engineCTMC,
             "sim.replications": Defaults.simReplications,
             "sim.warmup": Defaults.simWarmup,
             "sim.time": Defaults.simTime,
@@ -1064,6 +1090,9 @@ final class AppSettings: ObservableObject {
     static let allowedNumbersByKey: [String: [Double]] = {
         func d(_ list: [Int]) -> [Double] { list.map(Double.init) }
         return [
+            "engine.regenerative": d(Choices.solverEngine),
+            "engine.qbd": d(Choices.solverEngine),
+            "engine.ctmc": d(Choices.solverEngine),
             "sim.parallel": d(Choices.simParallel),
             "sim.blocking": d(Choices.simBlocking),
             "fem.solver": d(Choices.femSolver),
@@ -1252,6 +1281,12 @@ final class AppSettings: ObservableObject {
         rememberRunComparisonChoice = Defaults.rememberRunComparisonChoice
     }
 
+    func resetSolverEngine() {
+        engineRegenerative = Defaults.engineRegenerative
+        engineQBD          = Defaults.engineQBD
+        engineCTMC         = Defaults.engineCTMC
+    }
+
     func resetSimulation() {
         simReplications = Defaults.simReplications
         simWarmup       = Defaults.simWarmup
@@ -1372,6 +1407,7 @@ final class AppSettings: ObservableObject {
     /// rearranges the main window.
     func resetAll() {
         resetGeneral()
+        resetSolverEngine()
         resetSimulation()
         resetExactSimulation()
         resetLinearProgram()

@@ -236,3 +236,22 @@ toward the infinite M/M/1 mean, certified stability and Foster bounds, explicit
 certificate refusal for a tandem, sparse-operator probability conservation,
 closed routing, state limits, deterministic output, CLI contracts, and
 unstable-network rejection.
+
+## Two engines
+
+This method ships two implementations of one algorithm: `truncated_ctmc.py` (the
+reference) and `bna_tc` (a C engine). `Settings > Solvers > Solver Engine`
+chooses between them in the GUI; on the command line, run whichever binary you
+want.
+
+They are not two algorithms. The C engine was written to reproduce this
+Python's arithmetic operation by operation, and `tests/test_engine_parity.sh`
+runs both on every packaged example, on a sweep of model sizes, and on one
+malformed document per validation rule, then compares the output. `make check`
+runs it. A document that solves produces identical output byte for byte. A document that is refused produces the same exit status, the same error code and the same message -- but not the same bytes, because the Python attaches a diagnostic details payload that the C engine does not reproduce.
+
+Measured on the machine this was developed on: a three-node tandem at cap 40 (12,341 states, 1,672 iterations), 9.09 s under Python and 0.43 s in C, a factor of 21.
+
+If you change either engine, run `make parity` before you believe the change.
+A failure there means the two have drifted, and the fix is to make them agree
+again -- not to loosen the test.

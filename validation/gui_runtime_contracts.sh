@@ -13,9 +13,39 @@ fail() {
     exit 1
 }
 
+# Every runner that writes a temp input must remove it even when the run is
+# cancelled. The count is pinned so a new runner cannot be added without
+# thinking about it. (These were all Python runners once; three of them now
+# launch either a Python script or a C binary depending on Settings > Solvers >
+# Solver Engine, and the wrapper is needed either way -- it is about the
+# exported input file, not about the interpreter.)
 cleanup_calls="$(grep -F -c 'command: commandWithCleanup(solve, paths: [inputFile.path])' "$GUI_SOURCE")"
 [[ "$cleanup_calls" -eq 8 ]] \
-    || fail "expected 8 Python runners to use cancellation-safe cleanup; found $cleanup_calls"
+    || fail "expected 8 solver runners to use cancellation-safe cleanup; found $cleanup_calls"
+
+# The engine choice must be honoured in one place. `resolveEngine` is where the
+# Settings value is read, where an unavailable engine falls back to the other
+# one, and where the Status-pane note explaining that comes from; a runner that
+# read `appSettings.engine*` directly would get all three of those wrong
+# separately. So: as many resolveEngine call sites as there are dual-engine
+# methods, and no direct reads outside it.
+# Four call sites, three settings keys: the two CTMC solvers share `engine.ctmc`
+# because they share a kernel, and the Settings pane shows them as one row.
+engine_calls="$(grep -c 'switch resolveEngine(\|= resolveEngine(' "$GUI_SOURCE")"
+[[ "$engine_calls" -eq 4 ]] \
+    || fail "expected 4 dual-engine methods to route through resolveEngine; found $engine_calls"
+grep -Fq 'preferred: SolverEngine(storedValue: appSettings.engineRegenerative)' "$GUI_SOURCE" \
+    || fail "Regenerative Monte Carlo does not read its engine setting"
+grep -Fq 'preferred: SolverEngine(storedValue: appSettings.engineQBD)' "$GUI_SOURCE" \
+    || fail "Exact Matrix-Analytic QBD does not read its engine setting"
+ctmc_engine_reads="$(grep -c 'preferred: SolverEngine(storedValue: appSettings.engineCTMC)' "$GUI_SOURCE")"
+[[ "$ctmc_engine_reads" -eq 2 ]] \
+    || fail "expected both CTMC solvers to read engine.ctmc; found $ctmc_engine_reads"
+stray_engine_reads="$(grep -c 'appSettings\.engine' "$GUI_SOURCE")"
+[[ "$stray_engine_reads" -eq 4 ]] \
+    || fail "engine settings are read $stray_engine_reads times; expected 4, all inside a resolveEngine call"
+grep -Fq 'if let note = resolvedEngine.note {' "$GUI_SOURCE" \
+    || fail "a fallback to the other engine would not be reported in the Status pane"
 grep -Fq 'trap cleanup_qnet_solver_inputs EXIT' "$GUI_SOURCE" \
     || fail "Python cleanup wrapper lacks an EXIT trap"
 grep -Fq "trap 'exit 130' INT TERM" "$GUI_SOURCE" \

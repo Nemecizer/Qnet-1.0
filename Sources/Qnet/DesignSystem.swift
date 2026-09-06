@@ -1784,6 +1784,9 @@ enum DS {
         // have no run sheet to borrow from.
         /// The Settings window itself (the General pane).
         static let settings = "gearshape"
+        /// Choice of solver engine (Settings ▸ Solver Engine): the same
+        /// computation, at two speeds.
+        static let solverEngine = "speedometer"
         /// SRBM MLMC: one square per discretisation level.
         static let multilevel = "square.stack.3d.up"
         /// The finite-buffer LP — a rectangle domain split into cells,

@@ -15,3 +15,12 @@ finite/fBNAfm/bna_fm_cbc
 finite/fBNAlp/fBNAlp_solver
 finite/fBNAsim/fBNAsim
 finite/fBNAsm/srbm_solver
+# The C engines beside the Python ones, selected in Settings > Solvers >
+# Solver Engine. Listed here because a release that dropped them would still
+# run every method -- the app falls back to the Python engine and says so --
+# and the only symptom would be that everything got slower. That is exactly
+# the kind of silent regression this inventory exists to catch.
+infinite/BNArmc/bna_rmc
+infinite/BNAqbd/bna_qbd
+infinite/BNAtc/bna_tc
+finite/fBNAgc/fbna_gc

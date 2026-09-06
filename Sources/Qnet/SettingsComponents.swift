@@ -249,6 +249,24 @@ struct SettingsWindowTagger: NSViewRepresentable {
         return window.identifier?.rawValue == "com_apple_SwiftUI_Settings_window"
     }
 
+    /// Closes the Settings window — what every pane's Cancel button does.
+    ///
+    /// `performClose` rather than `close` so the window's own delegate sees the
+    /// request and the frame autosaver gets its chance to record where the user
+    /// left it; `close` skips both. The tagged window is preferred, and the
+    /// scan is the fallback for the window SwiftUI may have built before the
+    /// tagger attached to it.
+    @MainActor static func closeSettingsWindow() {
+        if let tagged = taggedWindow {
+            tagged.performClose(nil)
+            return
+        }
+        for window in NSApp?.windows ?? [] where isSettingsWindow(window) {
+            window.performClose(nil)
+            return
+        }
+    }
+
     func makeNSView(context: Context) -> NSView {
         // The coordinator, not the whole `Context`: a `Context` carries the
         // environment and the current transaction, and an escaping closure
@@ -457,9 +475,12 @@ struct SettingsPane<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     @Environment(\.settingsJump) private var jump
+    @DSAccessibility private var a11y
     @State private var flash: SettingsFlash? = nil
     @State private var flashCounter = 0
     @State private var atDefaults = false
+    @State private var confirmation: PaneConfirmation? = nil
+    @State private var confirmationToken = 0
 
     @MainActor
     init(_ tab: SettingsView.Tab, reset: (() -> Void)? = nil, resetKeys: [String]? = nil, @ViewBuilder content: @escaping () -> Content) {
@@ -495,25 +516,128 @@ struct SettingsPane<Content: View>: View {
             .onChange(of: jump) { _, _ in performJump(proxy) }
         }
         .navigationTitle(tab.title)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if let reset {
-                HStack {
-                    Spacer()
-                    Button("Reset to Defaults") { performReset(reset) }
-                        .disabled(atDefaults)
-                        .help(atDefaults
-                              ? "Already at defaults"
-                              : "Restore the defaults for the \(tab.title) pane only. Other panes are not affected.")
-                        .accessibilityLabel("Reset \(tab.title) settings to defaults")
-                        .accessibilityHint(atDefaults ? "Already at defaults" : "")
-                }
-                .dsChromeBar(.top)
-            }
-        }
+        .safeAreaInset(edge: .bottom, spacing: 0) { actionBar }
         .onAppear { recomputeAtDefaults() }
         .onChange(of: keys) { _, _ in recomputeAtDefaults() }
         .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
             recomputeAtDefaults()
+        }
+    }
+
+    // MARK: The action bar
+    //
+    // Reset on the left, Cancel and Save on the right, on every pane.
+    //
+    // A word about what Save means here, because it is not the usual thing.
+    // This window applies each control as it is changed — that is how macOS
+    // System Settings behaves and it is what every pane in this app has always
+    // done — so by the time the button is pressed the value is already live and
+    // already in `UserDefaults`. Save therefore does the two things still worth
+    // doing: it forces the defaults database to disk immediately rather than at
+    // the system's convenience, and it tells the user, in as many words, that
+    // their change is kept. The tooltip says exactly that; it does not imply
+    // there were pending edits.
+    //
+    // Cancel closes the window. It does NOT revert, and its tooltip says so
+    // rather than leaving a reader to assume the modal-dialog meaning. Reverting
+    // would need a snapshot of every key at open and a defensible answer for
+    // what "since when" means across a window that stays open for a session;
+    // "Reset to Defaults" is the undo that exists, and it is right there.
+
+    private enum PaneConfirmation: Equatable {
+        case saved
+        case reset
+
+        var text: String {
+            switch self {
+            case .saved: return "Saved"
+            case .reset: return "Reset to defaults"
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var actionBar: some View {
+        HStack(spacing: DS.Spacing.s) {
+            if let reset {
+                Button("Reset to Defaults") { performReset(reset) }
+                    .disabled(atDefaults)
+                    .help(atDefaults
+                          ? "Already at defaults"
+                          : "Restore the defaults for the \(tab.title) pane only. Other panes are not affected.")
+                    .accessibilityLabel("Reset \(tab.title) settings to defaults")
+                    .accessibilityHint(atDefaults ? "Already at defaults" : "")
+            }
+            Spacer(minLength: DS.Spacing.s)
+            confirmationLabel
+            Button("Cancel") { closeWindow() }
+                .help("Close Settings. Changes on this pane are applied as you make them, "
+                      + "so closing does not discard anything; use Reset to Defaults to undo them.")
+                .accessibilityLabel("Close Settings")
+            Button("Save") { performSave() }
+                .keyboardShortcut(.defaultAction)
+                .help("Write the settings to disk now and confirm. Changes are already "
+                      + "applied as you make them; this makes sure they are stored.")
+                .accessibilityLabel("Save settings")
+        }
+        .dsChromeBar(.top)
+    }
+
+    /// The green tick and word. It occupies no space when absent, so the two
+    /// buttons do not shift as it comes and goes — a moving Save button under
+    /// the pointer is how a second, unintended click happens.
+    @ViewBuilder
+    private var confirmationLabel: some View {
+        if let confirmation {
+            Label(confirmation.text, systemImage: DS.Symbol.success)
+                .font(DS.Font.body)
+                .foregroundStyle(DS.Color.successText)
+                .labelStyle(.titleAndIcon)
+                .transition(a11y.reduceMotion ? .identity : .opacity)
+                .accessibilityHidden(true)   // announced instead, see `confirm(_:)`
+        }
+    }
+
+    private func performSave() {
+        // Already applied; this is the flush plus the acknowledgement.
+        UserDefaults.standard.synchronize()
+        confirm(.saved)
+    }
+
+    private func closeWindow() {
+        SettingsWindowTagger.closeSettingsWindow()
+    }
+
+    /// Shows the confirmation, announces it to VoiceOver, and takes it down
+    /// again after a few seconds.
+    ///
+    /// The token guards the take-down: two presses in quick succession must
+    /// leave the second confirmation standing for its full time, not have the
+    /// first one's timer clear it early.
+    private func confirm(_ value: PaneConfirmation) {
+        confirmationToken += 1
+        let token = confirmationToken
+        withAnimation(a11y.reduceMotion ? nil : DS.Motion.quick) {
+            confirmation = value
+        }
+        // The tick is decorative and the label is hidden from the reader, so
+        // the announcement is the only way this reaches VoiceOver at all.
+        if let app = NSApp {
+            NSAccessibility.post(
+                element: app,
+                notification: .announcementRequested,
+                userInfo: [
+                    .announcement: value.text,
+                    .priority: NSAccessibilityPriorityLevel.high.rawValue
+                ]
+            )
+        }
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 3_500_000_000)
+            guard token == confirmationToken else { return }
+            withAnimation(a11y.reduceMotion ? nil : DS.Motion.quick) {
+                confirmation = nil
+            }
         }
     }
 
@@ -529,6 +653,7 @@ struct SettingsPane<Content: View>: View {
         flashCounter += 1
         flash = SettingsFlash(ids: ids, token: flashCounter)
         recomputeAtDefaults()
+        confirm(.reset)
     }
 
     private func performJump(_ proxy: ScrollViewProxy) {

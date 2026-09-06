@@ -193,3 +193,22 @@ python3 -m unittest discover -s finite/fBNAgc/tests -v
 The suite checks the full analytical M/M/1/K distribution and means, the
 rho=1 special case, multiclass routed-network flow conservation, multiple
 servers, internal loss, state-limit protection, and explicit BAS rejection.
+
+## Two engines
+
+This method ships two implementations of one algorithm: `solver.py` (the
+reference) and `fbna_gc` (a C engine). `Settings > Solvers > Solver Engine`
+chooses between them in the GUI; on the command line, run whichever binary you
+want.
+
+They are not two algorithms. The C engine was written to reproduce this
+Python's arithmetic operation by operation, and `tests/test_engine_parity.sh`
+runs both on every packaged example, on a sweep of model sizes, and on one
+malformed document per validation rule, then compares the output. `make check`
+runs it. The output is identical byte for byte on stdout and on stderr, with no exceptions.
+
+Measured on the machine this was developed on: a two-station two-class loss network at capacity 7 (60,929 states), 9.31 s under Python and 0.12 s in C, a factor of 78. Nothing in this solver uses math.fsum, which is why it keeps the whole interpreter gap where the QBD engine keeps a sixth of it.
+
+If you change either engine, run `make parity` before you believe the change.
+A failure there means the two have drifted, and the fix is to make them agree
+again -- not to loosen the test.

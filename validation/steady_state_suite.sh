@@ -12,8 +12,12 @@ run() {
     make -C "$PROJECT_ROOT/$directory" "$target"
 }
 
+# The shared C headers first: three engines depend on them, so a defect here
+# would surface as three unrelated parity failures further down.
+run common test
+
 run finite/fBNAdecomp test
-run finite/fBNAgc test
+run finite/fBNAgc check
 run infinite/BNAqbd check
 run infinite/BNApf check
 run infinite/BNAtc check

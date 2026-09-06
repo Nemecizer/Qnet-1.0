@@ -408,3 +408,22 @@ M/M/1/K probability and must report usable weight effective sample size.
   Jackson networks, birth-death queues, and the M/M/1/K stationary law.
 - Reuven Y. Rubinstein and Dirk P. Kroese, *Simulation and the Monte Carlo
   Method*, Wiley. Importance sampling and likelihood-ratio estimators.
+
+## Two engines
+
+This method ships two implementations of one algorithm: `regenerative_mc.py` (the
+reference) and `bna_rmc` (a C engine). `Settings > Solvers > Solver Engine`
+chooses between them in the GUI; on the command line, run whichever binary you
+want.
+
+They are not two algorithms. The C engine was written to reproduce this
+Python's arithmetic operation by operation, and `tests/test_engine_parity.sh`
+runs both on every packaged example, on a sweep of model sizes, and on one
+malformed document per validation rule, then compares the output. `make check`
+runs it. The report is identical byte for byte, because the C engine draws CPython's own Mersenne Twister stream and so visits the same events in the same order. Two documented exceptions: the confidence-interval fields in the 17-digit machine records agree to about 1e-12 rather than exactly (CPython ships its own lgamma), and a run cut short by the wall-clock safeguard stops at a different cycle in each engine because one is 250 times faster.
+
+Measured on the machine this was developed on: 200,000 cycles on a two-node two-class network, 10.10 s under Python and 0.04 s in C, a factor of 252. A regenerative confidence interval narrows as 1/sqrt(cycles), so the same wall-clock budget buys roughly sixteen times the precision.
+
+If you change either engine, run `make parity` before you believe the change.
+A failure there means the two have drifted, and the fix is to make them agree
+again -- not to loosen the test.

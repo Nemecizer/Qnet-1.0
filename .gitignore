@@ -39,6 +39,16 @@ infinite/BNAqna/bna_qna
 infinite/BNArqna/bna_rqna
 infinite/BNAsm/bnet
 infinite/BNAfm/bna_fm
+# The C engines that ship beside the Python solvers. Built artefacts, like
+# every other native binary above; the sources are tracked.
+infinite/BNArmc/bna_rmc
+infinite/BNAqbd/bna_qbd
+infinite/BNAtc/bna_tc
+finite/fBNAgc/fbna_gc
+# The shared-header test binaries (make -C common test).
+common/tests/test_json
+common/tests/test_pyrandom
+common/tests/test_fsum
 infinite/BNAmd/mc_solver
 infinite/BNAmd/tests/test_params
 

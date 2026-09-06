@@ -35,6 +35,7 @@ struct SettingsView: View {
     /// Tractability, and a persisted "GCDG" selection falls back to General.
     enum Tab: String, CaseIterable, Identifiable {
         case general = "General"
+        case solverEngine = "Solver Engine"
         case simulation = "Simulation"
         case exactSimulation = "SRBM MLMC"
         case linearProgram = "Linear Program"
@@ -52,6 +53,7 @@ struct SettingsView: View {
         var title: String {
             switch self {
             case .general:         return "General"
+            case .solverEngine:    return "Solver Engine"
             case .simulation:      return "Discrete-Event Simulation"
             case .exactSimulation: return "SRBM MLMC"
             case .linearProgram:   return "Linear Program"
@@ -73,6 +75,7 @@ struct SettingsView: View {
         var systemImage: String {
             switch self {
             case .general:         return DS.Symbol.settings
+            case .solverEngine:    return DS.Symbol.solverEngine
             case .simulation:      return DS.Symbol.simulation
             case .exactSimulation: return DS.Symbol.multilevel
             case .linearProgram:   return DS.Symbol.increasing
@@ -90,6 +93,7 @@ struct SettingsView: View {
         var group: Group {
             switch self {
             case .general:                                  return .general
+            case .solverEngine:                             return .solvers
             case .simulation, .exactSimulation, .linearProgram,
                  .finiteLP, .finiteElement, .spectral:      return .solvers
             case .testSets:                                 return .sweeps
@@ -101,6 +105,7 @@ struct SettingsView: View {
         var summary: String {
             switch self {
             case .general:         return "Tab restore and Run Comparison behaviour"
+            case .solverEngine:    return "C or Python for the three methods that ship both"
             case .simulation:      return "jackson_sim / fBNAsim run length, parallelism and blocking"
             case .exactSimulation: return "rbm_mlmc accuracy, overrides and reproducibility"
             case .linearProgram:   return "srbm_lp grid, basis and solver (orthant)"
@@ -482,6 +487,7 @@ struct SettingsView: View {
     private var detail: some View {
         switch selectedTab {
         case .general:         GeneralPane(settings: settings, openTab: { selectedTabRaw = $0.rawValue })
+        case .solverEngine:    SolverEnginePane(settings: settings)
         case .simulation:      SimulationPane(settings: settings)
         case .exactSimulation: ExactSimulationPane(settings: settings)
         case .linearProgram:   LinearProgramPane(settings: settings)
@@ -512,6 +518,12 @@ enum SettingsRegistry {
             E("general.blockingSummary", .general, "Run Comparison", "Default blocking regime", ["blocking", "loss", "bas", "regime", "finite"], keys: []),
             E("general.resetAll", .general, "All Settings", "Reset all panes", ["reset", "defaults", "everything", "all", "restore", "factory"], keys: []),
             E("general.exportImport", .general, "All Settings", "Configuration file", ["export", "import", "json", "file", "configuration", "share", "paper", "backup", "transfer"], keys: []),
+
+            // Solver engine
+            E("engine.regenerative", .solverEngine, "Regenerative Monte Carlo", "Engine", ["engine", "c", "python", "native", "speed", "fast", "simulation", "regenerative", "monte carlo"]),
+            E("engine.qbd", .solverEngine, "Exact Matrix-Analytic QBD", "Engine", ["engine", "c", "python", "native", "speed", "fast", "qbd", "matrix", "analytic", "phase"]),
+            E("engine.ctmc", .solverEngine, "Markovian CTMC", "Engine", ["engine", "c", "python", "native", "speed", "fast", "ctmc", "truncated", "markov", "generic"]),
+            E("engine.parity", .solverEngine, "Why there are two", "Parity", ["parity", "identical", "reference", "verification", "same", "answer"], keys: []),
 
             // Discrete-event simulation
             E("sim.parallel", .simulation, "Execution", "Parallelisation", ["gcd", "openmp", "sequential", "threads", "parallel", "simulation"]),
@@ -1908,6 +1920,103 @@ private struct FiniteLPPane: View {
                 // lp.askBeforeRun). The key is kept in AppSettings so a
                 // future wiring can pick it up without a migration.
                 SettingsFootnote("Used by Run ▸ Finite-Buffer LP and by finite test-set sweeps. Reference text: Help ▸ Finite-Buffer LP Algorithm.")
+            }
+        }
+    }
+}
+
+// MARK: - Solver Engine
+
+/// Which implementation runs, for the three methods that ship two.
+///
+/// The pane's job is to make the choice legible: these are not two algorithms
+/// with two answers. Each C engine reproduces its Python counterpart's
+/// arithmetic step for step and a parity test compares them on every packaged
+/// example, so the picker chooses how long the user waits and nothing else. The
+/// footnote under each row carries the measured speedup rather than an
+/// adjective, and the section at the bottom says what is actually verified —
+/// including the two places where agreement is a tolerance rather than an
+/// equality, because a claim of "identical" that quietly has exceptions is
+/// worse than a precise one.
+private struct SolverEnginePane: View {
+    @ObservedObject var settings: AppSettings
+
+    private func engineRow(_ method: DualEngineMethod, selection: Binding<Int>) -> some View {
+        // `detail` is the caption under the row and describes the CURRENT
+        // selection, so it carries the consequence of the choice the user has
+        // actually made rather than a general blurb.
+        SettingsMenuRow(
+            "Engine",
+            selection: selection,
+            options: AppSettings.Choices.solverEngine,
+            help: "\(method.summary) Both engines compute the same result; the C one is "
+                + "faster. \(method.measuredSpeedup).",
+            title: { SolverEngine(storedValue: $0).title },
+            // The caption describes the CURRENT selection and nothing else.
+            // The measurement lives in the section footnote, once — an earlier
+            // draft printed it here as well and the same sentence appeared
+            // twice, six lines apart.
+            detail: {
+                SolverEngine(storedValue: $0) == .c
+                    ? "The native binary. Same result as the Python engine, sooner."
+                    : "The reference implementation: readable, needs no compiler, "
+                      + "and the engine to reach for when a result looks wrong."
+            }
+        )
+        .settingsAnchor(method.storageKey, label: "Engine")
+    }
+
+    var body: some View {
+        SettingsPane(.solverEngine, reset: { settings.resetSolverEngine() }) {
+            Section {
+                engineRow(.regenerativeMonteCarlo, selection: $settings.engineRegenerative)
+            } header: {
+                Text("Regenerative Monte Carlo")
+            } footer: {
+                SettingsFootnote("Run ▸ Regenerative Monte Carlo. Both engines draw the same random stream, so a run reports the same cycles and the same estimates whichever is selected. \(DualEngineMethod.regenerativeMonteCarlo.measuredSpeedup).")
+            }
+
+            Section {
+                engineRow(.matrixAnalyticQBD, selection: $settings.engineQBD)
+            } header: {
+                Text("Exact Matrix-Analytic QBD")
+            } footer: {
+                SettingsFootnote("Run ▸ Exact Matrix-Analytic QBD. \(DualEngineMethod.matrixAnalyticQBD.measuredSpeedup); the gap widens as the fourth power of the phase count, so the choice matters most on the models that take longest.")
+            }
+
+            Section {
+                engineRow(.truncatedCTMC, selection: $settings.engineCTMC)
+            } header: {
+                Text("Markovian CTMC")
+            } footer: {
+                SettingsFootnote("One choice for two solvers: Run ▸ Adaptive Truncated CTMC and Run ▸ Exact Sparse CTMC share a power-iteration kernel, so they share this setting. \(DualEngineMethod.truncatedCTMC.measuredSpeedup).")
+            }
+
+            Section {
+                SettingsFootnote(
+                    "These are two implementations of one algorithm, not two methods. "
+                    + "Each C engine was written to reproduce its Python counterpart's "
+                    + "arithmetic operation by operation, and each ships a parity test that "
+                    + "runs both on every packaged example and compares the output."
+                )
+                .settingsAnchor("engine.parity", label: "Why there are two")
+                SettingsFootnote(
+                    "What is verified: the report each method prints is byte-identical "
+                    + "between engines, and so is every refusal message for an invalid "
+                    + "document. Two known exceptions, both measured: confidence-interval "
+                    + "bounds in the 17-digit machine records agree to about 1e-12 rather "
+                    + "than exactly, because Python ships its own lgamma; and a "
+                    + "simulation stopped by its wall-clock safeguard stops at a different "
+                    + "cycle in each engine, because one of them is 250 times faster."
+                )
+                SettingsFootnote(
+                    "If the selected engine is not installed — a source checkout that has "
+                    + "not run build_all_algorithms.sh, say — the other one runs and the "
+                    + "Status pane says so. A missing binary never turns into a method you "
+                    + "cannot run."
+                )
+            } header: {
+                Text("Why There Are Two")
             }
         }
     }

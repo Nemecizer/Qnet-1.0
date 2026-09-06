@@ -28,7 +28,10 @@ swift run Qnet --version        # -> "Qnet 0.90.34", no GUI
 ./verify_source_package.sh      # full gate: both build paths + signature + bundle audit +
                                 #   RQNA self-test + all 35 packaged RQNA examples
 
-validation/steady_state_suite.sh   # the regression suite (Python unit tests + all contracts)
+validation/steady_state_suite.sh   # the regression suite (Python unit tests, the four
+                                #   engine-parity comparisons, and all contracts)
+make -C common test                # the shared C headers (JSON, CPython RNG, exact sum)
+make -C infinite/BNArmc parity     # one method's two engines, compared
 validation/design_lint.sh          # DS token lint; build_app.sh runs it first and aborts on failure
 ```
 
@@ -52,7 +55,14 @@ useful for driving a network without the GUI: `--dump-help <method>`,
 
 ### Toolchain caveat on this Mac
 
-A bare `swift run` can fail with a compiler/SDK mismatch diagnostic. Every build
+A bare `swift run` can fail with a compiler/SDK mismatch diagnostic. It can
+also fail with `module '_DarwinFoundation1' is defined in both …` — that one is
+not an SDK problem at all: `~/Dropbox` is a symlink to
+`~/Library/CloudStorage/Dropbox`, so building through both spellings poisons the
+module cache with two names for one file, and the SDK probe then segfaults and
+misreports the cause. Every build script now resolves its root with `pwd -P`;
+if a stale cache is already poisoned, `find .build -type d \( -name ModuleCache
+-o -name module-cache \) -exec rm -rf {} +` clears it. Every build
 script (and `run_qnet.sh`) probes for that and falls back to
 `SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk` plus
 project-local module caches under `.build/module-cache`. Inside a managed runner
@@ -90,6 +100,54 @@ Method availability shown in the UI comes from `MethodChooserView` +
 `AnalyticalTractability` (is this network in the method's domain?) and
 `StartupDependencyChecker` (is the binary/interpreter/module actually present?).
 Those are separate questions and are reported separately.
+
+### Two engines for one method
+
+Four solvers ship a C engine beside their original Python one, and
+`Settings ▸ Solvers ▸ Solver Engine` chooses between them per method:
+
+| Method | Python | C | Measured |
+|---|---|---|---|
+| Regenerative Monte Carlo | `infinite/BNArmc/regenerative_mc.py` | `bna_rmc` | 252× |
+| Exact Matrix-Analytic QBD | `infinite/BNAqbd/qbd_solver.py` | `bna_qbd` | 16× |
+| Adaptive Truncated CTMC | `infinite/BNAtc/truncated_ctmc.py` | `bna_tc` | 21× |
+| Exact Sparse CTMC | `finite/fBNAgc/solver.py` | `fbna_gc` | 78× |
+
+The last two share one setting (`engine.ctmc`) because they share a
+power-iteration kernel.
+
+**These are not two algorithms.** Each C engine was written to reproduce its
+Python counterpart's arithmetic operation by operation, and each directory has a
+`tests/test_engine_parity.sh` that runs both on every packaged example, on a
+dimension sweep, and on one malformed document per validation rule, then
+compares the output. `make -C <dir> check` runs it; the suite runs all four.
+The contracts differ slightly and each script states its own precisely — QBD and
+fBNAgc are byte-identical with no exceptions; BNAtc is byte-identical for a
+document that solves and matches code and message for one that is refused;
+BNArmc is byte-identical in the report, with the confidence-interval fields in
+the machine records agreeing to 1e-12 because CPython ships its own `lgamma`.
+
+What that fidelity costs is worth knowing before optimising anything: where the
+Python uses `math.fsum`, the C engine uses `common/bnet_fsum.h` (Shewchuk exact
+summation, the same algorithm CPython implements), which is about 23× slower
+than naive accumulation. That is why the QBD engine gains 16× and the finite
+CTMC — which uses no `fsum` at all — gains 78×. Three build flags and one
+habit hold the line: `-ffp-contract=off` in every engine Makefile (clang fuses
+`a*b + c` into an FMA by default and CPython never does), `bnet_fsum` where and
+only where the Python uses `fsum`, and the same iteration order everywhere,
+because plain accumulation is order-dependent.
+
+Shared C headers live in `common/` and have their own tests (`make -C common
+test`): `bnet_json.h` (a strict dependency-free JSON reader — cJSON was rejected
+because it is a Homebrew dependency and these methods must not be optional),
+`bnet_pyrandom.h` (CPython's `random.Random` stream, so BNArmc's two engines
+draw the same random numbers), and `bnet_fsum.h`.
+
+`QnetGUIApp.resolveEngine(for:preferred:pythonScript:pythonSubdirectory:)` is
+the only place the setting is read. An engine that cannot be resolved falls back
+to the other one and puts a note in the Status pane;
+`validation/gui_runtime_contracts.sh` pins the call count and forbids reading
+the setting anywhere else.
 
 ### Solver tree
 

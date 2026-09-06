@@ -2199,17 +2199,28 @@ struct QnetGUIApp: App {
     /// Python solver enumerates only reachable ordered-FCFS states and stops
     /// at its state limit rather than silently truncating the chain.
     private func runGenericCTMC() {
-        let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "solver.py", subdirectory: "fBNAgc", groups: ["finite"]
-        )
-        guard let solver = lookup.url,
-              let python = lookup.resolution?.runtimeExecutableURL else {
+        // Two engines, one method: `fbna_gc` (C) and `solver.py`. The Settings
+        // row is shared with the adaptive truncated CTMC, which runs the same
+        // power-iteration kernel.
+        let resolvedEngine: ResolvedEngine
+        switch resolveEngine(
+            for: .finiteGenericCTMC,
+            preferred: SolverEngine(storedValue: appSettings.engineCTMC),
+            pythonScript: "solver.py",
+            pythonSubdirectory: "fBNAgc"
+        ) {
+        case .failure(let unavailable):
             reportBlocked(
                 "Exact sparse CTMC aborted: Python solver runtime unavailable.",
-                detail: lookup.actionableDiagnostic,
+                detail: unavailable.diagnostic,
                 on: activeEditor
             )
             return
+        case .success(let resolved):
+            resolvedEngine = resolved
+        }
+        if let note = resolvedEngine.note {
+            activeEditor.addStatus(note, severity: .warning)
         }
         switch FiniteMarkovExporter.genericCTMC(
             editor: activeEditor, name: activeTabTitle
@@ -2232,9 +2243,9 @@ struct QnetGUIApp: App {
                 )
                 return
             }
-            let solve = "\(shellQuote(python.path)) -B \(shellQuote(solver.path)) \(shellQuote(inputFile.path)) --top-states 0"
+            let solve = "\(resolvedEngine.launchPrefix) \(shellQuote(inputFile.path)) --top-states 0"
             let command = withSpinner(
-                prefix: "Solving exact CTMC ...  ",
+                prefix: "Solving exact CTMC (\(resolvedEngine.engine.title)) ...  ",
                 command: commandWithCleanup(solve, paths: [inputFile.path])
             )
             if runScript(
@@ -2245,11 +2256,13 @@ struct QnetGUIApp: App {
                     "service discipline": "FCFS",
                     "max reachable states": "200000",
                     "stationary tolerance": "1e-12",
-                    "runtime": lookup.resolution?.provenanceDescription ?? "unknown"
+                    "engine": resolvedEngine.engine.title,
+                    "runtime": resolvedEngine.provenance
                 ]
             ) {
                 activeEditor.addStatus(
-                    "Running exact sparse CTMC (queue process, loss on full).",
+                    "Running exact sparse CTMC on the \(resolvedEngine.engine.descriptiveName) "
+                    + "(queue process, loss on full).",
                     severity: .info
                 )
             } else {
@@ -2395,17 +2408,28 @@ struct QnetGUIApp: App {
     /// QBD subclass represented by one open M/M/1 station. Station feedback
     /// remains exact because only non-feedback completions lower the level.
     private func runQBD() {
-        let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "qbd_solver.py", subdirectory: "BNAqbd", groups: ["infinite"]
-        )
-        guard let solver = lookup.url,
-              let python = lookup.resolution?.runtimeExecutableURL else {
+        // Two engines, one method: `bna_qbd` (C) and `qbd_solver.py`. This
+        // method is deterministic, so their output is byte-identical with no
+        // exceptions; the choice is only how long the wait is.
+        let resolvedEngine: ResolvedEngine
+        switch resolveEngine(
+            for: .matrixAnalyticQBD,
+            preferred: SolverEngine(storedValue: appSettings.engineQBD),
+            pythonScript: "qbd_solver.py",
+            pythonSubdirectory: "BNAqbd"
+        ) {
+        case .failure(let unavailable):
             reportBlocked(
                 "Exact QBD aborted: solver support is unavailable.",
-                detail: lookup.actionableDiagnostic,
+                detail: unavailable.diagnostic,
                 on: activeEditor
             )
             return
+        case .success(let resolved):
+            resolvedEngine = resolved
+        }
+        if let note = resolvedEngine.note {
+            activeEditor.addStatus(note, severity: .warning)
         }
         switch QBDExporter.export(editor: activeEditor, name: activeTabTitle) {
         case .failure(let error):
@@ -2426,9 +2450,9 @@ struct QnetGUIApp: App {
                 )
                 return
             }
-            let solve = "\(shellQuote(python.path)) -B \(shellQuote(solver.path)) \(shellQuote(inputFile.path)) --human"
+            let solve = "\(resolvedEngine.launchPrefix) \(shellQuote(inputFile.path)) --human"
             let command = withSpinner(
-                prefix: "Solving exact matrix-analytic QBD ...  ",
+                prefix: "Solving exact matrix-analytic QBD (\(resolvedEngine.engine.title)) ...  ",
                 command: commandWithCleanup(solve, paths: [inputFile.path])
             )
             if runScript(
@@ -2439,11 +2463,13 @@ struct QnetGUIApp: App {
                     "queue": "one-station M/M/1 with optional feedback",
                     "algorithm": "minimal nonnegative matrix-geometric rate",
                     "maximum iterations": "100000",
-                    "runtime": lookup.resolution?.provenanceDescription ?? "unknown"
+                    "engine": resolvedEngine.engine.title,
+                    "runtime": resolvedEngine.provenance
                 ]
             ) {
                 activeEditor.addStatus(
-                    "Running exact matrix-analytic QBD solution.",
+                    "Running exact matrix-analytic QBD solution on the "
+                    + "\(resolvedEngine.engine.descriptiveName).",
                     severity: .info
                 )
             } else {
@@ -2465,17 +2491,28 @@ struct QnetGUIApp: App {
             )
             return
         }
-        let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "truncated_ctmc.py", subdirectory: "BNAtc"
-        )
-        guard let solver = lookup.url,
-              let python = lookup.resolution?.runtimeExecutableURL else {
+        // Two engines, one method: `bna_tc` (C) and `truncated_ctmc.py`. The
+        // Settings row is shared with the finite Exact Sparse CTMC, which runs
+        // the same kernel.
+        let resolvedEngine: ResolvedEngine
+        switch resolveEngine(
+            for: .truncatedCTMC,
+            preferred: SolverEngine(storedValue: appSettings.engineCTMC),
+            pythonScript: "truncated_ctmc.py",
+            pythonSubdirectory: "BNAtc"
+        ) {
+        case .failure(let unavailable):
             reportBlocked(
                 "Adaptive truncated CTMC aborted: solver not found.",
-                detail: lookup.actionableDiagnostic,
+                detail: unavailable.diagnostic,
                 on: activeEditor
             )
             return
+        case .success(let resolved):
+            resolvedEngine = resolved
+        }
+        if let note = resolvedEngine.note {
+            activeEditor.addStatus(note, severity: .warning)
         }
         switch FiniteMarkovExporter.truncatedInfiniteCTMC(
             editor: activeEditor, name: activeTabTitle
@@ -2498,9 +2535,9 @@ struct QnetGUIApp: App {
                 )
                 return
             }
-            let solve = "\(shellQuote(python.path)) -B \(shellQuote(solver.path)) \(shellQuote(inputFile.path)) --human"
+            let solve = "\(resolvedEngine.launchPrefix) \(shellQuote(inputFile.path)) --human"
             let command = withSpinner(
-                prefix: "Solving adaptive truncated CTMC ...  ",
+                prefix: "Solving adaptive truncated CTMC (\(resolvedEngine.engine.title)) ...  ",
                 command: commandWithCleanup(solve, paths: [inputFile.path])
             )
             if runScript(
@@ -2514,11 +2551,13 @@ struct QnetGUIApp: App {
                     "boundary mass tolerance": "1e-8",
                     "successive refinement tolerance": "1e-7",
                     "truncation evidence": "heuristic",
-                    "runtime": lookup.resolution?.provenanceDescription ?? "unknown"
+                    "engine": resolvedEngine.engine.title,
+                    "runtime": resolvedEngine.provenance
                 ]
             ) {
                 activeEditor.addStatus(
-                    "Running adaptive truncated CTMC (queue process; heuristic truncation diagnostics).",
+                    "Running adaptive truncated CTMC on the \(resolvedEngine.engine.descriptiveName) "
+                    + "(queue process; heuristic truncation diagnostics).",
                     severity: .info
                 )
             } else {
@@ -2556,17 +2595,30 @@ struct QnetGUIApp: App {
     /// process simulation. The form records a fixed-width stopping contract
     /// and a reproducible 64-bit seed/stream pair in result provenance.
     private func runRegenerativeMonteCarlo() {
-        let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
-            name: "regenerative_mc.py", subdirectory: "BNArmc"
+        // Two engines, one method: `bna_rmc` (C) and `regenerative_mc.py`. They
+        // draw the same random stream and print the same report, so this picks
+        // the wait, not the answer. See `resolveEngine(for:...)` for what
+        // happens when the chosen one is not installed.
+        let engineChoice: Result<ResolvedEngine, SolverEngineUnavailable> = resolveEngine(
+            for: .regenerativeMonteCarlo,
+            preferred: SolverEngine(storedValue: appSettings.engineRegenerative),
+            pythonScript: "regenerative_mc.py",
+            pythonSubdirectory: "BNArmc"
         )
-        guard let solver = lookup.url,
-              let python = lookup.resolution?.runtimeExecutableURL else {
+        let resolvedEngine: ResolvedEngine
+        switch engineChoice {
+        case .failure(let unavailable):
             reportBlocked(
                 "Regenerative Monte Carlo aborted: simulator not found.",
-                detail: lookup.actionableDiagnostic,
+                detail: unavailable.diagnostic,
                 on: activeEditor
             )
             return
+        case .success(let resolved):
+            resolvedEngine = resolved
+        }
+        if let note = resolvedEngine.note {
+            activeEditor.addStatus(note, severity: .warning)
         }
         presentRunParameters(
             .regenerativeMonteCarlo(
@@ -2644,9 +2696,9 @@ struct QnetGUIApp: App {
                     )
                     return
                 }
-                let solve = "\(shellQuote(python.path)) -B \(shellQuote(solver.path)) \(shellQuote(inputFile.path))"
+                let solve = "\(resolvedEngine.launchPrefix) \(shellQuote(inputFile.path))"
                 let command = withSpinner(
-                    prefix: "Running regenerative simulation ...  ",
+                    prefix: "Running regenerative simulation (\(resolvedEngine.engine.title)) ...  ",
                     command: commandWithCleanup(solve, paths: [inputFile.path])
                 )
                 var parameters = [
@@ -2661,7 +2713,8 @@ struct QnetGUIApp: App {
                     "stream": stream.description,
                     "IID unit": "complete empty-to-empty cycle",
                     "interval": "asymptotic regenerative-ratio t",
-                    "runtime": lookup.resolution?.provenanceDescription ?? "unknown"
+                    "engine": resolvedEngine.engine.title,
+                    "runtime": resolvedEngine.provenance
                 ]
                 if let emptyProbability {
                     parameters["estimated empty-system probability"] = emptyProbability.description
@@ -2673,7 +2726,8 @@ struct QnetGUIApp: App {
                     seed: seed
                 ) {
                     activeEditor.addStatus(
-                        "Running regenerative Monte Carlo (seed \(seed), stream \(stream)).",
+                        "Running regenerative Monte Carlo on the \(resolvedEngine.engine.descriptiveName) "
+                        + "(seed \(seed), stream \(stream)).",
                         severity: .info
                     )
                 } else {
@@ -5085,6 +5139,78 @@ struct QnetGUIApp: App {
     /// about embedded quotes / backslashes / newlines.
     private func shellQuote(_ s: String) -> String {
         "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'"
+    }
+
+    /// Settles which engine a dual-engine method will run, and returns the
+    /// command prefix for it.
+    ///
+    /// Three methods ship a C engine beside the original Python one and the
+    /// user picks per method in Settings ▸ Solvers ▸ Solver Engine. This is the
+    /// single place that choice is honoured; a new dual-engine method must come
+    /// through here rather than reading the setting itself, so that the
+    /// fallback below cannot be forgotten in one place out of four.
+    ///
+    /// THE FALLBACK IS THE POINT. A source checkout that has not run
+    /// `build_all_algorithms.sh` has no `bna_rmc`, and a user who has selected
+    /// the C engine must still be able to run the method — with an explanation,
+    /// not with a "solver not found" dead end. So an unresolvable engine falls
+    /// back to the other one and returns a `note` the caller puts in the Status
+    /// pane. Only when NEITHER resolves is the run refused, and then the
+    /// diagnostic names both attempts.
+    private func resolveEngine(
+        for method: DualEngineMethod,
+        preferred: SolverEngine,
+        pythonScript: String,
+        pythonSubdirectory: String
+    ) -> Result<ResolvedEngine, SolverEngineUnavailable> {
+        let native = method.nativeExecutable
+
+        func resolveC() -> (prefix: String, provenance: String)? {
+            let lookup = SolverRuntimeResolver.shared.resolveExecutable(
+                name: native.name, subdirectory: native.subdirectory, groups: native.groups
+            )
+            guard let url = lookup.url else { return nil }
+            return (shellQuote(url.path), lookup.resolution?.provenanceDescription ?? "unknown")
+        }
+
+        func resolvePython() -> (prefix: String, provenance: String)? {
+            let lookup = SolverRuntimeResolver.shared.resolvePythonSupportFile(
+                name: pythonScript, subdirectory: pythonSubdirectory
+            )
+            guard let url = lookup.url,
+                  let interpreter = lookup.resolution?.runtimeExecutableURL else { return nil }
+            return ("\(shellQuote(interpreter.path)) -B \(shellQuote(url.path))",
+                    lookup.resolution?.provenanceDescription ?? "unknown")
+        }
+
+        let resolveChosen  = preferred == .c ? resolveC : resolvePython
+        let resolveOther   = preferred == .c ? resolvePython : resolveC
+
+        if let chosen = resolveChosen() {
+            return .success(ResolvedEngine(
+                engine: preferred,
+                launchPrefix: chosen.prefix,
+                provenance: "\(preferred.descriptiveName); \(chosen.provenance)",
+                note: nil
+            ))
+        }
+        if let other = resolveOther() {
+            let fallback = preferred.other
+            return .success(ResolvedEngine(
+                engine: fallback,
+                launchPrefix: other.prefix,
+                provenance: "\(fallback.descriptiveName) (fallback); \(other.provenance)",
+                note: "\(method.displayName): the \(preferred.descriptiveName) is not available in "
+                    + "this installation, so the \(fallback.descriptiveName) ran instead. The two "
+                    + "produce the same result; only the run time differs. Settings ▸ Solvers ▸ "
+                    + "Solver Engine chooses."
+            ))
+        }
+        return .failure(SolverEngineUnavailable(diagnostic:
+            "Neither engine for \(method.displayName) could be resolved: no loadable "
+            + "\(native.name) and no runnable \(pythonScript). Rebuild the solvers with "
+            + "./build_all_algorithms.sh, or reinstall the application."
+        ))
     }
 
     /// Runs a solver in an isolated shell that always removes its exported

@@ -3,7 +3,17 @@
 
 set -euo pipefail
 
-VERIFY_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Physical paths, not the ones the caller happened to type.
+#
+# A directory reached through a symlink has two spellings, and Clang records the
+# spelling it SAW in each module-cache entry. Build once through
+# ~/Library/CloudStorage/Dropbox/... and once through ~/Dropbox/... -- the same
+# directory, because macOS makes the second a symlink to the first -- and the
+# next compile fails with "module '_DarwinFoundation1' is defined in both", then
+# the SDK probe below segfaults and reports a compiler/SDK mismatch that does
+# not exist. `pwd -P` collapses the two spellings to one so the cache has a
+# single name for each module.
+VERIFY_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$VERIFY_ROOT"
 
 fail() {

@@ -35,9 +35,19 @@ set -euo pipefail
 # ───────────────────────────────────────────────────────────────────
 # Locate project root (this script lives at the project root).
 # ───────────────────────────────────────────────────────────────────
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Physical paths, not the ones the caller happened to type.
+#
+# A directory reached through a symlink has two spellings, and Clang records the
+# spelling it SAW in each module-cache entry. Build once through
+# ~/Library/CloudStorage/Dropbox/... and once through ~/Dropbox/... -- the same
+# directory, because macOS makes the second a symlink to the first -- and the
+# next compile fails with "module '_DarwinFoundation1' is defined in both", then
+# the SDK probe below segfaults and reports a compiler/SDK mismatch that does
+# not exist. `pwd -P` collapses the two spellings to one so the cache has a
+# single name for each module.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$SCRIPT_DIR"
-PROJECT_ROOT="$(pwd)"
+PROJECT_ROOT="$(pwd -P)"   # physical, for the reason above
 
 # SwiftPM target name (matches Package.swift) — produces .build/release/Qnet.
 SWIFT_TARGET="Qnet"
@@ -181,6 +191,14 @@ REQUIRED_C_TARGETS=(
     "finite/fBNAlp:fBNAlp_solver"
     "finite/fBNAsim:fBNAsim"
     "finite/fBNAsm:srbm_solver"
+    # The C engines for the three dual-engine methods. Required, not optional:
+    # Settings > Solvers > Solver Engine defaults to the C engine, and a release
+    # missing them would fall back to Python everywhere and silently be the slow
+    # build. The fallback exists for a source checkout, not for a shipped app.
+    "infinite/BNArmc:bna_rmc"
+    "infinite/BNAqbd:bna_qbd"
+    "infinite/BNAtc:bna_tc"
+    "finite/fBNAgc:fbna_gc"
 )
 
 # Experimental helpers may be absent when their research dependencies are not
