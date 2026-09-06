@@ -523,7 +523,7 @@ enum SettingsRegistry {
             E("engine.regenerative", .solverEngine, "Regenerative Monte Carlo", "Engine", ["engine", "c", "python", "native", "speed", "fast", "simulation", "regenerative", "monte carlo"]),
             E("engine.qbd", .solverEngine, "Exact Matrix-Analytic QBD", "Engine", ["engine", "c", "python", "native", "speed", "fast", "qbd", "matrix", "analytic", "phase"]),
             E("engine.ctmc", .solverEngine, "Markovian CTMC", "Engine", ["engine", "c", "python", "native", "speed", "fast", "ctmc", "truncated", "markov", "generic"]),
-            E("engine.parity", .solverEngine, "Why there are two", "Parity", ["parity", "identical", "reference", "verification", "same", "answer"], keys: []),
+            E("engine.parity", .solverEngine, "Why There Are Two", "How the engines are kept identical", ["parity", "identical", "reference", "verification", "same", "answer", "byte", "test"], keys: []),
 
             // Discrete-event simulation
             E("sim.parallel", .simulation, "Execution", "Parallelisation", ["gcd", "openmp", "sequential", "threads", "parallel", "simulation"]),
@@ -1999,7 +1999,7 @@ private struct SolverEnginePane: View {
                     + "arithmetic operation by operation, and each ships a parity test that "
                     + "runs both on every packaged example and compares the output."
                 )
-                .settingsAnchor("engine.parity", label: "Why there are two")
+                .settingsAnchor("engine.parity", label: "How the engines are kept identical")
                 SettingsFootnote(
                     "What is verified: the report each method prints is byte-identical "
                     + "between engines, and so is every refusal message for an invalid "
